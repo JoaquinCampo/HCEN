@@ -1,0 +1,19 @@
+# Maven build directories and artifacts
+target/
+
+# Java compiled classes and build artifacts
+*.class
+*.jar
+*.war
+*.ear
+
+# OS generated files (macOS)
+.DS_Store
+
+# IDE files (add as needed)
+.idea/
+*.iml
+*.ipr
+
+# Logs
+*.log
