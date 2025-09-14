@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @WebServlet(name = "FindClinicalDocumentsServlet", urlPatterns = "/documents/search")
 public class FindClinicalDocumentsServlet extends HttpServlet {
@@ -31,11 +30,22 @@ public class FindClinicalDocumentsServlet extends HttpServlet {
     req.setAttribute("scope", scope);
 
         if (q != null && !q.isBlank()) {
-            String needle = q.trim().toLowerCase();
-            List<ClinicalDocument> filtered = docService.getAllDocuments().stream()
-                .filter(d -> matchesScope(d, scope, needle))
-                .collect(Collectors.toList());
-            req.setAttribute("documents", filtered);
+            List<ClinicalDocument> results;
+            switch (scope) {
+                case "patient":
+                    results = docService.searchByPatientName(q);
+                    break;
+                case "author":
+                    results = docService.searchByAuthorName(q);
+                    break;
+                case "provider":
+                    results = docService.searchByProviderName(q);
+                    break;
+                case "all":
+                default:
+                    results = docService.searchByAnyName(q);
+            }
+            req.setAttribute("documents", results);
         }
 
         req.getRequestDispatcher("/WEB-INF/jsp/ClinicalDocuments/document-find.jsp").forward(req, resp);
@@ -47,39 +57,5 @@ public class FindClinicalDocumentsServlet extends HttpServlet {
         doGet(req, resp);
     }
 
-    private static boolean matchesScope(ClinicalDocument d, String scope, String needle) {
-        switch (scope) {
-            case "patient":
-                return d.getPatient() != null && nameContains(
-                        d.getPatient().getFirstName(), d.getPatient().getLastName(), needle);
-            case "author":
-                return d.getAuthor() != null && nameContains(
-                        d.getAuthor().getFirstName(), d.getAuthor().getLastName(), needle);
-            case "provider":
-                return d.getProvider() != null && containsIgnoreCase(d.getProvider().getName(), needle);
-            case "all":
-                return (d.getPatient() != null && nameContains(d.getPatient().getFirstName(), d.getPatient().getLastName(), needle))
-                    || (d.getAuthor() != null && nameContains(d.getAuthor().getFirstName(), d.getAuthor().getLastName(), needle))
-                    || (d.getProvider() != null && containsIgnoreCase(d.getProvider().getName(), needle));
-            default:
-                return false;
-        }
-    }
-
-    private static boolean nameContains(String first, String last, String needle) {
-        String f = safeLower(first);
-        String l = safeLower(last);
-        // check individual and common full-name variants
-        return (f.contains(needle) || l.contains(needle)
-                || (l + ", " + f).contains(needle)
-                || (f + " " + l).contains(needle));
-    }
-
-    private static boolean containsIgnoreCase(String value, String needle) {
-        return safeLower(value).contains(needle);
-    }
-
-    private static String safeLower(String s) {
-        return s == null ? "" : s.toLowerCase();
-    }
+    // No need for in-web filtering helpers anymore; repository/service handle it
 }

@@ -56,6 +56,27 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
         return repository.findByProviderId(providerId);
     }
 
+    // --- Name-based search delegations ---
+    @Override
+    public List<ClinicalDocument> searchByPatientName(String query) {
+        return repository.findByPatientName(query);
+    }
+
+    @Override
+    public List<ClinicalDocument> searchByAuthorName(String query) {
+        return repository.findByAuthorName(query);
+    }
+
+    @Override
+    public List<ClinicalDocument> searchByProviderName(String query) {
+        return repository.findByProviderName(query);
+    }
+
+    @Override
+    public List<ClinicalDocument> searchByAnyName(String query) {
+        return repository.findByAnyName(query);
+    }
+
     private void validate(ClinicalDocument doc) {
         if (doc == null) {
             throw new ValidationException("ClinicalDocument must not be null");

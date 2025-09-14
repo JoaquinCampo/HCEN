@@ -12,4 +12,10 @@ public interface ClinicalDocumentRepositoryLocal {
     List<ClinicalDocument> findByPatientId(String userId);
     List<ClinicalDocument> findByAuthorId(String healthWorkerId);
     List<ClinicalDocument> findByProviderId(String providerId);
+
+    // New: name-based searches
+    List<ClinicalDocument> findByPatientName(String query);
+    List<ClinicalDocument> findByAuthorName(String query);
+    List<ClinicalDocument> findByProviderName(String query);
+    List<ClinicalDocument> findByAnyName(String query);
 }
