@@ -55,5 +55,3 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
         return value == null || value.trim().isEmpty();
     }
 }
-
-

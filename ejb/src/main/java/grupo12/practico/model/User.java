@@ -18,6 +18,8 @@ public class User {
     private String address;
 
     private Set<HealthWorker> healthWorkers = new HashSet<>();
+    private Set<HealthProvider> attendedHealthProviders = new HashSet<>();
+    private Set<HealthProvider> affiliatedHealthProviders = new HashSet<>();
 
     public User() {
         this.id = UUID.randomUUID().toString();
@@ -99,6 +101,23 @@ public class User {
         return healthWorkers;
     }
 
+    public Set<HealthProvider> getAttendedHealthProviders() {
+        return attendedHealthProviders;
+    }
+
+    public void setAttendedHealthProviders(Set<HealthProvider> attendedHealthProviders) {
+        this.attendedHealthProviders = attendedHealthProviders != null ? attendedHealthProviders : new HashSet<>();
+    }
+
+    public Set<HealthProvider> getAffiliatedHealthProviders() {
+        return affiliatedHealthProviders;
+    }
+
+    public void setAffiliatedHealthProviders(Set<HealthProvider> affiliatedHealthProviders) {
+        this.affiliatedHealthProviders = affiliatedHealthProviders != null ? affiliatedHealthProviders
+                : new HashSet<>();
+    }
+
     public void addHealthWorker(HealthWorker healthWorker) {
         if (healthWorker == null) {
             return;
@@ -114,6 +133,24 @@ public class User {
         }
         if (this.healthWorkers.remove(healthWorker)) {
             healthWorker.removePatient(this);
+        }
+    }
+
+    public void addAttendedHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.attendedHealthProviders.add(healthProvider)) {
+            healthProvider.addAttendedPatient(this);
+        }
+    }
+
+    public void addAffiliatedHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.affiliatedHealthProviders.add(healthProvider)) {
+            healthProvider.addAffiliatedPatient(this);
         }
     }
 

@@ -39,10 +39,9 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
         }
         String normalized = name.trim().toLowerCase(Locale.ROOT);
         return healthWorkers.stream()
-                .filter(hw ->
-                        (hw.getFirstName() != null && hw.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
-                        (hw.getLastName() != null && hw.getLastName().toLowerCase(Locale.ROOT).contains(normalized))
-                )
+                .filter(hw -> (hw.getFirstName() != null
+                        && hw.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
+                        (hw.getLastName() != null && hw.getLastName().toLowerCase(Locale.ROOT).contains(normalized)))
                 .collect(Collectors.toList());
     }
 
@@ -56,5 +55,3 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
                 .collect(Collectors.toList());
     }
 }
-
-
