@@ -1,4 +1,4 @@
-package grupo12.practico.web;
+package grupo12.practico.web.clinicaldocuments;
 
 import grupo12.practico.service.document.ClinicalDocumentServiceLocal;
 import jakarta.ejb.EJB;
@@ -18,6 +18,6 @@ public class ListClinicalDocumentsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("documents", docService.getAllDocuments());
-        req.getRequestDispatcher("/WEB-INF/jsp/document-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/ClinicalDocuments/document-list.jsp").forward(req, resp);
     }
 }

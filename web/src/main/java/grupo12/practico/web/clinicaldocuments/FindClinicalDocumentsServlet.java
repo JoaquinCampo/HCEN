@@ -1,4 +1,4 @@
-package grupo12.practico.web;
+package grupo12.practico.web.clinicaldocuments;
 
 import grupo12.practico.service.document.ClinicalDocumentServiceLocal;
 import jakarta.ejb.EJB;
@@ -9,15 +9,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet(name = "SearchClinicalDocumentsServlet", urlPatterns = "/documents/search")
-public class SearchClinicalDocumentsServlet extends HttpServlet {
+@WebServlet(name = "FindClinicalDocumentsServlet", urlPatterns = "/documents/search")
+public class FindClinicalDocumentsServlet extends HttpServlet {
 
     @EJB
     private ClinicalDocumentServiceLocal docService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/WEB-INF/jsp/document-search.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/ClinicalDocuments/document-find.jsp").forward(req, resp);
     }
 
     @Override
@@ -37,6 +37,6 @@ public class SearchClinicalDocumentsServlet extends HttpServlet {
             req.setAttribute("documents", docService.getAllDocuments());
         }
 
-        req.getRequestDispatcher("/WEB-INF/jsp/document-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/ClinicalDocuments/document-list.jsp").forward(req, resp);
     }
 }

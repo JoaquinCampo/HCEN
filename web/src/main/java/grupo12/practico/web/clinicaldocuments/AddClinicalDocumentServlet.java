@@ -1,4 +1,4 @@
-package grupo12.practico.web;
+package grupo12.practico.web.clinicaldocuments;
 
 import grupo12.practico.model.ClinicalDocument;
 import grupo12.practico.model.HealthProvider;
@@ -31,7 +31,7 @@ public class AddClinicalDocumentServlet extends HttpServlet {
         req.setAttribute("users", userService.getAllUsers());
         req.setAttribute("healthWorkers", hwService.getAllHealthWorkers());
         req.setAttribute("healthProviders", hpService.findAll());
-        req.getRequestDispatcher("/WEB-INF/jsp/document-form.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/ClinicalDocuments/document-form.jsp").forward(req, resp);
     }
 
     @Override
