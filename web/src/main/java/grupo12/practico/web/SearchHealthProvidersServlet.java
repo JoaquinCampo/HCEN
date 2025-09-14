@@ -21,10 +21,10 @@ public class SearchHealthProvidersServlet extends HttpServlet {
         String name = req.getParameter("name");
 
         if (name != null && !name.trim().isEmpty()) {
-            req.setAttribute("healthProviders", healthProviderService.searchHealthProvidersByName(name.trim()));
+            req.setAttribute("healthProviders", healthProviderService.findByName(name.trim()));
             req.setAttribute("searchName", name.trim());
         } else {
-            req.setAttribute("healthProviders", healthProviderService.getAllHealthProviders());
+            req.setAttribute("healthProviders", healthProviderService.findAll());
         }
 
         req.getRequestDispatcher("/WEB-INF/jsp/healthprovider-search.jsp").forward(req, resp);

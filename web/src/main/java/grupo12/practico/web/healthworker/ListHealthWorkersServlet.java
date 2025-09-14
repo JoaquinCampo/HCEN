@@ -1,4 +1,4 @@
-package grupo12.practico.web;
+package grupo12.practico.web.healthworker;
 
 import grupo12.practico.service.healthworker.HealthWorkerServiceLocal;
 import jakarta.ejb.EJB;
@@ -10,19 +10,15 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebServlet(name = "SearchHealthWorkersServlet", urlPatterns = "/healthworkers/search")
-public class SearchHealthWorkersServlet extends HttpServlet {
+@WebServlet(name = "ListHealthWorkersServlet", urlPatterns = "/healthworkers")
+public class ListHealthWorkersServlet extends HttpServlet {
 
     @EJB
     private HealthWorkerServiceLocal healthWorkerService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String name = req.getParameter("q");
-        if (name != null && !name.trim().isEmpty()) {
-            req.setAttribute("healthWorkers", healthWorkerService.findHealthWorkersByName(name.trim()));
-            req.setAttribute("q", name.trim());
-        }
-        req.getRequestDispatcher("/WEB-INF/jsp/healthworker-search.jsp").forward(req, resp);
+        req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
+        req.getRequestDispatcher("/WEB-INF/jsp/healthworker/healthworker-list.jsp").forward(req, resp);
     }
 }

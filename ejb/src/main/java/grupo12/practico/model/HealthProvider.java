@@ -90,10 +90,6 @@ public class HealthProvider {
         this.active = active;
     }
 
-    // =======================================================
-    // RELATIONSHIP GETTERS AND SETTERS
-    // =======================================================
-
     public Set<User> getAttendedPatients() {
         return attendedPatients;
     }
@@ -118,11 +114,6 @@ public class HealthProvider {
         this.healthWorkers = healthWorkers != null ? healthWorkers : new HashSet<>();
     }
 
-    // =======================================================
-    // BIDIRECTIONAL RELATIONSHIP MANAGEMENT METHODS
-    // =======================================================
-
-    // For attended patients relationship
     public void addAttendedPatient(User patient) {
         if (patient == null) {
             return;
@@ -132,16 +123,6 @@ public class HealthProvider {
         }
     }
 
-    public void removeAttendedPatient(User patient) {
-        if (patient == null) {
-            return;
-        }
-        if (this.attendedPatients.remove(patient)) {
-            patient.removeAttendedHealthProvider(this);
-        }
-    }
-
-    // For affiliated patients relationship
     public void addAffiliatedPatient(User patient) {
         if (patient == null) {
             return;
@@ -151,31 +132,12 @@ public class HealthProvider {
         }
     }
 
-    public void removeAffiliatedPatient(User patient) {
-        if (patient == null) {
-            return;
-        }
-        if (this.affiliatedPatients.remove(patient)) {
-            patient.removeAffiliatedHealthProvider(this);
-        }
-    }
-
-    // For health workers relationship
     public void addHealthWorker(HealthWorker healthWorker) {
         if (healthWorker == null) {
             return;
         }
         if (this.healthWorkers.add(healthWorker)) {
             healthWorker.addHealthProvider(this);
-        }
-    }
-
-    public void removeHealthWorker(HealthWorker healthWorker) {
-        if (healthWorker == null) {
-            return;
-        }
-        if (this.healthWorkers.remove(healthWorker)) {
-            healthWorker.removeHealthProvider(this);
         }
     }
 

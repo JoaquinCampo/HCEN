@@ -12,8 +12,6 @@ import jakarta.validation.ValidationException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Stateless
 @Local(UserServiceLocal.class)
@@ -40,17 +38,8 @@ public class UserServiceBean implements UserServiceRemote {
     }
 
     @Override
-    public List<User> searchUsersByName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return getAllUsers();
-        }
-        String normalized = name.trim().toLowerCase(Locale.ROOT);
-        return getAllUsers().stream()
-                .filter(u ->
-                        (u.getFirstName() != null && u.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
-                        (u.getLastName() != null && u.getLastName().toLowerCase(Locale.ROOT).contains(normalized))
-                )
-                .collect(Collectors.toList());
+    public List<User> findUsersByName(String name) {
+        return userRepository.findByName(name);
     }
 
     private void validateUser(User user) {
@@ -76,5 +65,3 @@ public class UserServiceBean implements UserServiceRemote {
         return value == null || value.trim().isEmpty();
     }
 }
-
-

@@ -9,11 +9,9 @@ import java.util.List;
 public interface HealthProviderServiceLocal {
     HealthProvider addHealthProvider(HealthProvider healthProvider);
 
-    List<HealthProvider> getAllHealthProviders();
+    List<HealthProvider> findAll();
 
-    HealthProvider getHealthProviderById(String id);
+    HealthProvider findById(String id);
 
-    List<HealthProvider> searchHealthProvidersByName(String name);
-
-    List<HealthProvider> getActiveHealthProviders();
+    List<HealthProvider> findByName(String name);
 }

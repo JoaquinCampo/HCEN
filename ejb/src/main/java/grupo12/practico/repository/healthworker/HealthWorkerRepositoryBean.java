@@ -8,6 +8,10 @@ import jakarta.ejb.Startup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 @Singleton
 @Startup
@@ -15,7 +19,7 @@ import java.util.List;
 @Remote(HealthWorkerRepositoryRemote.class)
 public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote {
 
-    private final List<HealthWorker> healthWorkers = new ArrayList<>();
+    private final Set<HealthWorker> healthWorkers = new HashSet<>();
 
     @Override
     public HealthWorker add(HealthWorker healthWorker) {
@@ -27,6 +31,27 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
     public List<HealthWorker> findAll() {
         return new ArrayList<>(healthWorkers);
     }
+
+    @Override
+    public List<HealthWorker> findByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return findAll();
+        }
+        String normalized = name.trim().toLowerCase(Locale.ROOT);
+        return healthWorkers.stream()
+                .filter(hw -> (hw.getFirstName() != null
+                        && hw.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
+                        (hw.getLastName() != null && hw.getLastName().toLowerCase(Locale.ROOT).contains(normalized)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HealthWorker> findById(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            return findAll();
+        }
+        return healthWorkers.stream()
+                .filter(hw -> hw.getId() != null && hw.getId().equals(id))
+                .collect(Collectors.toList());
+    }
 }
-
-

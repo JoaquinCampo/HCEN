@@ -11,6 +11,7 @@ public class HealthWorker {
     private String firstName;
     private String lastName;
     private String dni;
+    private Gender gender;
     private String specialty;
     private String licenseNumber;
     private LocalDate hireDate;
@@ -52,6 +53,14 @@ public class HealthWorker {
 
     public void setDni(String dni) {
         this.dni = dni;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
     public String getSpecialty() {
@@ -112,22 +121,12 @@ public class HealthWorker {
         }
     }
 
-    // HealthProvider relationship management methods
     public void addHealthProvider(HealthProvider healthProvider) {
         if (healthProvider == null) {
             return;
         }
         if (this.healthProviders.add(healthProvider)) {
             healthProvider.addHealthWorker(this);
-        }
-    }
-
-    public void removeHealthProvider(HealthProvider healthProvider) {
-        if (healthProvider == null) {
-            return;
-        }
-        if (this.healthProviders.remove(healthProvider)) {
-            healthProvider.removeHealthWorker(this);
         }
     }
 

@@ -8,9 +8,10 @@ import java.util.List;
 @Local
 public interface HealthWorkerServiceLocal {
     HealthWorker addHealthWorker(HealthWorker healthWorker);
+
     List<HealthWorker> getAllHealthWorkers();
-    List<HealthWorker> searchHealthWorkersByName(String name);
-    List<HealthWorker> searchHealthWorkersById(String id);
+
+    List<HealthWorker> findHealthWorkersByName(String name);
+
+    List<HealthWorker> findHealthWorkersById(String id);
 }
-
-

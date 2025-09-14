@@ -14,6 +14,4 @@ public interface HealthProviderRepositoryLocal {
     HealthProvider findById(String id);
 
     List<HealthProvider> findByName(String name);
-
-    List<HealthProvider> findActive();
 }

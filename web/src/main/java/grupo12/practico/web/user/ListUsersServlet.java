@@ -1,4 +1,4 @@
-package grupo12.practico.web;
+package grupo12.practico.web.user;
 
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -20,8 +20,6 @@ public class ListUsersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("users", userService.getAllUsers());
-        req.getRequestDispatcher("/WEB-INF/jsp/user-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/user/user-list.jsp").forward(req, resp);
     }
 }
-
-

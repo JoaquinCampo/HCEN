@@ -7,6 +7,10 @@ import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.HashSet;
 
 @Singleton
 @Startup
@@ -14,8 +18,7 @@ import java.util.ArrayList;
 @Remote(UserRepositoryRemote.class)
 public class UserRepositoryBean implements UserRepositoryRemote {
 
-    private final List<User> users = new ArrayList<>();
- 
+    private final Set<User> users = new HashSet<>();
 
     @Override
     public User add(User user) {
@@ -27,6 +30,17 @@ public class UserRepositoryBean implements UserRepositoryRemote {
     public List<User> findAll() {
         return new ArrayList<>(users);
     }
+
+    @Override
+    public List<User> findByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return findAll();
+        }
+        String normalized = name.trim().toLowerCase(Locale.ROOT);
+        return users.stream()
+                .filter(u -> (u.getFirstName() != null
+                        && u.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
+                        (u.getLastName() != null && u.getLastName().toLowerCase(Locale.ROOT).contains(normalized)))
+                .collect(Collectors.toList());
+    }
 }
-
-

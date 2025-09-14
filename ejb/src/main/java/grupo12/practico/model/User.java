@@ -136,7 +136,6 @@ public class User {
         }
     }
 
-    // HealthProvider relationship management methods
     public void addAttendedHealthProvider(HealthProvider healthProvider) {
         if (healthProvider == null) {
             return;
@@ -146,30 +145,12 @@ public class User {
         }
     }
 
-    public void removeAttendedHealthProvider(HealthProvider healthProvider) {
-        if (healthProvider == null) {
-            return;
-        }
-        if (this.attendedHealthProviders.remove(healthProvider)) {
-            healthProvider.removeAttendedPatient(this);
-        }
-    }
-
     public void addAffiliatedHealthProvider(HealthProvider healthProvider) {
         if (healthProvider == null) {
             return;
         }
         if (this.affiliatedHealthProviders.add(healthProvider)) {
             healthProvider.addAffiliatedPatient(this);
-        }
-    }
-
-    public void removeAffiliatedHealthProvider(HealthProvider healthProvider) {
-        if (healthProvider == null) {
-            return;
-        }
-        if (this.affiliatedHealthProviders.remove(healthProvider)) {
-            healthProvider.removeAffiliatedPatient(this);
         }
     }
 

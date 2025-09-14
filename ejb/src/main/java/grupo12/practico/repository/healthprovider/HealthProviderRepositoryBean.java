@@ -53,10 +53,4 @@ public class HealthProviderRepositoryBean implements HealthProviderRepositoryRem
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<HealthProvider> findActive() {
-        return healthProviders.stream()
-                .filter(HealthProvider::isActive)
-                .collect(Collectors.toList());
-    }
 }

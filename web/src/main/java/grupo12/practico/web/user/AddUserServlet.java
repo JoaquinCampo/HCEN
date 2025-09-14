@@ -1,4 +1,4 @@
-package grupo12.practico.web;
+package grupo12.practico.web.user;
 
 import grupo12.practico.model.Gender;
 import grupo12.practico.model.User;
@@ -28,7 +28,7 @@ public class AddUserServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("genders", Gender.values());
         req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
-        req.getRequestDispatcher("/WEB-INF/jsp/user-form.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class AddUserServlet extends HttpServlet {
             }
             if (healthWorkersParams != null && healthWorkersParams.length > 0) {
                 for (String healthWorkerParam : healthWorkersParams) {
-                    user.addHealthWorker(healthWorkerService.searchHealthWorkersById(healthWorkerParam).get(0));
+                    user.addHealthWorker(healthWorkerService.findHealthWorkersById(healthWorkerParam).get(0));
                 }
             }
 
@@ -68,13 +68,11 @@ public class AddUserServlet extends HttpServlet {
         } catch (ValidationException ex) {
             req.setAttribute("error", ex.getMessage());
             req.setAttribute("genders", Gender.values());
-            req.getRequestDispatcher("/WEB-INF/jsp/user-form.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
         } catch (Exception ex) {
             req.setAttribute("error", "Unexpected error: " + ex.getMessage());
             req.setAttribute("genders", Gender.values());
-            req.getRequestDispatcher("/WEB-INF/jsp/user-form.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
         }
     }
 }
-
-

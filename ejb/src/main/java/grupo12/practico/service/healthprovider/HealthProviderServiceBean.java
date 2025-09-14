@@ -10,8 +10,6 @@ import jakarta.validation.ValidationException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Stateless
 @Local(HealthProviderServiceLocal.class)
@@ -28,29 +26,18 @@ public class HealthProviderServiceBean implements HealthProviderServiceRemote {
     }
 
     @Override
-    public List<HealthProvider> getAllHealthProviders() {
+    public List<HealthProvider> findAll() {
         return repository.findAll();
     }
 
     @Override
-    public HealthProvider getHealthProviderById(String id) {
+    public HealthProvider findById(String id) {
         return repository.findById(id);
     }
 
     @Override
-    public List<HealthProvider> searchHealthProvidersByName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return getAllHealthProviders();
-        }
-        String normalized = name.trim().toLowerCase(Locale.ROOT);
-        return getAllHealthProviders().stream()
-                .filter(hp -> (hp.getName() != null && hp.getName().toLowerCase(Locale.ROOT).contains(normalized)))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<HealthProvider> getActiveHealthProviders() {
-        return repository.findActive();
+    public List<HealthProvider> findByName(String name) {
+        return repository.findByName(name);
     }
 
     private void validateHealthProvider(HealthProvider hp) {

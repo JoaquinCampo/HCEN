@@ -9,8 +9,6 @@ import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Stateless
 @Local(HealthWorkerServiceLocal.class)
@@ -32,29 +30,13 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
     }
 
     @Override
-    public List<HealthWorker> searchHealthWorkersByName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return getAllHealthWorkers();
-        }
-        String normalized = name.trim().toLowerCase(Locale.ROOT);
-        return getAllHealthWorkers().stream()
-                .filter(hw ->
-                        (hw.getFirstName() != null && hw.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
-                        (hw.getLastName() != null && hw.getLastName().toLowerCase(Locale.ROOT).contains(normalized))
-                )
-                .collect(Collectors.toList());
+    public List<HealthWorker> findHealthWorkersByName(String name) {
+        return repository.findByName(name);
     }
 
     @Override
-    public List<HealthWorker> searchHealthWorkersById(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            return getAllHealthWorkers();
-        }
-        return getAllHealthWorkers().stream()
-                .filter(hw ->
-                        (hw.getId() != null && hw.getId().equals(id))
-                )
-                .collect(Collectors.toList());
+    public List<HealthWorker> findHealthWorkersById(String id) {
+        return repository.findById(id);
     }
 
     private void validateHealthWorker(HealthWorker hw) {
@@ -73,5 +55,3 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
         return value == null || value.trim().isEmpty();
     }
 }
-
-
