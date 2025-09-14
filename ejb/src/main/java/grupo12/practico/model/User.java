@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class User {
-    private String id; 
+    private String id;
     private String firstName;
     private String lastName;
     private String dni;
@@ -93,8 +93,10 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         User user = (User) o;
         return Objects.equals(id, user.id);
     }
@@ -104,5 +106,3 @@ public class User {
         return Objects.hash(id);
     }
 }
-
-

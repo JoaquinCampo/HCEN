@@ -65,5 +65,3 @@ public class AddUserServlet extends HttpServlet {
         }
     }
 }
-
-

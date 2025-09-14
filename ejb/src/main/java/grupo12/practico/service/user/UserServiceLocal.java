@@ -8,8 +8,8 @@ import java.util.List;
 @Local
 public interface UserServiceLocal {
     User addUser(User user);
+
     List<User> getAllUsers();
+
     List<User> searchUsersByName(String name);
 }
-
-

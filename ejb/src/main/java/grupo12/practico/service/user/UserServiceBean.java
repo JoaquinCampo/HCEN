@@ -40,10 +40,9 @@ public class UserServiceBean implements UserServiceRemote {
         }
         String normalized = name.trim().toLowerCase(Locale.ROOT);
         return getAllUsers().stream()
-                .filter(u ->
-                        (u.getFirstName() != null && u.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
-                        (u.getLastName() != null && u.getLastName().toLowerCase(Locale.ROOT).contains(normalized))
-                )
+                .filter(u -> (u.getFirstName() != null
+                        && u.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
+                        (u.getLastName() != null && u.getLastName().toLowerCase(Locale.ROOT).contains(normalized)))
                 .collect(Collectors.toList());
     }
 
@@ -67,5 +66,3 @@ public class UserServiceBean implements UserServiceRemote {
         return value == null || value.trim().isEmpty();
     }
 }
-
-
