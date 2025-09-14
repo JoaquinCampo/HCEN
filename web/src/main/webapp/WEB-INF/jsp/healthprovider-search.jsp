@@ -11,13 +11,12 @@
                 <h1>Search Health Providers</h1>
 
                 <form method="get" action="<%= request.getContextPath() %>/healthproviders/search">
-                    <input type="text" name="name" placeholder="Search by name" value="<%= request.getAttribute("
-                        searchName") !=null ? request.getAttribute("searchName") : "" %>">
+                    <input type="text" name="name" placeholder="Search by name" value="<%= request.getAttribute("searchName") != null ? request.getAttribute("searchName") : "" %>">
                     <button type="submit">Search</button>
                     <a href="<%= request.getContextPath() %>/healthproviders">Back to List</a>
                 </form>
 
-                <% List<HealthProvider> list = (List<HealthProvider>) request.getAttribute("healthProviders");
+                <% List<HealthProvider> list = (List<HealthProvider>)  request.getAttribute("healthProviders");
                         if (list == null || list.isEmpty()) { %>
                         <p>No health providers found.</p>
                         <% } else { %>
