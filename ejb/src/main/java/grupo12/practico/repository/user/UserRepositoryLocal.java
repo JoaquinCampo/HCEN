@@ -10,4 +10,6 @@ public interface UserRepositoryLocal {
     User add(User user);
 
     List<User> findAll();
+
+    List<User> findByName(String name);
 }

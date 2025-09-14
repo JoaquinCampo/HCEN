@@ -1,4 +1,4 @@
-package grupo12.practico.web;
+package grupo12.practico.web.user;
 
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -11,19 +11,15 @@ import java.io.IOException;
 
 import grupo12.practico.service.user.UserServiceLocal;
 
-@WebServlet(name = "SearchUsersServlet", urlPatterns = "/users/search")
-public class SearchUsersServlet extends HttpServlet {
+@WebServlet(name = "ListUsersServlet", urlPatterns = "/users")
+public class ListUsersServlet extends HttpServlet {
 
     @EJB
     private UserServiceLocal userService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String name = req.getParameter("q");
-        if (name != null && !name.trim().isEmpty()) {
-            req.setAttribute("users", userService.searchUsersByName(name.trim()));
-            req.setAttribute("q", name.trim());
-        }
-        req.getRequestDispatcher("/WEB-INF/jsp/user-search.jsp").forward(req, resp);
+        req.setAttribute("users", userService.getAllUsers());
+        req.getRequestDispatcher("/WEB-INF/jsp/user/user-list.jsp").forward(req, resp);
     }
 }

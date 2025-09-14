@@ -6,20 +6,19 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public class User {
+public class HealthWorker {
     private String id;
     private String firstName;
     private String lastName;
     private String dni;
-    private LocalDate dateOfBirth;
     private Gender gender;
-    private String email;
-    private String phone;
-    private String address;
+    private String specialty;
+    private String licenseNumber;
+    private LocalDate hireDate;
 
-    private Set<HealthWorker> healthWorkers = new HashSet<>();
+    private Set<User> patients = new HashSet<>();
 
-    public User() {
+    public HealthWorker() {
         this.id = UUID.randomUUID().toString();
     }
 
@@ -55,14 +54,6 @@ public class User {
         this.dni = dni;
     }
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
     public Gender getGender() {
         return gender;
     }
@@ -71,49 +62,53 @@ public class User {
         this.gender = gender;
     }
 
-    public String getEmail() {
-        return email;
+    public String getSpecialty() {
+        return specialty;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setSpecialty(String specialty) {
+        this.specialty = specialty;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getLicenseNumber() {
+        return licenseNumber;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
     }
 
-    public String getAddress() {
-        return address;
+    public LocalDate getHireDate() {
+        return hireDate;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setHireDate(LocalDate hireDate) {
+        this.hireDate = hireDate;
     }
 
-    public Set<HealthWorker> getHealthWorkers() {
-        return healthWorkers;
+    public Set<User> getPatients() {
+        return patients;
     }
 
-    public void addHealthWorker(HealthWorker healthWorker) {
-        if (healthWorker == null) {
+    public void setPatients(Set<User> patients) {
+        this.patients = patients != null ? patients : new HashSet<>();
+    }
+
+    public void addPatient(User patient) {
+        if (patient == null) {
             return;
         }
-        if (this.healthWorkers.add(healthWorker)) {
-            healthWorker.addPatient(this);
+        if (this.patients.add(patient)) {
+            patient.addHealthWorker(this);
         }
     }
 
-    public void removeHealthWorker(HealthWorker healthWorker) {
-        if (healthWorker == null) {
+    public void removePatient(User patient) {
+        if (patient == null) {
             return;
         }
-        if (this.healthWorkers.remove(healthWorker)) {
-            healthWorker.removePatient(this);
+        if (this.patients.remove(patient)) {
+            patient.removeHealthWorker(this);
         }
     }
 
@@ -123,8 +118,8 @@ public class User {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
+        HealthWorker that = (HealthWorker) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
