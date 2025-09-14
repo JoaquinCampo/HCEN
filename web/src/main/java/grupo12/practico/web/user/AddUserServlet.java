@@ -1,9 +1,9 @@
-package grupo12.practico.web.user;
+package grupo12.practico.web.User;
 
-import grupo12.practico.model.Gender;
-import grupo12.practico.model.User;
-import grupo12.practico.service.healthworker.HealthWorkerServiceLocal;
-import grupo12.practico.service.user.UserServiceLocal;
+import grupo12.practico.models.Gender;
+import grupo12.practico.models.User;
+import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.services.User.UserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -59,7 +59,7 @@ public class AddUserServlet extends HttpServlet {
             }
             if (healthWorkersParams != null && healthWorkersParams.length > 0) {
                 for (String healthWorkerParam : healthWorkersParams) {
-                    user.addHealthWorker(healthWorkerService.findHealthWorkersById(healthWorkerParam).get(0));
+                    user.addHealthWorker(healthWorkerService.findById(healthWorkerParam));
                 }
             }
 

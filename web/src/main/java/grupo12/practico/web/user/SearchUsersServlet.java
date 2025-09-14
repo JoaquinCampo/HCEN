@@ -1,4 +1,4 @@
-package grupo12.practico.web.user;
+package grupo12.practico.web.User;
 
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-import grupo12.practico.service.user.UserServiceLocal;
+import grupo12.practico.services.User.UserServiceLocal;
 
 @WebServlet(name = "SearchUsersServlet", urlPatterns = "/users/search")
 public class SearchUsersServlet extends HttpServlet {

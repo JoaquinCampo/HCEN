@@ -1,8 +1,8 @@
-package grupo12.practico.web.healthworker;
+package grupo12.practico.web.HealthWorker;
 
-import grupo12.practico.model.Gender;
-import grupo12.practico.model.HealthWorker;
-import grupo12.practico.service.healthworker.HealthWorkerServiceLocal;
+import grupo12.practico.models.Gender;
+import grupo12.practico.models.HealthWorker;
+import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

@@ -6,8 +6,11 @@
 <head>
     <title>Users</title>
     <style>
-        table, th, td { border: 1px solid #ccc; border-collapse: collapse; }
+        body { font-family: sans-serif; max-width: 1000px; margin: 24px auto; }
+        table { width: 100%; border-collapse: collapse; }
+        table, th, td { border: 1px solid #ccc; }
         th, td { padding: 6px 10px; }
+        .toolbar a { margin-left: 8px; }
     </style>
     </head>
 <body>
