@@ -49,7 +49,7 @@ public class FindClinicalDocumentsServlet extends HttpServlet {
             req.setAttribute("documents", results);
         }
 
-        req.getRequestDispatcher("/WEB-INF/jsp/clinical-documents/document-find.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/clinical-document/document-find.jsp").forward(req, resp);
     }
 
     @Override

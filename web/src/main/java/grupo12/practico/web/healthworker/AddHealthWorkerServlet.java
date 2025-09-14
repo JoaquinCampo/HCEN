@@ -3,6 +3,7 @@ package grupo12.practico.web.HealthWorker;
 import grupo12.practico.models.Gender;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,10 +21,14 @@ public class AddHealthWorkerServlet extends HttpServlet {
     @EJB
     private HealthWorkerServiceLocal healthWorkerService;
 
+    @EJB
+    private HealthProviderServiceLocal healthProviderService;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("genders", Gender.values());
-        req.getRequestDispatcher("/WEB-INF/jsp/healthworker/healthworker-form.jsp").forward(req, resp);
+        req.setAttribute("healthProviders", healthProviderService.findAll());
+        req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-form.jsp").forward(req, resp);
     }
 
     @Override
@@ -35,6 +40,7 @@ public class AddHealthWorkerServlet extends HttpServlet {
         String specialty = req.getParameter("specialty");
         String licenseNumber = req.getParameter("licenseNumber");
         String hireDateParam = req.getParameter("hireDate");
+        String[] healthProvidersParams = req.getParameterValues("healthProviders");
 
         try {
             HealthWorker hw = new HealthWorker();
@@ -49,16 +55,26 @@ public class AddHealthWorkerServlet extends HttpServlet {
             if (hireDateParam != null && !hireDateParam.isEmpty()) {
                 hw.setHireDate(LocalDate.parse(hireDateParam));
             }
+            if (healthProvidersParams != null && healthProvidersParams.length > 0) {
+                for (String healthProviderParam : healthProvidersParams) {
+                    if (healthProviderParam != null && !healthProviderParam.trim().isEmpty()) {
+                        hw.addHealthProvider(healthProviderService.findById(healthProviderParam));
+                    }
+                }
+            }
 
             healthWorkerService.addHealthWorker(hw);
             resp.sendRedirect(req.getContextPath() + "/healthworkers");
         } catch (ValidationException ex) {
             req.setAttribute("error", ex.getMessage());
             req.setAttribute("genders", Gender.values());
-            req.getRequestDispatcher("/WEB-INF/jsp/healthworker/healthworker-form.jsp").forward(req, resp);
+            req.setAttribute("healthProviders", healthProviderService.findAll());
+            req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-form.jsp").forward(req, resp);
         } catch (Exception ex) {
             req.setAttribute("error", "Unexpected error: " + ex.getMessage());
-            req.getRequestDispatcher("/WEB-INF/jsp/healthworker/healthworker-form.jsp").forward(req, resp);
+            req.setAttribute("genders", Gender.values());
+            req.setAttribute("healthProviders", healthProviderService.findAll());
+            req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-form.jsp").forward(req, resp);
         }
     }
 }

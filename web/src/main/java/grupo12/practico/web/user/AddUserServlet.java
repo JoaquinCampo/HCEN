@@ -3,6 +3,7 @@ package grupo12.practico.web.User;
 import grupo12.practico.models.Gender;
 import grupo12.practico.models.User;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
 import grupo12.practico.services.User.UserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -24,10 +25,14 @@ public class AddUserServlet extends HttpServlet {
     @EJB
     private HealthWorkerServiceLocal healthWorkerService;
 
+    @EJB
+    private HealthProviderServiceLocal healthProviderService;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("genders", Gender.values());
         req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
+        req.setAttribute("healthProviders", healthProviderService.findAll());
         req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
     }
 
@@ -42,6 +47,7 @@ public class AddUserServlet extends HttpServlet {
         String genderParam = req.getParameter("gender");
         String dobParam = req.getParameter("dateOfBirth");
         String[] healthWorkersParams = req.getParameterValues("healthWorkers");
+        String[] affiliatedHealthProvidersParams = req.getParameterValues("affiliatedHealthProviders");
 
         try {
             User user = new User();
@@ -59,7 +65,16 @@ public class AddUserServlet extends HttpServlet {
             }
             if (healthWorkersParams != null && healthWorkersParams.length > 0) {
                 for (String healthWorkerParam : healthWorkersParams) {
-                    user.addHealthWorker(healthWorkerService.findById(healthWorkerParam));
+                    if (healthWorkerParam != null && !healthWorkerParam.trim().isEmpty()) {
+                        user.addHealthWorker(healthWorkerService.findById(healthWorkerParam));
+                    }
+                }
+            }
+            if (affiliatedHealthProvidersParams != null && affiliatedHealthProvidersParams.length > 0) {
+                for (String healthProviderParam : affiliatedHealthProvidersParams) {
+                    if (healthProviderParam != null && !healthProviderParam.trim().isEmpty()) {
+                        user.addAffiliatedHealthProvider(healthProviderService.findById(healthProviderParam));
+                    }
                 }
             }
 
@@ -68,10 +83,14 @@ public class AddUserServlet extends HttpServlet {
         } catch (ValidationException ex) {
             req.setAttribute("error", ex.getMessage());
             req.setAttribute("genders", Gender.values());
+            req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
+            req.setAttribute("healthProviders", healthProviderService.findAll());
             req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
         } catch (Exception ex) {
             req.setAttribute("error", "Unexpected error: " + ex.getMessage());
             req.setAttribute("genders", Gender.values());
+            req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
+            req.setAttribute("healthProviders", healthProviderService.findAll());
             req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
         }
     }

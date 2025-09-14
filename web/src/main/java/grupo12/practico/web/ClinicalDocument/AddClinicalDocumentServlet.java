@@ -36,7 +36,7 @@ public class AddClinicalDocumentServlet extends HttpServlet {
         req.setAttribute("users", userService.getAllUsers());
         req.setAttribute("healthWorkers", hwService.getAllHealthWorkers());
         req.setAttribute("healthProviders", hpService.findAll());
-        req.getRequestDispatcher("/WEB-INF/jsp/clinical-documents/document-form.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/clinical-document/document-form.jsp").forward(req, resp);
     }
 
     @Override
@@ -53,8 +53,11 @@ public class AddClinicalDocumentServlet extends HttpServlet {
             doc.setContent(content);
 
             User patient = userService.findById(userId);
-            HealthWorker author = hwService.findById(authorId);
-            HealthProvider provider = hpService.findById(providerId);
+            HealthWorker author = (authorId != null && !authorId.trim().isEmpty()) ? hwService.findById(authorId)
+                    : null;
+            HealthProvider provider = (providerId != null && !providerId.trim().isEmpty())
+                    ? hpService.findById(providerId)
+                    : null;
 
             ClinicalHistory history = patient != null ? patient.getClinicalHistory() : null;
             if (history == null && patient != null) {

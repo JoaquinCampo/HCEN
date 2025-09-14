@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> <%@ page
 import="java.util.List" %> <%@ page
-import="grupo12.practico.model.ClinicalDocument" %> <% List<ClinicalDocument>
+import="grupo12.practico.models.ClinicalDocument" %> <% List<ClinicalDocument>
   documents = (List<ClinicalDocument
     >) request.getAttribute("documents"); %>
     <html>
@@ -9,35 +9,66 @@ import="grupo12.practico.model.ClinicalDocument" %> <% List<ClinicalDocument>
         <style>
           body {
             font-family: sans-serif;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 24px auto;
+            padding: 0 16px;
           }
           table {
             width: 100%;
             border-collapse: collapse;
+            margin: 16px 0;
           }
           th,
           td {
             border: 1px solid #ddd;
-            padding: 8px;
-          }
-          th {
+            padding: 12px 8px;
             text-align: left;
           }
+          th {
+            background: #f5f5f5;
+            font-weight: 600;
+          }
+          tr:nth-child(even) {
+            background: #fafafa;
+          }
+          .toolbar {
+            margin: 16px 0;
+          }
           .toolbar a {
-            margin-right: 8px;
+            display: inline-block;
+            margin-right: 12px;
+            padding: 8px 16px;
+            background: #1976d2;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+          }
+          .toolbar a:hover {
+            background: #1565c0;
+          }
+          .nav-links {
+            margin: 16px 0;
+          }
+          .nav-links a {
+            margin-right: 12px;
+            color: #1976d2;
+            text-decoration: none;
+          }
+          .nav-links a:hover {
+            text-decoration: underline;
           }
         </style>
       </head>
       <body>
         <h1>Clinical Documents</h1>
-        <p class="toolbar">
+
+        <div class="toolbar">
           <a href="<%= request.getContextPath() %>/documents/add"
             >Add Document</a
           >
           <a href="<%= request.getContextPath() %>/documents/search">Search</a>
-          <a href="<%= request.getContextPath() %>/">Home</a>
-        </p>
+        </div>
 
         <table>
           <tr>
@@ -56,12 +87,12 @@ import="grupo12.practico.model.ClinicalDocument" %> <% List<ClinicalDocument>
             <td>
               <%= d.getClinicalHistory() != null &&
               d.getClinicalHistory().getPatient() != null ?
-              d.getClinicalHistory().getPatient().getLastName()+",
-              "+d.getClinicalHistory().getPatient().getFirstName() : "-" %>
+              d.getClinicalHistory().getPatient().getLastName() + ", " +
+              d.getClinicalHistory().getPatient().getFirstName() : "-" %>
             </td>
             <td>
-              <%= d.getAuthor() != null ? d.getAuthor().getLastName()+",
-              "+d.getAuthor().getFirstName() : "-" %>
+              <%= d.getAuthor() != null ? d.getAuthor().getLastName() + ", " +
+              d.getAuthor().getFirstName() : "-" %>
             </td>
             <td>
               <%= d.getProvider() != null ? d.getProvider().getName() : "-" %>
@@ -69,7 +100,11 @@ import="grupo12.practico.model.ClinicalDocument" %> <% List<ClinicalDocument>
           </tr>
           <% } } %>
         </table>
+
+        <div class="nav-links">
+          <a href="<%= request.getContextPath() %>/">Home</a>
+        </div>
       </body>
-    </html>
-  </ClinicalDocument></ClinicalDocument
+    </html></ClinicalDocument
+  ></ClinicalDocument
 >

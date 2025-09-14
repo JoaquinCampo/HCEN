@@ -24,6 +24,6 @@ public class SearchHealthWorkersServlet extends HttpServlet {
             req.setAttribute("healthWorkers", healthWorkerService.findHealthWorkersByName(name.trim()));
             req.setAttribute("q", name.trim());
         }
-        req.getRequestDispatcher("/WEB-INF/jsp/healthworker/healthworker-search.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-search.jsp").forward(req, resp);
     }
 }

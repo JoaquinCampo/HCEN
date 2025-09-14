@@ -1,30 +1,120 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <html>
+<html>
+  <head>
+    <title>Add Health Provider</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 800px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      form label {
+        display: block;
+        margin: 12px 0 4px 0;
+        font-weight: 500;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="date"] {
+        width: 100%;
+        max-width: 400px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      input[type="checkbox"] {
+        margin-right: 8px;
+      }
+      button {
+        background: #1976d2;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 16px 8px 0 0;
+      }
+      button:hover {
+        background: #1565c0;
+      }
+      .error {
+        color: #b00020;
+        background: #ffebee;
+        padding: 8px;
+        border-radius: 4px;
+        margin: 8px 0;
+      }
+      .nav-links {
+        margin: 16px 0;
+      }
+      .nav-links a {
+        margin-right: 12px;
+        color: #1976d2;
+        text-decoration: none;
+      }
+      .nav-links a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
 
-    <head>
-        <title>Add Health Provider</title>
-    </head>
+  <body>
+    <h1>Add Health Provider</h1>
 
-    <body>
-        <h1>Add Health Provider</h1>
+    <% String error = (String) request.getAttribute("error"); if (error != null)
+    { %>
+    <div class="error"><%= error %></div>
+    <% } %>
 
-        <% String error=(String) request.getAttribute("error"); if (error !=null) { %>
-            <div>
-                <%= error %>
-            </div>
-            <% } %>
+    <form
+      method="post"
+      action="<%= request.getContextPath() %>/healthproviders/add"
+    >
+      <label
+        >Name:
+        <input type="text" name="name" required />
+      </label>
 
-                <form method="post" action="<%= request.getContextPath() %>/healthproviders/add">
-                    <label>Name: <input type="text" name="name" required /></label><br />
-                    <label>Address: <input type="text" name="address" required /></label><br />
-                    <label>Phone: <input type="text" name="phone" /></label><br />
-                    <label>Email: <input type="email" name="email" /></label><br />
-                    <label>Registration Number: <input type="text" name="registrationNumber" /></label><br />
-                    <label>Registration Date: <input type="date" name="registrationDate" /></label><br />
-                    <label>Active: <input type="checkbox" name="active" checked /></label><br />
-                    <button type="submit">Save</button>
-                    <a href="<%= request.getContextPath() %>/healthproviders">Back to List</a>
-                </form>
-    </body>
+      <label
+        >Address:
+        <input type="text" name="address" required />
+      </label>
 
-    </html>
+      <label
+        >Phone:
+        <input type="text" name="phone" />
+      </label>
+
+      <label
+        >Email:
+        <input type="email" name="email" />
+      </label>
+
+      <label
+        >Registration Number:
+        <input type="text" name="registrationNumber" />
+      </label>
+
+      <label
+        >Registration Date:
+        <input type="date" name="registrationDate" />
+      </label>
+
+      <label>
+        <input type="checkbox" name="active" checked />
+        Active
+      </label>
+
+      <div>
+        <button type="submit">Save</button>
+      </div>
+    </form>
+
+    <div class="nav-links">
+      <a href="<%= request.getContextPath() %>/healthproviders">Back to List</a>
+      <a href="<%= request.getContextPath() %>/">Home</a>
+    </div>
+  </body>
+</html>

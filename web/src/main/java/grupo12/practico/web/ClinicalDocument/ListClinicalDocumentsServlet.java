@@ -19,6 +19,6 @@ public class ListClinicalDocumentsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("documents", docService.getAllDocuments());
-        req.getRequestDispatcher("/WEB-INF/jsp/clinical-documents/document-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/clinical-document/document-list.jsp").forward(req, resp);
     }
 }

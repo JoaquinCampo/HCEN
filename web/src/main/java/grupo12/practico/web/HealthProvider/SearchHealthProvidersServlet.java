@@ -28,6 +28,6 @@ public class SearchHealthProvidersServlet extends HttpServlet {
             req.setAttribute("healthProviders", healthProviderService.findAll());
         }
 
-        req.getRequestDispatcher("/WEB-INF/jsp/healthprovider-search.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/health-provider/healthprovider-search.jsp").forward(req, resp);
     }
 }

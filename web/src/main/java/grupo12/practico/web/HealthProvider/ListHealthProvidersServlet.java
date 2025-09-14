@@ -20,6 +20,6 @@ public class ListHealthProvidersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("healthProviders", healthProviderService.findAll());
-        req.getRequestDispatcher("/WEB-INF/jsp/healthprovider-list.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/health-provider/healthprovider-list.jsp").forward(req, resp);
     }
 }

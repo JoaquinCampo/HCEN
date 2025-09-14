@@ -89,12 +89,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
         if (doc.getClinicalHistory() == null || doc.getClinicalHistory().getPatient() == null) {
             throw new ValidationException("Clinical history with patient is required");
         }
-        if (doc.getAuthor() == null) {
-            throw new ValidationException("Author (HealthWorker) is required");
-        }
-        if (doc.getProvider() == null) {
-            throw new ValidationException("Provider (HealthProvider) is required");
-        }
+        // Author and Provider are now optional - no validation required
     }
 
     private boolean isBlank(String s) {

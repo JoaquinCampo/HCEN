@@ -1,5 +1,6 @@
 package grupo12.practico.services.HealthWorker;
 
+import grupo12.practico.models.HealthProvider;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
 import jakarta.ejb.EJB;
@@ -21,6 +22,13 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
     @Override
     public HealthWorker addHealthWorker(HealthWorker healthWorker) {
         validateHealthWorker(healthWorker);
+        if (healthWorker.getHealthProviders() != null) {
+            for (HealthProvider hp : healthWorker.getHealthProviders()) {
+                if (hp != null) {
+                    hp.addHealthWorker(healthWorker);
+                }
+            }
+        }
         return repository.add(healthWorker);
     }
 
