@@ -31,6 +31,13 @@
     <li><a href="<%= request.getContextPath() %>/healthproviders/search">Search Providers</a></li>
   </ul>
 
+  <h2>Clinical Documents</h2>
+  <ul>
+    <li><a href="<%= request.getContextPath() %>/documents">View All Documents</a></li>
+    <li><a href="<%= request.getContextPath() %>/documents/add">Add Document</a></li>
+    <li><a href="<%= request.getContextPath() %>/documents/search">Search Documents</a></li>
+  </ul>
+
 </body>
 
 </html>

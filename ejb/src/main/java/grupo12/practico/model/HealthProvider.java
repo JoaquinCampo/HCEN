@@ -19,6 +19,7 @@ public class HealthProvider {
     private Set<User> attendedPatients = new HashSet<>();
     private Set<User> affiliatedPatients = new HashSet<>();
     private Set<HealthWorker> healthWorkers = new HashSet<>();
+    private Set<ClinicalDocument> clinicalDocuments = new HashSet<>();
 
     public HealthProvider() {
         this.id = UUID.randomUUID().toString();
@@ -112,6 +113,15 @@ public class HealthProvider {
 
     public void setHealthWorkers(Set<HealthWorker> healthWorkers) {
         this.healthWorkers = healthWorkers != null ? healthWorkers : new HashSet<>();
+    }
+    
+    public Set<ClinicalDocument> getClinicalDocuments() {
+        return clinicalDocuments;
+    }
+
+    public void addClinicalDocument(ClinicalDocument doc) {
+        if (doc == null) return;
+        this.clinicalDocuments.add(doc);
     }
 
     public void addAttendedPatient(User patient) {
