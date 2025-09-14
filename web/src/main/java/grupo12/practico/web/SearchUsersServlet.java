@@ -27,5 +27,3 @@ public class SearchUsersServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/jsp/user-search.jsp").forward(req, resp);
     }
 }
-
-

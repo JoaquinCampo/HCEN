@@ -15,7 +15,6 @@ import java.util.ArrayList;
 public class UserRepositoryBean implements UserRepositoryRemote {
 
     private final List<User> users = new ArrayList<>();
- 
 
     @Override
     public User add(User user) {
@@ -28,5 +27,3 @@ public class UserRepositoryBean implements UserRepositoryRemote {
         return new ArrayList<>(users);
     }
 }
-
-

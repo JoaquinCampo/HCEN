@@ -23,5 +23,3 @@ public class ListUsersServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/jsp/user-list.jsp").forward(req, resp);
     }
 }
-
-

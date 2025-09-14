@@ -8,7 +8,6 @@ import java.util.List;
 @Local
 public interface UserRepositoryLocal {
     User add(User user);
+
     List<User> findAll();
 }
-
-
