@@ -18,6 +18,7 @@ public class HealthWorker {
 
     private Set<User> patients = new HashSet<>();
     private Set<HealthProvider> healthProviders = new HashSet<>();
+    private Set<ClinicalDocument> authoredDocuments = new HashSet<>();
 
     public HealthWorker() {
         this.id = UUID.randomUUID().toString();
@@ -112,15 +113,6 @@ public class HealthWorker {
         }
     }
 
-    public void removePatient(User patient) {
-        if (patient == null) {
-            return;
-        }
-        if (this.patients.remove(patient)) {
-            patient.removeHealthWorker(this);
-        }
-    }
-
     public void addHealthProvider(HealthProvider healthProvider) {
         if (healthProvider == null) {
             return;
@@ -128,6 +120,15 @@ public class HealthWorker {
         if (this.healthProviders.add(healthProvider)) {
             healthProvider.addHealthWorker(this);
         }
+    }
+
+    public Set<ClinicalDocument> getAuthoredDocuments() {
+        return authoredDocuments;
+    }
+
+    public void addAuthoredDocument(ClinicalDocument doc) {
+        if (doc == null) return;
+        this.authoredDocuments.add(doc);
     }
 
     @Override
