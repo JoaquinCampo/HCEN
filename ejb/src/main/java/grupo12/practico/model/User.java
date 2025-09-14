@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class User {
-    private String id; 
+    private String id;
     private String firstName;
     private String lastName;
     private String dni;
@@ -18,6 +18,8 @@ public class User {
     private String address;
 
     private Set<HealthWorker> healthWorkers = new HashSet<>();
+    private Set<HealthProvider> attendedHealthProviders = new HashSet<>();
+    private Set<HealthProvider> affiliatedHealthProviders = new HashSet<>();
 
     public User() {
         this.id = UUID.randomUUID().toString();
@@ -99,6 +101,23 @@ public class User {
         return healthWorkers;
     }
 
+    public Set<HealthProvider> getAttendedHealthProviders() {
+        return attendedHealthProviders;
+    }
+
+    public void setAttendedHealthProviders(Set<HealthProvider> attendedHealthProviders) {
+        this.attendedHealthProviders = attendedHealthProviders != null ? attendedHealthProviders : new HashSet<>();
+    }
+
+    public Set<HealthProvider> getAffiliatedHealthProviders() {
+        return affiliatedHealthProviders;
+    }
+
+    public void setAffiliatedHealthProviders(Set<HealthProvider> affiliatedHealthProviders) {
+        this.affiliatedHealthProviders = affiliatedHealthProviders != null ? affiliatedHealthProviders
+                : new HashSet<>();
+    }
+
     public void addHealthWorker(HealthWorker healthWorker) {
         if (healthWorker == null) {
             return;
@@ -117,10 +136,49 @@ public class User {
         }
     }
 
+    // HealthProvider relationship management methods
+    public void addAttendedHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.attendedHealthProviders.add(healthProvider)) {
+            healthProvider.addAttendedPatient(this);
+        }
+    }
+
+    public void removeAttendedHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.attendedHealthProviders.remove(healthProvider)) {
+            healthProvider.removeAttendedPatient(this);
+        }
+    }
+
+    public void addAffiliatedHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.affiliatedHealthProviders.add(healthProvider)) {
+            healthProvider.addAffiliatedPatient(this);
+        }
+    }
+
+    public void removeAffiliatedHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.affiliatedHealthProviders.remove(healthProvider)) {
+            healthProvider.removeAffiliatedPatient(this);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         User user = (User) o;
         return Objects.equals(id, user.id);
     }
@@ -130,5 +188,3 @@ public class User {
         return Objects.hash(id);
     }
 }
-
-

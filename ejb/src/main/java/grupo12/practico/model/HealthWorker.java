@@ -16,6 +16,7 @@ public class HealthWorker {
     private LocalDate hireDate;
 
     private Set<User> patients = new HashSet<>();
+    private Set<HealthProvider> healthProviders = new HashSet<>();
 
     public HealthWorker() {
         this.id = UUID.randomUUID().toString();
@@ -85,6 +86,14 @@ public class HealthWorker {
         this.patients = patients != null ? patients : new HashSet<>();
     }
 
+    public Set<HealthProvider> getHealthProviders() {
+        return healthProviders;
+    }
+
+    public void setHealthProviders(Set<HealthProvider> healthProviders) {
+        this.healthProviders = healthProviders != null ? healthProviders : new HashSet<>();
+    }
+
     public void addPatient(User patient) {
         if (patient == null) {
             return;
@@ -103,10 +112,31 @@ public class HealthWorker {
         }
     }
 
+    // HealthProvider relationship management methods
+    public void addHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.healthProviders.add(healthProvider)) {
+            healthProvider.addHealthWorker(this);
+        }
+    }
+
+    public void removeHealthProvider(HealthProvider healthProvider) {
+        if (healthProvider == null) {
+            return;
+        }
+        if (this.healthProviders.remove(healthProvider)) {
+            healthProvider.removeHealthWorker(this);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         HealthWorker that = (HealthWorker) o;
         return Objects.equals(id, that.id);
     }
@@ -116,5 +146,3 @@ public class HealthWorker {
         return Objects.hash(id);
     }
 }
-
-
