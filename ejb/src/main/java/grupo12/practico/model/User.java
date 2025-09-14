@@ -1,7 +1,9 @@
 package grupo12.practico.model;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 public class User {
@@ -14,6 +16,8 @@ public class User {
     private String email;
     private String phone;
     private String address;
+
+    private Set<HealthWorker> healthWorkers = new HashSet<>();
 
     public User() {
         this.id = UUID.randomUUID().toString();
@@ -89,6 +93,28 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Set<HealthWorker> getHealthWorkers() {
+        return healthWorkers;
+    }
+
+    public void addHealthWorker(HealthWorker healthWorker) {
+        if (healthWorker == null) {
+            return;
+        }
+        if (this.healthWorkers.add(healthWorker)) {
+            healthWorker.addPatient(this);
+        }
+    }
+
+    public void removeHealthWorker(HealthWorker healthWorker) {
+        if (healthWorker == null) {
+            return;
+        }
+        if (this.healthWorkers.remove(healthWorker)) {
+            healthWorker.removePatient(this);
+        }
     }
 
     @Override

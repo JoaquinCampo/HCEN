@@ -2,6 +2,7 @@ package grupo12.practico.web;
 
 import grupo12.practico.model.Gender;
 import grupo12.practico.model.User;
+import grupo12.practico.service.healthworker.HealthWorkerServiceLocal;
 import grupo12.practico.service.user.UserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -20,9 +21,13 @@ public class AddUserServlet extends HttpServlet {
     @EJB
     private UserServiceLocal userService;
 
+    @EJB
+    private HealthWorkerServiceLocal healthWorkerService;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("genders", Gender.values());
+        req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
         req.getRequestDispatcher("/WEB-INF/jsp/user-form.jsp").forward(req, resp);
     }
 
@@ -36,6 +41,7 @@ public class AddUserServlet extends HttpServlet {
         String address = req.getParameter("address");
         String genderParam = req.getParameter("gender");
         String dobParam = req.getParameter("dateOfBirth");
+        String[] healthWorkersParams = req.getParameterValues("healthWorkers");
 
         try {
             User user = new User();
@@ -50,6 +56,11 @@ public class AddUserServlet extends HttpServlet {
             }
             if (dobParam != null && !dobParam.isEmpty()) {
                 user.setDateOfBirth(LocalDate.parse(dobParam));
+            }
+            if (healthWorkersParams != null && healthWorkersParams.length > 0) {
+                for (String healthWorkerParam : healthWorkersParams) {
+                    user.addHealthWorker(healthWorkerService.searchHealthWorkersById(healthWorkerParam).get(0));
+                }
             }
 
             userService.addUser(user);

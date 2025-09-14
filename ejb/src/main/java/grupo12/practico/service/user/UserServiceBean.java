@@ -1,5 +1,6 @@
 package grupo12.practico.service.user;
 
+import grupo12.practico.model.HealthWorker;
 import grupo12.practico.model.User;
 import grupo12.practico.repository.user.UserRepositoryLocal;
 import jakarta.ejb.EJB;
@@ -25,6 +26,11 @@ public class UserServiceBean implements UserServiceRemote {
     @Override
     public User addUser(User user) {
         validateUser(user);
+        for (HealthWorker hw : user.getHealthWorkers()) {
+            if (hw != null) {
+                hw.addPatient(user);
+            }
+        }
         return userRepository.add(user);
     }
 
@@ -60,6 +66,9 @@ public class UserServiceBean implements UserServiceRemote {
         LocalDate dob = user.getDateOfBirth();
         if (dob == null || Period.between(dob, LocalDate.now()).getYears() < 18) {
             throw new ValidationException("User must be at least 18 years old");
+        }
+        if (user.getHealthWorkers() == null || user.getHealthWorkers().isEmpty()) {
+            throw new ValidationException("User must be associated with at least one HealthWorker");
         }
     }
 
