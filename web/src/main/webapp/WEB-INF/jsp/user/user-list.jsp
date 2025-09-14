@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
 <%@ page import="grupo12.practico.model.User" %>
+<%@ page import="grupo12.practico.model.HealthWorker" %>
 <html>
 <head>
     <title>Users</title>
@@ -34,6 +35,7 @@
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
+            <th>Health Workers</th>
         </tr>
         </thead>
         <tbody>
@@ -47,6 +49,11 @@
                 <td><%= u.getEmail() %></td>
                 <td><%= u.getPhone() %></td>
                 <td><%= u.getAddress() %></td>
+                <td>
+                    <% for (HealthWorker hw : u.getHealthWorkers()) { %>
+                        <%= hw.getLastName() %>, <%= hw.getFirstName() %><br />
+                    <% } %>
+                </td>
             </tr>
         <% } %>
         </tbody>

@@ -1,4 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="grupo12.practico.model.HealthWorker" %>
+<%
+List<HealthWorker> healthWorkers =
+    (List<HealthWorker>) request.getAttribute("healthWorkers");
+%>
 <html>
   <head>
     <title>Add User</title>
@@ -33,6 +39,14 @@
       <label>Email: <input type="email" name="email" /></label><br />
       <label>Phone: <input type="text" name="phone" /></label><br />
       <label>Address: <input type="text" name="address" /></label><br />
+      <label>Health Worker visited:
+      <select name="healthWorkers" multiple required>
+        <% if (healthWorkers != null) { 
+            for (HealthWorker hw : healthWorkers) { %>
+            <option value="<%= hw.getId() %>"><%= hw.getLastName() %>, <%= hw.getFirstName() %></option>
+        <% } } %>
+      </select>
+      </label><br />
       <button type="submit">Save</button>
       <a href="<%= request.getContextPath() %>/users">Back to List</a>
     </form>

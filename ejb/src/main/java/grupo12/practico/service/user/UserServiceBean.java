@@ -1,5 +1,6 @@
 package grupo12.practico.service.user;
 
+import grupo12.practico.model.HealthWorker;
 import grupo12.practico.model.User;
 import grupo12.practico.repository.user.UserRepositoryLocal;
 import jakarta.ejb.EJB;
@@ -11,8 +12,6 @@ import jakarta.validation.ValidationException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 @Stateless
 @Local(UserServiceLocal.class)
@@ -25,6 +24,11 @@ public class UserServiceBean implements UserServiceRemote {
     @Override
     public User addUser(User user) {
         validateUser(user);
+        for (HealthWorker hw : user.getHealthWorkers()) {
+            if (hw != null) {
+                hw.addPatient(user);
+            }
+        }
         return userRepository.add(user);
     }
 
@@ -34,16 +38,8 @@ public class UserServiceBean implements UserServiceRemote {
     }
 
     @Override
-    public List<User> searchUsersByName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return getAllUsers();
-        }
-        String normalized = name.trim().toLowerCase(Locale.ROOT);
-        return getAllUsers().stream()
-                .filter(u -> (u.getFirstName() != null
-                        && u.getFirstName().toLowerCase(Locale.ROOT).contains(normalized)) ||
-                        (u.getLastName() != null && u.getLastName().toLowerCase(Locale.ROOT).contains(normalized)))
-                .collect(Collectors.toList());
+    public List<User> findUsersByName(String name) {
+        return userRepository.findByName(name);
     }
 
     private void validateUser(User user) {
@@ -59,6 +55,9 @@ public class UserServiceBean implements UserServiceRemote {
         LocalDate dob = user.getDateOfBirth();
         if (dob == null || Period.between(dob, LocalDate.now()).getYears() < 18) {
             throw new ValidationException("User must be at least 18 years old");
+        }
+        if (user.getHealthWorkers() == null || user.getHealthWorkers().isEmpty()) {
+            throw new ValidationException("User must be associated with at least one HealthWorker");
         }
     }
 

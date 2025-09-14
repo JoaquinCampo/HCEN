@@ -3,9 +3,4 @@
     "editor.defaultFormatter": "redhat.java",
     "editor.formatOnSave": true
   },
-
-  "[jsp]": {
-    "editor.defaultFormatter": "HookyQR.beautify",
-    "editor.formatOnSave": true
-  }
 }

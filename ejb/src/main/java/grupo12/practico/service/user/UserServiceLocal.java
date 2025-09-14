@@ -11,5 +11,5 @@ public interface UserServiceLocal {
 
     List<User> getAllUsers();
 
-    List<User> searchUsersByName(String name);
+    List<User> findUsersByName(String name);
 }
