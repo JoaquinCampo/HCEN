@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+<h:head>
+        <title>Practico - JSF</title>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <style>
+                body { font-family: sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; }
+                .links a { display: inline-block; margin: 8px 8px 0 0; padding: 8px 12px; background: #1976d2; color: #fff; text-decoration: none; border-radius: 4px; }
+                .links a:hover { background: #125aa0; }
+        </style>
+        <h:outputStylesheet/>
+        <h:outputScript/>
+    </h:head>
+<h:body>
+    <h1>Practico </h1>
+    <p>Demo simple de JSF sobre el módulo existente.</p>
+
+    <div class="links">
+        <h:link outcome="/user/list" value="Listar Usuarios"/>
+        <h:link outcome="/user/form" value="Crear Usuario"/>
+        <br/>
+        <h:link outcome="/health-worker/list" value="Listar Health Workers"/>
+        <h:link outcome="/health-worker/form" value="Crear Health Worker"/>
+        <br/>
+        <h:link outcome="/health-provider/list" value="Listar Health Providers"/>
+        <h:link outcome="/health-provider/form" value="Crear Health Provider"/>
+        <br/>
+        <h:link outcome="/clinical-document/list" value="Listar Clinical Documents"/>
+        <h:link outcome="/clinical-document/form" value="Crear Clinical Document"/>
+    </div>
+
+    <p style="margin-top: 24px;">
+        Servlets/JSP: <a href="users">/users</a>
+    </p>
+    
+</h:body>
+</html>
