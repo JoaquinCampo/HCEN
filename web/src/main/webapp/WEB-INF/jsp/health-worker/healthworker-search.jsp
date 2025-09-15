@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ page import="grupo12.practico.models.User" %>
+<%@ page import="grupo12.practico.models.HealthWorker" %>
 <html>
 <head>
-    <title>Search Users</title>
+    <title>Search Health Workers</title>
     <style>
         body {
             font-family: sans-serif;
@@ -72,26 +72,26 @@
     </style>
 </head>
 <body>
-<h1>Search Users</h1>
+<h1>Search Health Workers</h1>
 
 <div class="search-form">
-    <form method="get" action="<%= request.getContextPath() %>/users/search">
+    <form method="get" action="<%= request.getContextPath() %>/healthworkers/search">
         <input type="text" name="q" placeholder="Search by name" value="<%= request.getAttribute("q") != null ? request.getAttribute("q") : "" %>">
         <button type="submit">Search</button>
     </form>
 </div>
 
 <%
-    List<User> users = (List<User>) request.getAttribute("users");
+    List<HealthWorker> list = (List<HealthWorker>) request.getAttribute("healthWorkers");
     String query = (String) request.getAttribute("q");
-    if (users != null) {
+    if (list != null) {
         if (query != null && !query.trim().isEmpty()) { %>
             <div class="results-count">
-                Found <%= users.size() %> user(s) for "<%= query %>"
+                Found <%= list.size() %> health worker(s) for "<%= query %>"
             </div>
         <% }
-        if (users.isEmpty()) { %>
-            <p>No users found.</p>
+        if (list.isEmpty()) { %>
+            <p>No health workers found.</p>
         <% } else { %>
             <table>
                 <thead>
@@ -99,24 +99,22 @@
                     <th>UUID</th>
                     <th>DNI</th>
                     <th>Name</th>
-                    <th>Date of Birth</th>
                     <th>Gender</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Address</th>
+                    <th>Specialty</th>
+                    <th>License</th>
+                    <th>Hire Date</th>
                 </tr>
                 </thead>
                 <tbody>
-                <% for (User u : users) { %>
+                <% for (HealthWorker hw : list) { %>
                     <tr>
-                        <td><%= u.getId() %></td>
-                        <td><%= u.getDni() %></td>
-                        <td><%= u.getLastName() %>, <%= u.getFirstName() %></td>
-                        <td><%= u.getDateOfBirth() %></td>
-                        <td><%= u.getGender() %></td>
-                        <td><%= u.getEmail() != null ? u.getEmail() : "-" %></td>
-                        <td><%= u.getPhone() != null ? u.getPhone() : "-" %></td>
-                        <td><%= u.getAddress() != null ? u.getAddress() : "-" %></td>
+                        <td><%= hw.getId() %></td>
+                        <td><%= hw.getDni() %></td>
+                        <td><%= hw.getLastName() %>, <%= hw.getFirstName() %></td>
+                        <td><%= hw.getGender() %></td>
+                        <td><%= hw.getSpecialty() != null ? hw.getSpecialty() : "-" %></td>
+                        <td><%= hw.getLicenseNumber() %></td>
+                        <td><%= hw.getHireDate() != null ? hw.getHireDate() : "-" %></td>
                     </tr>
                 <% } %>
                 </tbody>
@@ -125,7 +123,7 @@
     } %>
 
 <div class="nav-links">
-    <a href="<%= request.getContextPath() %>/users">Back to List</a>
+    <a href="<%= request.getContextPath() %>/healthworkers">Back to List</a>
     <a href="<%= request.getContextPath() %>/">Home</a>
 </div>
 

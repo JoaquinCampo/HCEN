@@ -1,6 +1,5 @@
-package grupo12.practico.web.healthworker;
+package grupo12.practico.web.HealthWorker;
 
-import grupo12.practico.service.healthworker.HealthWorkerServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+
+import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 
 @WebServlet(name = "SearchHealthWorkersServlet", urlPatterns = "/healthworkers/search")
 public class SearchHealthWorkersServlet extends HttpServlet {
@@ -23,6 +24,6 @@ public class SearchHealthWorkersServlet extends HttpServlet {
             req.setAttribute("healthWorkers", healthWorkerService.findHealthWorkersByName(name.trim()));
             req.setAttribute("q", name.trim());
         }
-        req.getRequestDispatcher("/WEB-INF/jsp/healthworker/healthworker-search.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-search.jsp").forward(req, resp);
     }
 }

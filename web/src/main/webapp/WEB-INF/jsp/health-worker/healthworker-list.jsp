@@ -1,10 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ page import="grupo12.practico.models.User" %>
 <%@ page import="grupo12.practico.models.HealthWorker" %>
 <html>
 <head>
-    <title>Users</title>
+    <title>Health Workers</title>
     <style>
         body {
             font-family: sans-serif;
@@ -72,20 +71,20 @@
     </style>
 </head>
 <body>
-<h1>Users</h1>
+<h1>Health Workers</h1>
 
 <div class="search-form">
-    <form method="get" action="<%= request.getContextPath() %>/users/search" style="display: inline;">
+    <form method="get" action="<%= request.getContextPath() %>/healthworkers/search" style="display: inline;">
         <input type="text" name="q" placeholder="Search by name">
         <button type="submit">Search</button>
     </form>
-    <a href="<%= request.getContextPath() %>/users/add" class="toolbar">Add User</a>
+    <a href="<%= request.getContextPath() %>/healthworkers/add" class="toolbar">Add Health Worker</a>
 </div>
 
 <%
-    List<User> users = (List<User>) request.getAttribute("users");
-    if (users == null || users.isEmpty()) { %>
-    <p>No users found.</p>
+    List<HealthWorker> list = (List<HealthWorker>) request.getAttribute("healthWorkers");
+    if (list == null || list.isEmpty()) { %>
+    <p>No health workers found.</p>
 <%  } else { %>
     <table>
         <thead>
@@ -93,33 +92,22 @@
             <th>UUID</th>
             <th>DNI</th>
             <th>Name</th>
-            <th>Date of Birth</th>
             <th>Gender</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Address</th>
-            <th>Health Workers</th>
+            <th>Specialty</th>
+            <th>License</th>
+            <th>Hire Date</th>
         </tr>
         </thead>
         <tbody>
-        <% for (User u : users) { %>
+        <% for (HealthWorker hw : list) { %>
             <tr>
-                <td><%= u.getId() %></td>
-                <td><%= u.getDni() %></td>
-                <td><%= u.getLastName() %>, <%= u.getFirstName() %></td>
-                <td><%= u.getDateOfBirth() %></td>
-                <td><%= u.getGender() %></td>
-                <td><%= u.getEmail() != null ? u.getEmail() : "-" %></td>
-                <td><%= u.getPhone() != null ? u.getPhone() : "-" %></td>
-                <td><%= u.getAddress() != null ? u.getAddress() : "-" %></td>
-                <td>
-                    <% if (u.getHealthWorkers() != null) {
-                        for (HealthWorker hw : u.getHealthWorkers()) { %>
-                        <%= hw.getLastName() %>, <%= hw.getFirstName() %><br />
-                    <% } } else { %>
-                        -
-                    <% } %>
-                </td>
+                <td><%= hw.getId() %></td>
+                <td><%= hw.getDni() %></td>
+                <td><%= hw.getLastName() %>, <%= hw.getFirstName() %></td>
+                <td><%= hw.getGender() %></td>
+                <td><%= hw.getSpecialty() != null ? hw.getSpecialty() : "-" %></td>
+                <td><%= hw.getLicenseNumber() %></td>
+                <td><%= hw.getHireDate() != null ? hw.getHireDate() : "-" %></td>
             </tr>
         <% } %>
         </tbody>
