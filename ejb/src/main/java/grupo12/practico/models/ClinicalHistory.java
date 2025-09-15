@@ -1,12 +1,14 @@
 package grupo12.practico.models;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public class ClinicalHistory {
+public class ClinicalHistory implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String id;
     private String summary;
     private LocalDate createdOn;

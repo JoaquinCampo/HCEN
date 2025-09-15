@@ -30,6 +30,7 @@
         <module>ejb</module>
         <module>web</module>
         <module>ear</module>
+        <module>console</module>
     </modules>
 
     <properties>

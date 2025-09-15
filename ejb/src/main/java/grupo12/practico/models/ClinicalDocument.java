@@ -1,10 +1,12 @@
 package grupo12.practico.models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ClinicalDocument {
+public class ClinicalDocument implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String id;
     private String title;
     private String content;

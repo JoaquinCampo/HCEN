@@ -35,7 +35,6 @@
             <type>ejb</type>
         </dependency>
 
-        <!-- Depend on the EJB module and WAR so that we can package them -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>practico-web</artifactId>
@@ -46,37 +45,23 @@
     <build>
         <finalName>${project.parent.artifactId}</finalName>
         <plugins>
-            <!--EAR plugin: format of output file -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-ear-plugin</artifactId>
                 <version>${version.ear.plugin}</version>
                 <configuration>
-                    <!-- Tell Maven we are using Jakarta EE -->
                     <version>10</version>
-                    <!-- Use Jakarta EE ear libraries as needed. Jakarta EE ear libraries
-                        are in easy way to package any libraries needed in the ear, and automatically
-                        have any modules (EJB-JARs and WARs) use them -->
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <modules>
-                    <!-- Default context root of the web app is /practico-web.
-                        If a custom context root is needed, uncomment the following snippet to
-                        register our War as a web module and set the contextRoot property -->
-                    <!--
                     <webModule>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>practico-web</artifactId>
                         <contextRoot>/practico</contextRoot>
                     </webModule>
-                    -->
                     </modules>
                     <outputFileNameMapping>@{artifactId}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
                 </configuration>
             </plugin>
-            <!-- The WildFly plug-in deploys your ear to a local WildFly / JBoss EAP container.
-                Due to Maven's lack of intelligence with EARs we need to configure
-                the WildFly Maven plug-in to skip deployment for all modules. We then enable
-                it specifically in the ear module. -->
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
