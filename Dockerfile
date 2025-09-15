@@ -3,7 +3,7 @@
 # ------------------------------------------------------------
 # Build stage: compile the multi-module Maven project (EAR)
 # ------------------------------------------------------------
-FROM maven:3.9.9-eclipse-temurin-17 AS build
+FROM maven:3.9.9-eclipse-temurin-24 AS build
 WORKDIR /workspace
 
 # Copy POMs first to leverage layer caching of dependencies
@@ -14,16 +14,16 @@ COPY ear/pom.xml ear/pom.xml
 COPY console/pom.xml console/pom.xml
 
 # Pre-fetch dependencies for faster repeated builds
-RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=17 -DskipTests dependency:go-offline
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=21 -DskipTests dependency:go-offline
 
 # Copy the full source and build
 COPY . .
-RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=17 -DskipTests clean package
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=24 -DskipTests clean package
 
 # ------------------------------------------------------------
-# Runtime stage: run on WildFly (EE 10, JDK 17)
+# Runtime stage: run on WildFly (EE 10, JDK 21)
 # ------------------------------------------------------------
-FROM quay.io/wildfly/wildfly:37.0.1.Final-jdk17
+FROM quay.io/wildfly/wildfly:37.0.1.Final-jdk21
 
 # Prepare writable directories for arbitrary UID in OpenShift
 USER root
