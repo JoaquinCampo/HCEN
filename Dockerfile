@@ -11,6 +11,7 @@ COPY pom.xml ./
 COPY ejb/pom.xml ejb/pom.xml
 COPY web/pom.xml web/pom.xml
 COPY ear/pom.xml ear/pom.xml
+COPY console/pom.xml console/pom.xml
 
 # Pre-fetch dependencies for faster repeated builds
 RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=17 -DskipTests dependency:go-offline
