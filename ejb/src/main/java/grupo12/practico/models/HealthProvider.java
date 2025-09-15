@@ -1,12 +1,14 @@
 package grupo12.practico.models;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public class HealthProvider {
+public class HealthProvider implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String id;
     private String name;
     private String address;

@@ -21,14 +21,12 @@
   </properties>
 
   <dependencies>
-    <!-- WildFly all-in-one client -->
     <dependency>
       <groupId>org.wildfly</groupId>
       <artifactId>wildfly-client-all</artifactId>
-      <version>37.0.1.Final</version> <!-- align with your server -->
+      <version>37.0.1.Final</version>
     </dependency>
 
-    <!-- Remote interfaces/models -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>practico-ejb</artifactId>
@@ -38,7 +36,6 @@
 
   <build>
     <plugins>
-      <!-- Compiler -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -48,7 +45,6 @@
         </configuration>
       </plugin>
 
-      <!-- Shade: build one fat jar -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
