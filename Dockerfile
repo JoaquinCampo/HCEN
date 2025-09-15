@@ -3,7 +3,7 @@
 # ------------------------------------------------------------
 # Build stage: compile the multi-module Maven project (EAR)
 # ------------------------------------------------------------
-FROM maven:3.9.9-eclipse-temurin-24 AS build
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /workspace
 
 # Copy POMs first to leverage layer caching of dependencies
@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=21 
 
 # Copy the full source and build
 COPY . .
-RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=24 -DskipTests clean package
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -Dmaven.compiler.release=21 -DskipTests clean package
 
 # ------------------------------------------------------------
 # Runtime stage: run on WildFly (EE 10, JDK 21)
