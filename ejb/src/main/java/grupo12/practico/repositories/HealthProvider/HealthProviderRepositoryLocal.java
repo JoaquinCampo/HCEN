@@ -4,15 +4,15 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 
 @Local
 public interface HealthProviderRepositoryLocal {
-    HealthProvider add(HealthProvider healthProvider);
+    Clinic add(Clinic healthProvider);
 
-    List<HealthProvider> findAll();
+    List<Clinic> findAll();
 
-    HealthProvider findById(String id);
+    Clinic findById(String id);
 
-    List<HealthProvider> findByName(String name);
+    List<Clinic> findByName(String name);
 }

@@ -2,12 +2,12 @@ package grupo12.practico.web.ClinicalDocument;
 
 import grupo12.practico.models.ClinicalDocument;
 import grupo12.practico.models.ClinicalHistory;
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
 import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
-import grupo12.practico.services.User.UserServiceLocal;
 import grupo12.practico.models.User;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -25,7 +25,7 @@ public class AddClinicalDocumentServlet extends HttpServlet {
     @EJB
     private ClinicalDocumentServiceLocal docService;
     @EJB
-    private UserServiceLocal userService;
+    private HealthUserServiceLocal userService;
     @EJB
     private HealthWorkerServiceLocal hwService;
     @EJB
@@ -55,7 +55,7 @@ public class AddClinicalDocumentServlet extends HttpServlet {
             User patient = userService.findById(userId);
             HealthWorker author = (authorId != null && !authorId.trim().isEmpty()) ? hwService.findById(authorId)
                     : null;
-            HealthProvider provider = (providerId != null && !providerId.trim().isEmpty())
+            Clinic provider = (providerId != null && !providerId.trim().isEmpty())
                     ? hpService.findById(providerId)
                     : null;
 

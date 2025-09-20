@@ -1,6 +1,6 @@
 package grupo12.practico.web.jsf;
 
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -21,13 +21,13 @@ public class HealthProviderBean implements Serializable {
     @EJB
     private HealthProviderServiceLocal service;
 
-    private List<HealthProvider> providers;
-    private HealthProvider newProvider;
+    private List<Clinic> providers;
+    private Clinic newProvider;
     private String searchQuery;
 
     @PostConstruct
     public void init() {
-        newProvider = new HealthProvider();
+        newProvider = new Clinic();
         providers = new ArrayList<>();
         loadAll();
     }
@@ -49,7 +49,7 @@ public class HealthProviderBean implements Serializable {
             service.addHealthProvider(newProvider);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Health Provider created", null));
-            newProvider = new HealthProvider();
+            newProvider = new Clinic();
             return "list?faces-redirect=true";
         } catch (RuntimeException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -58,15 +58,15 @@ public class HealthProviderBean implements Serializable {
         }
     }
 
-    public List<HealthProvider> getProviders() {
+    public List<Clinic> getProviders() {
         return providers;
     }
 
-    public HealthProvider getNewProvider() {
+    public Clinic getNewProvider() {
         return newProvider;
     }
 
-    public void setNewProvider(HealthProvider hp) {
+    public void setNewProvider(Clinic hp) {
         this.newProvider = hp;
     }
 

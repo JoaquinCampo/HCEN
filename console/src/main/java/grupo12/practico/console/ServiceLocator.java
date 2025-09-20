@@ -3,9 +3,9 @@ package grupo12.practico.console;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import grupo12.practico.services.User.UserServiceRemote;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceRemote;
 import grupo12.practico.services.HealthProvider.HealthProviderServiceRemote;
+import grupo12.practico.services.HealthUser.HealthUserServiceRemote;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceRemote;
 
 public final class ServiceLocator {
@@ -24,9 +24,9 @@ public final class ServiceLocator {
         return String.format("ejb:%s/%s//%s!%s", appName, moduleName, beanSimpleName, remoteInterfaceFqn);
     }
 
-    public UserServiceRemote userService() throws NamingException {
-        String jndi = ejb("UserServiceBean", UserServiceRemote.class.getName());
-        return (UserServiceRemote) context.lookup(jndi);
+    public HealthUserServiceRemote userService() throws NamingException {
+        String jndi = ejb("UserServiceBean", HealthUserServiceRemote.class.getName());
+        return (HealthUserServiceRemote) context.lookup(jndi);
     }
 
     public HealthWorkerServiceRemote healthWorkerService() throws NamingException {
@@ -44,5 +44,3 @@ public final class ServiceLocator {
         return (ClinicalDocumentServiceRemote) context.lookup(jndi);
     }
 }
-
-

@@ -5,18 +5,18 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import grupo12.practico.dto.ClinicalDocumentDTO;
+import grupo12.practico.dto.SpecialtyDTO;
 
-public class ClinicalDocument {
+public class Specialty {
     private String id;
-    private String contentUrl;
+    private String name;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    private ClinicalHistory clinicalHistory;
     private Set<HealthWorker> healthWorkers;
+    private Set<ClinicalHistory> clinicalHistories;
 
-    public ClinicalDocument() {
+    public Specialty() {
         this.id = UUID.randomUUID().toString();
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
@@ -30,12 +30,12 @@ public class ClinicalDocument {
         this.id = id;
     }
 
-    public String getContentUrl() {
-        return contentUrl;
+    public String getName() {
+        return name;
     }
 
-    public void setContentUrl(String contentUrl) {
-        this.contentUrl = contentUrl;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public LocalDate getCreatedAt() {
@@ -54,14 +54,6 @@ public class ClinicalDocument {
         this.updatedAt = updatedAt;
     }
 
-    public ClinicalHistory getClinicalHistory() {
-        return clinicalHistory;
-    }
-
-    public void setClinicalHistory(ClinicalHistory clinicalHistory) {
-        this.clinicalHistory = clinicalHistory;
-    }
-
     public Set<HealthWorker> getHealthWorkers() {
         return healthWorkers;
     }
@@ -70,13 +62,21 @@ public class ClinicalDocument {
         this.healthWorkers = healthWorkers;
     }
 
+    public Set<ClinicalHistory> getClinicalHistories() {
+        return clinicalHistories;
+    }
+
+    public void setClinicalHistories(Set<ClinicalHistory> clinicalHistories) {
+        this.clinicalHistories = clinicalHistories;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        ClinicalDocument that = (ClinicalDocument) o;
+        Specialty that = (Specialty) o;
         return Objects.equals(id, that.id);
     }
 
@@ -87,22 +87,18 @@ public class ClinicalDocument {
 
     @Override
     public String toString() {
-        return "ClinicalDocument{" +
+        return "Specialty{" +
                 "id='" + id + '\'' +
-                ", contentUrl='" + contentUrl + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", name='" + name + '\'' +
                 '}';
     }
 
-    public ClinicalDocumentDTO toDto() {
-        ClinicalDocumentDTO dto = new ClinicalDocumentDTO();
+    public SpecialtyDTO toDto() {
+        SpecialtyDTO dto = new SpecialtyDTO();
         dto.setId(id);
-        dto.setContent(contentUrl);
+        dto.setName(name);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
-        dto.setClinicalHistoryId(clinicalHistory != null ? clinicalHistory.getId() : null);
-        // No author/provider fields on this model version
         return dto;
     }
 }

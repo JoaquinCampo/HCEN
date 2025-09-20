@@ -2,7 +2,7 @@ package grupo12.practico.web.jsf;
 
 import grupo12.practico.models.Gender;
 import grupo12.practico.models.User;
-import grupo12.practico.services.User.UserServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
@@ -20,7 +20,7 @@ public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EJB
-    private UserServiceLocal userService;
+    private HealthUserServiceLocal userService;
 
     private List<User> users;
     private User newUser;

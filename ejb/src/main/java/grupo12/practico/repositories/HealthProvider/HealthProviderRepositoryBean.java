@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 
 @Singleton
 @Startup
@@ -20,10 +20,10 @@ import grupo12.practico.models.HealthProvider;
 @Remote(HealthProviderRepositoryRemote.class)
 public class HealthProviderRepositoryBean implements HealthProviderRepositoryRemote {
 
-    private final Map<String, HealthProvider> idToHealthProvider = new HashMap<>();
+    private final Map<String, Clinic> idToHealthProvider = new HashMap<>();
 
     @Override
-    public HealthProvider add(HealthProvider healthProvider) {
+    public Clinic add(Clinic healthProvider) {
         if (healthProvider == null || healthProvider.getId() == null)
             return healthProvider;
         idToHealthProvider.put(healthProvider.getId(), healthProvider);
@@ -31,12 +31,12 @@ public class HealthProviderRepositoryBean implements HealthProviderRepositoryRem
     }
 
     @Override
-    public List<HealthProvider> findAll() {
+    public List<Clinic> findAll() {
         return new ArrayList<>(idToHealthProvider.values());
     }
 
     @Override
-    public HealthProvider findById(String id) {
+    public Clinic findById(String id) {
         if (id == null || id.trim().isEmpty()) {
             return null;
         }
@@ -44,7 +44,7 @@ public class HealthProviderRepositoryBean implements HealthProviderRepositoryRem
     }
 
     @Override
-    public List<HealthProvider> findByName(String name) {
+    public List<Clinic> findByName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return findAll();
         }

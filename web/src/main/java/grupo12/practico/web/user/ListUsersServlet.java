@@ -9,13 +9,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-import grupo12.practico.services.User.UserServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 
 @WebServlet(name = "ListUsersServlet", urlPatterns = "/users")
 public class ListUsersServlet extends HttpServlet {
 
     @EJB
-    private UserServiceLocal userService;
+    private HealthUserServiceLocal userService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

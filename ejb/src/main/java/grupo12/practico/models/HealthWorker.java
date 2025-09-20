@@ -1,77 +1,20 @@
 package grupo12.practico.models;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
-public class HealthWorker implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private String id;
-    private String firstName;
-    private String lastName;
-    private String dni;
-    private Gender gender;
-    private String specialty;
+import java.util.stream.Collectors;
+import grupo12.practico.dto.HealthWorkerDTO;
+
+public class HealthWorker extends User {
+    private Set<Clinic> clinics;
+    private Set<Specialty> specialties;
+    private Set<ClinicalHistory> clinicalHistories;
+    private Set<ClinicalDocument> clinicalDocuments;
+
     private String licenseNumber;
-    private LocalDate hireDate;
-
-    private Set<User> patients = new HashSet<>();
-    private Set<HealthProvider> healthProviders = new HashSet<>();
-    private Set<ClinicalDocument> authoredDocuments = new HashSet<>();
 
     public HealthWorker() {
-        this.id = UUID.randomUUID().toString();
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public String getSpecialty() {
-        return specialty;
-    }
-
-    public void setSpecialty(String specialty) {
-        this.specialty = specialty;
+        super();
     }
 
     public String getLicenseNumber() {
@@ -82,70 +25,56 @@ public class HealthWorker implements Serializable {
         this.licenseNumber = licenseNumber;
     }
 
-    public LocalDate getHireDate() {
-        return hireDate;
+    public Set<Clinic> getClinics() {
+        return clinics;
     }
 
-    public void setHireDate(LocalDate hireDate) {
-        this.hireDate = hireDate;
+    public void setClinics(Set<Clinic> clinics) {
+        this.clinics = clinics;
     }
 
-    public Set<User> getPatients() {
-        return patients;
+    public Set<Specialty> getSpecialties() {
+        return specialties;
     }
 
-    public void setPatients(Set<User> patients) {
-        this.patients = patients != null ? patients : new HashSet<>();
+    public void setSpecialties(Set<Specialty> specialties) {
+        this.specialties = specialties;
     }
 
-    public Set<HealthProvider> getHealthProviders() {
-        return healthProviders;
+    public Set<ClinicalHistory> getClinicalHistories() {
+        return clinicalHistories;
     }
 
-    public void setHealthProviders(Set<HealthProvider> healthProviders) {
-        this.healthProviders = healthProviders != null ? healthProviders : new HashSet<>();
+    public void setClinicalHistories(Set<ClinicalHistory> clinicalHistories) {
+        this.clinicalHistories = clinicalHistories;
     }
 
-    public void addPatient(User patient) {
-        if (patient == null) {
-            return;
-        }
-        if (this.patients.add(patient)) {
-            patient.addHealthWorker(this);
-        }
+    public Set<ClinicalDocument> getClinicalDocuments() {
+        return clinicalDocuments;
     }
 
-    public void addHealthProvider(HealthProvider healthProvider) {
-        if (healthProvider == null) {
-            return;
-        }
-        if (this.healthProviders.add(healthProvider)) {
-            healthProvider.addHealthWorker(this);
-        }
+    public void setClinicalDocuments(Set<ClinicalDocument> clinicalDocuments) {
+        this.clinicalDocuments = clinicalDocuments;
     }
 
-    public Set<ClinicalDocument> getAuthoredDocuments() {
-        return authoredDocuments;
-    }
-
-    public void addAuthoredDocument(ClinicalDocument doc) {
-        if (doc == null)
-            return;
-        this.authoredDocuments.add(doc);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        HealthWorker that = (HealthWorker) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public HealthWorkerDTO toDto() {
+        HealthWorkerDTO dto = new HealthWorkerDTO();
+        dto.setId(getId());
+        dto.setDocument(getDocument());
+        dto.setDocumentType(getDocumentType());
+        dto.setFirstName(getFirstName());
+        dto.setLastName(getLastName());
+        dto.setGender(getGender());
+        dto.setEmail(getEmail());
+        dto.setPhone(getPhone());
+        dto.setImageUrl(getImageUrl());
+        dto.setAddress(getAddress());
+        dto.setCreatedAt(getCreatedAt());
+        dto.setUpdatedAt(getUpdatedAt());
+        dto.setLicenseNumber(licenseNumber);
+        dto.setClinicIds(clinics != null ? clinics.stream().map(Clinic::getId).collect(Collectors.toSet()) : null);
+        dto.setSpecialtyIds(
+                specialties != null ? specialties.stream().map(Specialty::getId).collect(Collectors.toSet()) : null);
+        return dto;
     }
 }

@@ -9,13 +9,13 @@ import javax.naming.Context;
 import grupo12.practico.models.ClinicalDocument;
 import grupo12.practico.models.ClinicalHistory;
 import grupo12.practico.models.Gender;
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.models.User;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceRemote;
 import grupo12.practico.services.HealthProvider.HealthProviderServiceRemote;
+import grupo12.practico.services.HealthUser.HealthUserServiceRemote;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceRemote;
-import grupo12.practico.services.User.UserServiceRemote;
 
 public class Main {
 
@@ -39,13 +39,23 @@ public class Main {
                 System.out.println("0) Exit");
                 System.out.print("Choose: ");
                 String choice = in.nextLine();
-                if ("0".equals(choice)) break;
+                if ("0".equals(choice))
+                    break;
                 switch (choice) {
-                    case "1": usersMenu(in, locator); break;
-                    case "2": healthWorkersMenu(in, locator); break;
-                    case "3": healthProvidersMenu(in, locator); break;
-                    case "4": documentsMenu(in, locator); break;
-                    default: System.out.println("Unknown option");
+                    case "1":
+                        usersMenu(in, locator);
+                        break;
+                    case "2":
+                        healthWorkersMenu(in, locator);
+                        break;
+                    case "3":
+                        healthProvidersMenu(in, locator);
+                        break;
+                    case "4":
+                        documentsMenu(in, locator);
+                        break;
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         }
@@ -53,7 +63,7 @@ public class Main {
 
     private static void usersMenu(Scanner in, ServiceLocator locator) {
         try {
-            UserServiceRemote userService = locator.userService();
+            HealthUserServiceRemote userService = locator.userService();
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
             HealthProviderServiceRemote hpService = locator.healthProviderService();
             while (true) {
@@ -65,37 +75,47 @@ public class Main {
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
                         User u = new User();
-                        System.out.print("First name: "); String firstName = in.nextLine().trim();
+                        System.out.print("First name: ");
+                        String firstName = in.nextLine().trim();
                         if (firstName.isEmpty()) {
                             System.out.println("Error: First name is required");
                             continue;
                         }
                         u.setFirstName(firstName);
 
-                        System.out.print("Last name: "); String lastName = in.nextLine().trim();
+                        System.out.print("Last name: ");
+                        String lastName = in.nextLine().trim();
                         if (lastName.isEmpty()) {
                             System.out.println("Error: Last name is required");
                             continue;
                         }
                         u.setLastName(lastName);
 
-                        System.out.print("DNI: "); String dni = in.nextLine().trim();
+                        System.out.print("DNI: ");
+                        String dni = in.nextLine().trim();
                         if (dni.isEmpty()) {
                             System.out.println("Error: DNI is required");
                             continue;
                         }
                         u.setDni(dni);
-                        System.out.print("Email: "); u.setEmail(in.nextLine());
-                        System.out.print("Phone: "); u.setPhone(in.nextLine());
-                        System.out.print("Address: "); u.setAddress(in.nextLine());
+                        System.out.print("Email: ");
+                        u.setEmail(in.nextLine());
+                        System.out.print("Phone: ");
+                        u.setPhone(in.nextLine());
+                        System.out.print("Address: ");
+                        u.setAddress(in.nextLine());
                         System.out.print("Gender (MALE/FEMALE/OTHER) or empty: ");
                         String g = in.nextLine();
                         if (!g.isBlank()) {
-                            try { u.setGender(Gender.valueOf(g.trim().toUpperCase())); } catch (Exception ignore) {}
+                            try {
+                                u.setGender(Gender.valueOf(g.trim().toUpperCase()));
+                            } catch (Exception ignore) {
+                            }
                         }
                         System.out.print("Date of birth (YYYY-MM-DD): ");
                         String dob = in.nextLine();
@@ -121,14 +141,16 @@ public class Main {
                         String hwId = in.nextLine();
                         if (!hwId.isBlank()) {
                             HealthWorker hw = hwService.findById(hwId.trim());
-                            if (hw != null) u.addHealthWorker(hw);
+                            if (hw != null)
+                                u.addHealthWorker(hw);
                         }
 
                         System.out.print("Add affiliated provider by ID (empty to skip): ");
                         String hpId = in.nextLine();
                         if (!hpId.isBlank()) {
-                            HealthProvider hp = hpService.findById(hpId.trim());
-                            if (hp != null) u.addAffiliatedHealthProvider(hp);
+                            Clinic hp = hpService.findById(hpId.trim());
+                            if (hp != null)
+                                u.addAffiliatedHealthProvider(hp);
                         }
 
                         try {
@@ -145,7 +167,8 @@ public class Main {
                             if (users.isEmpty()) {
                                 System.out.println("No users found.");
                             } else {
-                                users.forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                                users.forEach(x -> System.out
+                                        .println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
                             }
                         } catch (Exception ex) {
                             System.out.println("Failed to retrieve users: " + ex.getMessage());
@@ -159,13 +182,15 @@ public class Main {
                             if (searchResults.isEmpty()) {
                                 System.out.println("No users found matching: " + q);
                             } else {
-                                searchResults.forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                                searchResults.forEach(x -> System.out
+                                        .println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
                             }
                         } catch (Exception ex) {
                             System.out.println("Failed to search users: " + ex.getMessage());
                         }
                         break;
-                    default: System.out.println("Unknown option");
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
@@ -186,31 +211,42 @@ public class Main {
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
                         HealthWorker hw = new HealthWorker();
-                        System.out.print("First name: "); String hwFirstName = in.nextLine().trim();
+                        System.out.print("First name: ");
+                        String hwFirstName = in.nextLine().trim();
                         if (hwFirstName.isEmpty()) {
                             System.out.println("Error: First name is required");
                             continue;
                         }
                         hw.setFirstName(hwFirstName);
 
-                        System.out.print("Last name: "); String hwLastName = in.nextLine().trim();
+                        System.out.print("Last name: ");
+                        String hwLastName = in.nextLine().trim();
                         if (hwLastName.isEmpty()) {
                             System.out.println("Error: Last name is required");
                             continue;
                         }
                         hw.setLastName(hwLastName);
 
-                        System.out.print("DNI: "); hw.setDni(in.nextLine());
+                        System.out.print("DNI: ");
+                        hw.setDni(in.nextLine());
                         System.out.print("Gender (MALE/FEMALE/OTHER) or empty: ");
                         String g = in.nextLine();
-                        if (!g.isBlank()) { try { hw.setGender(Gender.valueOf(g.trim().toUpperCase())); } catch (Exception ignore) {} }
-                        System.out.print("Specialty: "); hw.setSpecialty(in.nextLine());
+                        if (!g.isBlank()) {
+                            try {
+                                hw.setGender(Gender.valueOf(g.trim().toUpperCase()));
+                            } catch (Exception ignore) {
+                            }
+                        }
+                        System.out.print("Specialty: ");
+                        hw.setSpecialty(in.nextLine());
 
-                        System.out.print("License number: "); String licenseNumber = in.nextLine().trim();
+                        System.out.print("License number: ");
+                        String licenseNumber = in.nextLine().trim();
                         if (licenseNumber.isEmpty()) {
                             System.out.println("Error: License number is required");
                             continue;
@@ -231,8 +267,9 @@ public class Main {
                         System.out.print("Add provider by ID (empty to skip): ");
                         String hpId = in.nextLine();
                         if (!hpId.isBlank()) {
-                            HealthProvider hp = hpService.findById(hpId.trim());
-                            if (hp != null) hw.addHealthProvider(hp);
+                            Clinic hp = hpService.findById(hpId.trim());
+                            if (hp != null)
+                                hw.addHealthProvider(hp);
                         }
                         try {
                             HealthWorker addedHw = hwService.addHealthWorker(hw);
@@ -243,14 +280,17 @@ public class Main {
                         }
                         break;
                     case "2":
-                        hwService.getAllHealthWorkers().forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                        hwService.getAllHealthWorkers().forEach(
+                                x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
                         break;
                     case "3":
                         System.out.print("Query: ");
                         String q = in.nextLine();
-                        hwService.findHealthWorkersByName(q).forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                        hwService.findHealthWorkersByName(q).forEach(
+                                x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
                         break;
-                    default: System.out.println("Unknown option");
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
@@ -270,26 +310,32 @@ public class Main {
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
-                        HealthProvider hp = new HealthProvider();
-                        System.out.print("Name: "); String hpName = in.nextLine().trim();
+                        Clinic hp = new Clinic();
+                        System.out.print("Name: ");
+                        String hpName = in.nextLine().trim();
                         if (hpName.isEmpty()) {
                             System.out.println("Error: Name is required");
                             continue;
                         }
                         hp.setName(hpName);
 
-                        System.out.print("Address: "); String hpAddress = in.nextLine().trim();
+                        System.out.print("Address: ");
+                        String hpAddress = in.nextLine().trim();
                         if (hpAddress.isEmpty()) {
                             System.out.println("Error: Address is required");
                             continue;
                         }
                         hp.setAddress(hpAddress);
-                        System.out.print("Phone: "); hp.setPhone(in.nextLine());
-                        System.out.print("Email: "); hp.setEmail(in.nextLine());
-                        System.out.print("Registration number: "); hp.setRegistrationNumber(in.nextLine());
+                        System.out.print("Phone: ");
+                        hp.setPhone(in.nextLine());
+                        System.out.print("Email: ");
+                        hp.setEmail(in.nextLine());
+                        System.out.print("Registration number: ");
+                        hp.setRegistrationNumber(in.nextLine());
                         System.out.print("Registration date (YYYY-MM-DD, empty=today): ");
                         String rd = in.nextLine();
                         LocalDate registrationDate;
@@ -309,7 +355,7 @@ public class Main {
                         }
                         hp.setRegistrationDate(registrationDate);
                         try {
-                            HealthProvider addedHp = hpService.addHealthProvider(hp);
+                            Clinic addedHp = hpService.addHealthProvider(hp);
                             System.out.println("Health provider added successfully with ID: " + addedHp.getId());
                         } catch (Exception ex) {
                             System.out.println("Failed to add health provider: " + ex.getMessage());
@@ -324,7 +370,8 @@ public class Main {
                         String q = in.nextLine();
                         hpService.findByName(q).forEach(x -> System.out.println(x.getId() + " | " + x.getName()));
                         break;
-                    default: System.out.println("Unknown option");
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
@@ -335,7 +382,7 @@ public class Main {
     private static void documentsMenu(Scanner in, ServiceLocator locator) {
         try {
             ClinicalDocumentServiceRemote docService = locator.clinicalDocumentService();
-            UserServiceRemote userService = locator.userService();
+            HealthUserServiceRemote userService = locator.userService();
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
             HealthProviderServiceRemote hpService = locator.healthProviderService();
             while (true) {
@@ -347,19 +394,23 @@ public class Main {
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
                         ClinicalDocument doc = new ClinicalDocument();
-                        System.out.print("Title: "); String title = in.nextLine().trim();
+                        System.out.print("Title: ");
+                        String title = in.nextLine().trim();
                         if (title.isEmpty()) {
                             System.out.println("Error: Title is required");
                             continue;
                         }
                         doc.setTitle(title);
 
-                        System.out.print("Content: "); doc.setContent(in.nextLine());
-                        System.out.print("Patient ID: "); String userId = in.nextLine().trim();
+                        System.out.print("Content: ");
+                        doc.setContent(in.nextLine());
+                        System.out.print("Patient ID: ");
+                        String userId = in.nextLine().trim();
                         if (userId.isEmpty()) {
                             System.out.println("Error: Patient ID is required");
                             continue;
@@ -379,14 +430,16 @@ public class Main {
                             }
                         }
                         doc.setClinicalHistory(history);
-                        System.out.print("Author ID (empty optional): "); String authorId = in.nextLine();
+                        System.out.print("Author ID (empty optional): ");
+                        String authorId = in.nextLine();
                         if (!authorId.isBlank()) {
                             HealthWorker author = hwService.findById(authorId.trim());
                             doc.setAuthor(author);
                         }
-                        System.out.print("Provider ID (empty optional): "); String providerId = in.nextLine();
+                        System.out.print("Provider ID (empty optional): ");
+                        String providerId = in.nextLine();
                         if (!providerId.isBlank()) {
-                            HealthProvider provider = hpService.findById(providerId.trim());
+                            Clinic provider = hpService.findById(providerId.trim());
                             doc.setProvider(provider);
                         }
                         try {
@@ -407,14 +460,23 @@ public class Main {
                         String scope = in.nextLine().trim().toLowerCase();
                         List<ClinicalDocument> results;
                         switch (scope) {
-                            case "patient": results = docService.searchByPatientName(q); break;
-                            case "author": results = docService.searchByAuthorName(q); break;
-                            case "provider": results = docService.searchByProviderName(q); break;
-                            default: results = docService.searchByAnyName(q); break;
+                            case "patient":
+                                results = docService.searchByPatientName(q);
+                                break;
+                            case "author":
+                                results = docService.searchByAuthorName(q);
+                                break;
+                            case "provider":
+                                results = docService.searchByProviderName(q);
+                                break;
+                            default:
+                                results = docService.searchByAnyName(q);
+                                break;
                         }
                         results.forEach(x -> System.out.println(x.getId() + " | " + x.getTitle()));
                         break;
-                    default: System.out.println("Unknown option");
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
@@ -422,5 +484,3 @@ public class Main {
         }
     }
 }
-
-

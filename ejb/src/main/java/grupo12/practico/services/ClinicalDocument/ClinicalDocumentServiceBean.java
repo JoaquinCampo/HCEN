@@ -2,7 +2,7 @@ package grupo12.practico.services.ClinicalDocument;
 
 import grupo12.practico.models.ClinicalDocument;
 import grupo12.practico.models.ClinicalHistory;
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
 import jakarta.ejb.EJB;
@@ -27,7 +27,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
 
         ClinicalHistory history = doc.getClinicalHistory();
         HealthWorker author = doc.getAuthor();
-        HealthProvider provider = doc.getProvider();
+        Clinic provider = doc.getProvider();
         if (history != null)
             history.addDocument(doc);
         if (author != null)

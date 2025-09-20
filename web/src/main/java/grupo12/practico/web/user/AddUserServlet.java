@@ -4,7 +4,7 @@ import grupo12.practico.models.Gender;
 import grupo12.practico.models.User;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
-import grupo12.practico.services.User.UserServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,7 +20,7 @@ import java.time.LocalDate;
 public class AddUserServlet extends HttpServlet {
 
     @EJB
-    private UserServiceLocal userService;
+    private HealthUserServiceLocal userService;
 
     @EJB
     private HealthWorkerServiceLocal healthWorkerService;

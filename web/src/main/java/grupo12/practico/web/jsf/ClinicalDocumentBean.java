@@ -3,8 +3,8 @@ package grupo12.practico.web.jsf;
 import grupo12.practico.models.*;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
 import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
-import grupo12.practico.services.User.UserServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
@@ -24,7 +24,7 @@ public class ClinicalDocumentBean implements Serializable {
     @EJB
     private ClinicalDocumentServiceLocal docService;
     @EJB
-    private UserServiceLocal userService;
+    private HealthUserServiceLocal userService;
     @EJB
     private HealthWorkerServiceLocal workerService;
     @EJB
@@ -40,7 +40,7 @@ public class ClinicalDocumentBean implements Serializable {
 
     private List<User> users;
     private List<HealthWorker> workers;
-    private List<HealthProvider> providers;
+    private List<Clinic> providers;
 
     @PostConstruct
     public void init() {
@@ -152,7 +152,7 @@ public class ClinicalDocumentBean implements Serializable {
         return workers;
     }
 
-    public List<HealthProvider> getProviders() {
+    public List<Clinic> getProviders() {
         return providers;
     }
 }

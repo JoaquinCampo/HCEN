@@ -1,6 +1,6 @@
 package grupo12.practico.services.HealthProvider;
 
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 import grupo12.practico.repositories.HealthProvider.HealthProviderRepositoryLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
@@ -20,27 +20,27 @@ public class HealthProviderServiceBean implements HealthProviderServiceRemote {
     private HealthProviderRepositoryLocal repository;
 
     @Override
-    public HealthProvider addHealthProvider(HealthProvider healthProvider) {
+    public Clinic addHealthProvider(Clinic healthProvider) {
         validateHealthProvider(healthProvider);
         return repository.add(healthProvider);
     }
 
     @Override
-    public List<HealthProvider> findAll() {
+    public List<Clinic> findAll() {
         return repository.findAll();
     }
 
     @Override
-    public HealthProvider findById(String id) {
+    public Clinic findById(String id) {
         return repository.findById(id);
     }
 
     @Override
-    public List<HealthProvider> findByName(String name) {
+    public List<Clinic> findByName(String name) {
         return repository.findByName(name);
     }
 
-    private void validateHealthProvider(HealthProvider hp) {
+    private void validateHealthProvider(Clinic hp) {
         if (hp == null) {
             throw new ValidationException("HealthProvider must not be null");
         }

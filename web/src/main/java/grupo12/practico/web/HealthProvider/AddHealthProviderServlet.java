@@ -1,6 +1,6 @@
 package grupo12.practico.web.HealthProvider;
 
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.models.Clinic;
 import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -35,7 +35,7 @@ public class AddHealthProviderServlet extends HttpServlet {
         String activeParam = req.getParameter("active");
 
         try {
-            HealthProvider hp = new HealthProvider();
+            Clinic hp = new Clinic();
             hp.setName(name);
             hp.setAddress(address);
             hp.setPhone(phone);
