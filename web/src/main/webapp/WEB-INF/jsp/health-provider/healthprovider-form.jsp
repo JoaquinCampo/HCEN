@@ -98,6 +98,23 @@
       </label>
 
       <label
+        >Clinic Type:
+        <select name="type" required>
+          <option value="">-- Select Type --</option>
+          <option value="HOSPITAL">Hospital</option>
+          <option value="POLYCLINIC">Polyclinic</option>
+          <option value="PRIVATE_PRACTICE">Private Practice</option>
+          <option value="LABORATORY">Laboratory</option>
+          <option value="DIAGNOSTIC_CENTER">Diagnostic Center</option>
+          <option value="SPECIALTY_CLINIC">Specialty Clinic</option>
+          <option value="EMERGENCY_ROOM">Emergency Room</option>
+          <option value="REHABILITATION_CENTER">Rehabilitation Center</option>
+          <option value="NURSING_HOME">Nursing Home</option>
+          <option value="PHARMACY">Pharmacy</option>
+        </select>
+      </label>
+
+      <label
         >Registration Date:
         <input type="date" name="registrationDate" />
       </label>

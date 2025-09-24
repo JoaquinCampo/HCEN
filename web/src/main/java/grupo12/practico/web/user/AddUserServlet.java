@@ -1,9 +1,10 @@
-package grupo12.practico.web.User;
+package grupo12.practico.web.user;
 
+import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
-import grupo12.practico.models.User;
+import grupo12.practico.models.HealthUser;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
@@ -26,13 +27,13 @@ public class AddUserServlet extends HttpServlet {
     private HealthWorkerServiceLocal healthWorkerService;
 
     @EJB
-    private HealthProviderServiceLocal healthProviderService;
+    private ClinicServiceLocal clinicService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("genders", Gender.values());
         req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
-        req.setAttribute("healthProviders", healthProviderService.findAll());
+        req.setAttribute("healthProviders", clinicService.findAll());
         req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
     }
 
@@ -40,7 +41,9 @@ public class AddUserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String firstName = req.getParameter("firstName");
         String lastName = req.getParameter("lastName");
-        String dni = req.getParameter("dni");
+        String document = req.getParameter("document");
+        String documentTypeParam = req.getParameter("documentType");
+        String password = req.getParameter("password");
         String email = req.getParameter("email");
         String phone = req.getParameter("phone");
         String address = req.getParameter("address");
@@ -50,10 +53,16 @@ public class AddUserServlet extends HttpServlet {
         String[] affiliatedHealthProvidersParams = req.getParameterValues("affiliatedHealthProviders");
 
         try {
-            User user = new User();
+            HealthUser user = new HealthUser();
             user.setFirstName(firstName);
             user.setLastName(lastName);
-            user.setDni(dni);
+            user.setDocument(document);
+            if (documentTypeParam != null && !documentTypeParam.isBlank()) {
+                user.setDocumentType(DocumentType.valueOf(documentTypeParam));
+            }
+            if (password != null && !password.trim().isEmpty()) {
+                user.setPassword(password);
+            }
             user.setEmail(email);
             user.setPhone(phone);
             user.setAddress(address);
@@ -73,7 +82,7 @@ public class AddUserServlet extends HttpServlet {
             if (affiliatedHealthProvidersParams != null && affiliatedHealthProvidersParams.length > 0) {
                 for (String healthProviderParam : affiliatedHealthProvidersParams) {
                     if (healthProviderParam != null && !healthProviderParam.trim().isEmpty()) {
-                        user.addAffiliatedHealthProvider(healthProviderService.findById(healthProviderParam));
+                        user.addAffiliatedHealthProvider(clinicService.findById(healthProviderParam));
                     }
                 }
             }
@@ -84,13 +93,13 @@ public class AddUserServlet extends HttpServlet {
             req.setAttribute("error", ex.getMessage());
             req.setAttribute("genders", Gender.values());
             req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
-            req.setAttribute("healthProviders", healthProviderService.findAll());
+            req.setAttribute("healthProviders", clinicService.findAll());
             req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
         } catch (Exception ex) {
             req.setAttribute("error", "Unexpected error: " + ex.getMessage());
             req.setAttribute("genders", Gender.values());
             req.setAttribute("healthWorkers", healthWorkerService.getAllHealthWorkers());
-            req.setAttribute("healthProviders", healthProviderService.findAll());
+            req.setAttribute("healthProviders", clinicService.findAll());
             req.getRequestDispatcher("/WEB-INF/jsp/user/user-form.jsp").forward(req, resp);
         }
     }

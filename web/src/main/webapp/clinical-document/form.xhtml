@@ -1,56 +1,74 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<h:head>
-    <title>Create Clinical Document</title>
-    <meta charset="UTF-8"/>
-    <style>body{font-family:sans-serif;max-width:800px;margin:24px auto;padding:0 16px}.form-row{margin-bottom:12px}label{display:block;margin-bottom:4px;font-weight:600}input,select,textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px}.btn{display:inline-block;padding:8px 16px;background:#1976d2;color:#fff;text-decoration:none;border-radius:4px;border:none;cursor:pointer}.btn:hover{background:#125aa0}.error{color:#c62828}</style>
-</h:head>
-<h:body>
-<h1>Create Clinical Document</h1>
-<h:messages globalOnly="true" styleClass="error"/>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Create Clinical Document</ui:define>
+    <ui:define name="content">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h:messages id="formMessages" globalOnly="true" styleClass="alert alert-danger" layout="list"
+                            infoClass="alert alert-success" warnClass="alert alert-warning"
+                            errorClass="alert alert-danger" fatalClass="alert alert-danger"/>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="card-title h4 mb-0">Create Clinical Document</h2>
+                        <small class="text-muted">Attach medical information to a patient's history.</small>
+                    </div>
+                    <h:link outcome="/clinical-document/list" styleClass="btn btn-outline-secondary">Back to list</h:link>
+                </div>
 
-<h:form>
-    <div class="form-row">
-        <label for="title">Title</label>
-        <h:inputText id="title" value="#{clinicalDocumentBean.newDocument.title}" required="true"/>
-    </div>
-    <div class="form-row">
-        <label for="content">Content</label>
-        <h:inputTextarea id="content" value="#{clinicalDocumentBean.newDocument.content}" rows="6"/>
-    </div>
-    <div class="form-row">
-        <label for="patient">Patient</label>
-        <h:selectOneMenu id="patient" value="#{clinicalDocumentBean.selectedPatientId}" required="true">
-            <f:selectItem itemLabel="-- Select --" itemValue="#{null}" noSelectionOption="true"/>
-            <f:selectItems value="#{clinicalDocumentBean.users}" var="u"
-                           itemValue="#{u.id}" itemLabel="#{u.lastName}, #{u.firstName} (#{u.dni})"/>
-        </h:selectOneMenu>
-    </div>
-    <div class="form-row">
-        <label for="author">Author (optional)</label>
-        <h:selectOneMenu id="author" value="#{clinicalDocumentBean.selectedAuthorId}">
-            <f:selectItem itemLabel="-- None --" itemValue="#{null}" noSelectionOption="true"/>
-            <f:selectItems value="#{clinicalDocumentBean.workers}" var="w"
-                           itemValue="#{w.id}" itemLabel="#{w.lastName}, #{w.firstName} (#{w.licenseNumber})"/>
-        </h:selectOneMenu>
-    </div>
-    <div class="form-row">
-        <label for="provider">Provider (optional)</label>
-        <h:selectOneMenu id="provider" value="#{clinicalDocumentBean.selectedProviderId}">
-            <f:selectItem itemLabel="-- None --" itemValue="#{null}" noSelectionOption="true"/>
-            <f:selectItems value="#{clinicalDocumentBean.providers}" var="p"
-                           itemValue="#{p.id}" itemLabel="#{p.name}"/>
-        </h:selectOneMenu>
-    </div>
-    <div class="form-row">
-        <h:commandButton value="Save" action="#{clinicalDocumentBean.save}" styleClass="btn"/>
-        <h:link outcome="/clinical-document/list" value="Cancel" styleClass="btn"/>
-    </div>
-</h:form>
+                <h:form styleClass="row g-3">
+                    <div class="col-12">
+                        <h:outputLabel for="title" value="Title" styleClass="form-label"/>
+                        <h:inputText id="title" value="#{clinicalDocumentBean.newDocument.title}" required="true" styleClass="form-control"/>
+                        <h:message for="title" styleClass="form-text text-danger"/>
+                    </div>
 
-<p><h:link outcome="/index" value="Home"/></p>
+                    <div class="col-12">
+                        <h:outputLabel for="content" value="Content" styleClass="form-label"/>
+                        <h:inputTextarea id="content" value="#{clinicalDocumentBean.newDocument.content}" rows="6" styleClass="form-control" placeholder="Paste or type the narrative"/>
+                        <h:message for="content" styleClass="form-text text-danger"/>
+                    </div>
 
-</h:body>
-</html>
+                    <div class="col-md-6">
+                        <h:outputLabel for="patient" value="Patient" styleClass="form-label"/>
+                        <h:selectOneMenu id="patient" value="#{clinicalDocumentBean.selectedPatientId}" required="true" styleClass="form-select">
+                            <f:selectItem itemLabel="-- Select Patient --" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{clinicalDocumentBean.users}" var="patient"
+                                           itemValue="#{patient.id}" itemLabel="#{patient.lastName}, #{patient.firstName} (#{patient.document})"/>
+                        </h:selectOneMenu>
+                        <h:message for="patient" styleClass="form-text text-danger"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="author" value="Author" styleClass="form-label"/>
+                        <h:selectOneMenu id="author" value="#{clinicalDocumentBean.selectedAuthorId}" required="true" styleClass="form-select">
+                            <f:selectItem itemLabel="-- Select Author --" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{clinicalDocumentBean.workers}" var="worker"
+                                           itemValue="#{worker.id}" itemLabel="#{worker.lastName}, #{worker.firstName} (#{worker.licenseNumber})"/>
+                        </h:selectOneMenu>
+                        <h:message for="author" styleClass="form-text text-danger"/>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h:outputLabel for="provider" value="Clinic (optional)" styleClass="form-label"/>
+                        <h:selectOneMenu id="provider" value="#{clinicalDocumentBean.selectedProviderId}" styleClass="form-select">
+                            <f:selectItem itemLabel="-- None --" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{clinicalDocumentBean.providers}" var="clinic"
+                                           itemValue="#{clinic.id}" itemLabel="#{clinic.name}"/>
+                        </h:selectOneMenu>
+                        <h:message for="provider" styleClass="form-text text-danger"/>
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 mt-3">
+                        <h:commandButton value="Save" action="#{clinicalDocumentBean.save}" styleClass="btn btn-primary"/>
+                        <h:commandButton value="Reset" actionListener="#{clinicalDocumentBean.init}" immediate="true" styleClass="btn btn-outline-secondary">
+                            <f:ajax render="@form"/>
+                        </h:commandButton>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

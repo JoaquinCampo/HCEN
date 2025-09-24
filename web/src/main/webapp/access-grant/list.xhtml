@@ -1,0 +1,125 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Access Grants</ui:define>
+    <ui:define name="content">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title h4 mb-3">Create Access Grant</h2>
+                <h:form id="createForm" styleClass="row g-3">
+                    <div class="col-md-6">
+                        <h:outputLabel for="clinicalHistory" value="Clinical History ID"/>
+                        <h:inputText id="clinicalHistory" value="#{accessGrantBean.newGrant.clinicalHistoryId}" required="true" styleClass="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <h:outputLabel for="subjectType" value="Subject Type"/>
+                        <h:selectOneMenu id="subjectType" value="#{accessGrantBean.newGrant.subjectType}" required="true" styleClass="form-select">
+                            <f:selectItem itemLabel="-- Select --" itemValue="" noSelectionOption="true" />
+                            <f:selectItems value="#{accessGrantBean.subjectTypes}" />
+                        </h:selectOneMenu>
+                    </div>
+                    <div class="col-md-3">
+                        <h:outputLabel for="subjectId" value="Subject ID"/>
+                        <h:inputText id="subjectId" value="#{accessGrantBean.newGrant.subjectId}" required="true" styleClass="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <h:outputLabel for="scope" value="Scope"/>
+                        <h:selectOneMenu id="scope" value="#{accessGrantBean.newGrant.scope}" styleClass="form-select">
+                            <f:selectItems value="#{accessGrantBean.scopes}" />
+                        </h:selectOneMenu>
+                    </div>
+                    <div class="col-md-3">
+                        <h:outputLabel for="startsAt" value="Starts At"/>
+                        <h:inputText id="startsAt" value="#{accessGrantBean.newGrant.startsAt}" styleClass="form-control">
+                            <f:convertDateTime pattern="yyyy-MM-dd" type="localDate" />
+                        </h:inputText>
+                    </div>
+                    <div class="col-md-3">
+                        <h:outputLabel for="endsAt" value="Ends At"/>
+                        <h:inputText id="endsAt" value="#{accessGrantBean.newGrant.endsAt}" styleClass="form-control">
+                            <f:convertDateTime pattern="yyyy-MM-dd" type="localDate" />
+                        </h:inputText>
+                    </div>
+                    <div class="col-md-3">
+                        <h:outputLabel for="grantedBy" value="Granted By (User ID)"/>
+                        <h:inputText id="grantedBy" value="#{accessGrantBean.newGrant.grantedBy}" required="true" styleClass="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <h:outputLabel for="reason" value="Reason"/>
+                        <h:inputTextarea id="reason" value="#{accessGrantBean.newGrant.reason}" rows="2" styleClass="form-control" />
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <h:commandButton value="Create" actionListener="#{accessGrantBean.save}" styleClass="btn btn-primary" />
+                        <h:commandButton value="Reset" actionListener="#{accessGrantBean.reset}" immediate="true" styleClass="btn btn-secondary">
+                            <f:ajax render="@form" />
+                        </h:commandButton>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="card-title h4 mb-0">Existing Access Grants</h2>
+                    <h:commandButton value="Refresh" actionListener="#{accessGrantBean.loadAll}" styleClass="btn btn-outline-primary">
+                        <f:ajax render="grantTable globalMessages" />
+                    </h:commandButton>
+                </div>
+                <h:panelGroup id="grantTable">
+                    <h:dataTable value="#{accessGrantBean.grants}" var="grant" styleClass="table table-striped" rendered="#{not empty accessGrantBean.grants}">
+                        <h:column>
+                            <f:facet name="header">ID</f:facet>
+                            #{grant.id}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Clinical History</f:facet>
+                            #{grant.clinicalHistoryId}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Subject</f:facet>
+                            #{grant.subjectType} / #{grant.subjectId}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Scope</f:facet>
+                            #{grant.scope}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Starts</f:facet>
+                            #{grant.startsAt}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Ends</f:facet>
+                            #{grant.endsAt}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Granted By</f:facet>
+                            #{grant.grantedBy}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Reason</f:facet>
+                            #{grant.reason}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Status</f:facet>
+                            <span class="badge bg-#{grant.active ? 'success' : 'secondary'}">
+                                #{grant.active ? 'Active' : 'Inactive'}
+                            </span>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Actions</f:facet>
+                            <h:commandLink value="Revoke" actionListener="#{accessGrantBean.revoke(grant.id)}" rendered="#{grant.active}" styleClass="btn btn-sm btn-outline-danger">
+                                <f:ajax render="grantTable globalMessages" />
+                            </h:commandLink>
+                        </h:column>
+                    </h:dataTable>
+                    <h:panelGroup rendered="#{empty accessGrantBean.grants}" styleClass="text-muted">
+                        <p class="mb-0">No access grants registered yet.</p>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

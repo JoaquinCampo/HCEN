@@ -1,7 +1,8 @@
 package grupo12.practico.web.jsf;
 
+import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
-import grupo12.practico.models.User;
+import grupo12.practico.models.HealthUser;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -22,13 +23,14 @@ public class UserBean implements Serializable {
     @EJB
     private HealthUserServiceLocal userService;
 
-    private List<User> users;
-    private User newUser;
+    private List<HealthUser> users;
+    private HealthUser newUser;
     private String searchQuery;
+    private String password;
 
     @PostConstruct
     public void init() {
-        newUser = new User();
+        newUser = new HealthUser();
         users = new ArrayList<>();
         loadAll();
     }
@@ -47,10 +49,14 @@ public class UserBean implements Serializable {
 
     public String save() {
         try {
+            if (password != null && !password.isBlank()) {
+                newUser.setPassword(password);
+            }
             userService.addUser(newUser);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "User created successfully", null));
-            newUser = new User();
+            newUser = new HealthUser();
+            password = null;
             return "list?faces-redirect=true";
         } catch (RuntimeException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -63,16 +69,20 @@ public class UserBean implements Serializable {
         return Gender.values();
     }
 
+    public DocumentType[] getDocumentTypes() {
+        return DocumentType.values();
+    }
+
     // Getters and setters
-    public List<User> getUsers() {
+    public List<HealthUser> getUsers() {
         return users;
     }
 
-    public User getNewUser() {
+    public HealthUser getNewUser() {
         return newUser;
     }
 
-    public void setNewUser(User newUser) {
+    public void setNewUser(HealthUser newUser) {
         this.newUser = newUser;
     }
 
@@ -82,5 +92,13 @@ public class UserBean implements Serializable {
 
     public void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

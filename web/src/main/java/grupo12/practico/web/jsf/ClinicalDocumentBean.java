@@ -2,7 +2,7 @@ package grupo12.practico.web.jsf;
 
 import grupo12.practico.models.*;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import jakarta.annotation.PostConstruct;
@@ -28,7 +28,7 @@ public class ClinicalDocumentBean implements Serializable {
     @EJB
     private HealthWorkerServiceLocal workerService;
     @EJB
-    private HealthProviderServiceLocal providerService;
+    private ClinicServiceLocal clinicService;
 
     private List<ClinicalDocument> documents;
     private ClinicalDocument newDocument;
@@ -38,7 +38,7 @@ public class ClinicalDocumentBean implements Serializable {
     private String selectedAuthorId;
     private String selectedProviderId;
 
-    private List<User> users;
+    private List<HealthUser> users;
     private List<HealthWorker> workers;
     private List<Clinic> providers;
 
@@ -46,9 +46,9 @@ public class ClinicalDocumentBean implements Serializable {
     public void init() {
         newDocument = new ClinicalDocument();
         documents = new ArrayList<>();
-        users = userService.findAll();
+        users = userService.getAllUsers();
         workers = workerService.getAllHealthWorkers();
-        providers = providerService.findAll();
+        providers = clinicService.findAll();
         loadAll();
     }
 
@@ -66,7 +66,7 @@ public class ClinicalDocumentBean implements Serializable {
 
     public String save() {
         try {
-            User patient = selectedPatientId != null && !selectedPatientId.isEmpty()
+            HealthUser patient = selectedPatientId != null && !selectedPatientId.isEmpty()
                     ? userService.findById(selectedPatientId)
                     : null;
             if (patient == null) {
@@ -74,15 +74,14 @@ public class ClinicalDocumentBean implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Patient is required", null));
                 return null;
             }
-            ClinicalHistory history = new ClinicalHistory();
-            history.setPatient(patient);
+            ClinicalHistory history = patient.getOrCreateClinicalHistory();
             newDocument.setClinicalHistory(history);
 
             if (selectedAuthorId != null && !selectedAuthorId.isEmpty()) {
                 newDocument.setAuthor(workerService.findById(selectedAuthorId));
             }
             if (selectedProviderId != null && !selectedProviderId.isEmpty()) {
-                newDocument.setProvider(providerService.findById(selectedProviderId));
+                newDocument.setProvider(clinicService.findById(selectedProviderId));
             }
 
             docService.addClinicalDocument(newDocument);
@@ -144,7 +143,7 @@ public class ClinicalDocumentBean implements Serializable {
         this.selectedProviderId = id;
     }
 
-    public List<User> getUsers() {
+    public List<HealthUser> getUsers() {
         return users;
     }
 

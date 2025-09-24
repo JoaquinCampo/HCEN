@@ -3,12 +3,12 @@ package grupo12.practico.web.ClinicalDocument;
 import grupo12.practico.models.ClinicalDocument;
 import grupo12.practico.models.ClinicalHistory;
 import grupo12.practico.models.Clinic;
+import grupo12.practico.models.HealthUser;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
-import grupo12.practico.models.User;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -29,13 +29,13 @@ public class AddClinicalDocumentServlet extends HttpServlet {
     @EJB
     private HealthWorkerServiceLocal hwService;
     @EJB
-    private HealthProviderServiceLocal hpService;
+    private ClinicServiceLocal clinicService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("users", userService.getAllUsers());
+        req.setAttribute("healthUsers", userService.getAllUsers());
         req.setAttribute("healthWorkers", hwService.getAllHealthWorkers());
-        req.setAttribute("healthProviders", hpService.findAll());
+        req.setAttribute("healthProviders", clinicService.findAll());
         req.getRequestDispatcher("/WEB-INF/jsp/clinical-document/document-form.jsp").forward(req, resp);
     }
 
@@ -52,20 +52,14 @@ public class AddClinicalDocumentServlet extends HttpServlet {
             doc.setTitle(title);
             doc.setContent(content);
 
-            User patient = userService.findById(userId);
+            HealthUser patient = userService.findById(userId);
             HealthWorker author = (authorId != null && !authorId.trim().isEmpty()) ? hwService.findById(authorId)
                     : null;
             Clinic provider = (providerId != null && !providerId.trim().isEmpty())
-                    ? hpService.findById(providerId)
+                    ? clinicService.findById(providerId)
                     : null;
 
-            ClinicalHistory history = patient != null ? patient.getClinicalHistory() : null;
-            if (history == null && patient != null) {
-                history = new ClinicalHistory();
-                history.setPatient(patient);
-                patient.setClinicalHistory(history);
-            }
-
+            ClinicalHistory history = (patient != null) ? patient.getOrCreateClinicalHistory() : null;
             doc.setClinicalHistory(history);
             doc.setAuthor(author);
             doc.setProvider(provider);

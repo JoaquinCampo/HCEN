@@ -91,7 +91,7 @@
         <thead>
         <tr>
             <th>UUID</th>
-            <th>DNI</th>
+            <th>Document</th>
             <th>Name</th>
             <th>Date of Birth</th>
             <th>Gender</th>

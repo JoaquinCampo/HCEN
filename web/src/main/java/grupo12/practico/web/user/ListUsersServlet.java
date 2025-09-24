@@ -1,4 +1,4 @@
-package grupo12.practico.web.User;
+package grupo12.practico.web.user;
 
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;

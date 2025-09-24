@@ -5,15 +5,14 @@ import jakarta.ejb.Local;
 import java.util.List;
 
 import grupo12.practico.models.HealthUser;
-import grupo12.practico.dto.HealthUserDTO;
 
 @Local
 public interface HealthUserRepositoryLocal {
-    List<HealthUserDTO> findAll();
+    List<HealthUser> findAll();
 
-    HealthUserDTO findById(String id);
+    HealthUser findById(String id);
 
-    List<HealthUserDTO> findByName(String name);
+    List<HealthUser> findByName(String name);
 
-    HealthUserDTO add(HealthUser healthUser);
+    HealthUser add(HealthUser healthUser);
 }

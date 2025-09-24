@@ -90,7 +90,7 @@
         <thead>
         <tr>
             <th>UUID</th>
-            <th>DNI</th>
+            <th>Document</th>
             <th>Name</th>
             <th>Gender</th>
             <th>Specialty</th>
@@ -105,7 +105,14 @@
                 <td><%= hw.getDni() %></td>
                 <td><%= hw.getLastName() %>, <%= hw.getFirstName() %></td>
                 <td><%= hw.getGender() %></td>
-                <td><%= hw.getSpecialty() != null ? hw.getSpecialty() : "-" %></td>
+                <td>
+                    <% if (hw.getSpecialties() != null && !hw.getSpecialties().isEmpty()) { %>
+                        <%= hw.getSpecialties().iterator().next().getName() %>
+                        <% if (hw.getSpecialties().size() > 1) { %> (+<%= hw.getSpecialties().size() - 1 %> more)<% } %>
+                    <% } else { %>
+                        -
+                    <% } %>
+                </td>
                 <td><%= hw.getLicenseNumber() %></td>
                 <td><%= hw.getHireDate() != null ? hw.getHireDate() : "-" %></td>
             </tr>

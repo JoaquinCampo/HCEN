@@ -1,4 +1,4 @@
-package grupo12.practico.repositories.HealthProvider;
+package grupo12.practico.services.Clinic;
 
 import jakarta.ejb.Local;
 
@@ -7,8 +7,8 @@ import java.util.List;
 import grupo12.practico.models.Clinic;
 
 @Local
-public interface HealthProviderRepositoryLocal {
-    Clinic add(Clinic healthProvider);
+public interface ClinicServiceLocal {
+    Clinic addClinic(Clinic clinic);
 
     List<Clinic> findAll();
 

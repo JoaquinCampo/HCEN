@@ -1,58 +1,71 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<h:head>
-    <title>Users - JSF</title>
-    <meta charset="UTF-8"/>
-    <style>
-        body { font-family: sans-serif; max-width: 1200px; margin: 24px auto; padding: 0 16px; }
-        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #f5f5f5; }
-        .toolbar { margin: 12px 0; }
-        .toolbar input, .toolbar button, .toolbar a { margin-right: 8px; }
-        .btn { display: inline-block; padding: 6px 12px; background: #1976d2; color: #fff; text-decoration: none; border-radius: 4px; border: none; }
-        .btn:hover { background: #125aa0; }
-    </style>
-</h:head>
-<h:body>
-    <h1>Users</h1>
-    <h:messages id="msgs" globalOnly="true"/>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Health Users</ui:define>
+    <ui:define name="content">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="card-title h4 mb-0">Health Users</h2>
+                        <small class="text-muted">Search, browse, and manage registered patients.</small>
+                    </div>
+                    <h:link outcome="/user/form" styleClass="btn btn-primary">New User</h:link>
+                </div>
 
-    <h:form id="searchForm" styleClass="toolbar">
-        <h:inputText id="q" value="#{userBean.searchQuery}" placeholder="Search by name">
-            <f:ajax event="keyup" listener="#{userBean.search}" render="results msgs"/>
-        </h:inputText>
-        <h:commandButton id="btnSearch" value="Search" actionListener="#{userBean.search}" styleClass="btn">
-            <f:ajax render="results msgs"/>
-        </h:commandButton>
-        <h:link outcome="/user/form" value="Add User" styleClass="btn" />
-        <h:commandButton id="btnRefresh" value="Refresh" actionListener="#{userBean.loadAll}" styleClass="btn">
-            <f:ajax render="results msgs"/>
-        </h:commandButton>
-    </h:form>
+                <h:form id="searchForm" styleClass="row gy-2 gx-2 align-items-end">
+                    <div class="col-sm-6 col-lg-4">
+                        <h:outputLabel for="searchQuery" value="Search by name" styleClass="form-label"/>
+                        <h:inputText id="searchQuery" value="#{userBean.searchQuery}" styleClass="form-control" placeholder="e.g. Jane Doe">
+                            <f:ajax event="keyup" listener="#{userBean.search}" render="results globalMessages"/>
+                        </h:inputText>
+                    </div>
+                    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+                        <h:commandButton value="Search" actionListener="#{userBean.search}" styleClass="btn btn-outline-primary">
+                            <f:ajax render="results globalMessages"/>
+                        </h:commandButton>
+                        <h:commandButton value="Reset" actionListener="#{userBean.loadAll}" immediate="true" styleClass="btn btn-outline-secondary">
+                            <f:ajax render="@form results globalMessages"/>
+                        </h:commandButton>
+                    </div>
+                </h:form>
 
-    <h:panelGroup id="results">
-        <h:dataTable value="#{userBean.users}" var="u" rendered="#{not empty userBean.users}" styleClass="table">
-            <h:column><f:facet name="header">UUID</f:facet>#{u.id}</h:column>
-            <h:column><f:facet name="header">DNI</f:facet>#{u.dni}</h:column>
-            <h:column><f:facet name="header">Name</f:facet>#{u.lastName}, #{u.firstName}</h:column>
-            <h:column><f:facet name="header">Date of Birth</f:facet>#{u.dateOfBirth}</h:column>
-            <h:column><f:facet name="header">Gender</f:facet>#{u.gender}</h:column>
-            <h:column><f:facet name="header">Email</f:facet>#{empty u.email ? '-' : u.email}</h:column>
-            <h:column><f:facet name="header">Phone</f:facet>#{empty u.phone ? '-' : u.phone}</h:column>
-            <h:column><f:facet name="header">Address</f:facet>#{empty u.address ? '-' : u.address}</h:column>
-        </h:dataTable>
+                <h:panelGroup id="results" layout="block" styleClass="table-responsive mt-4">
+                    <h:dataTable value="#{userBean.users}" var="u" rendered="#{not empty userBean.users}" styleClass="table table-striped align-middle">
+                        <h:column>
+                            <f:facet name="header">Document</f:facet>
+                            <div class="fw-semibold">#{u.document}</div>
+                            <small class="text-muted">#{u.documentType}</small>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Name</f:facet>
+                            #{u.firstName} #{u.lastName}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Gender</f:facet>
+                            #{u.gender}
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Email</f:facet>
+                            <span class="text-muted">#{empty u.email ? '—' : u.email}</span>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Phone</f:facet>
+                            <span class="text-muted">#{empty u.phone ? '—' : u.phone}</span>
+                        </h:column>
+                        <h:column>
+                            <f:facet name="header">Created</f:facet>
+                            <span class="text-muted">#{u.createdAt}</span>
+                        </h:column>
+                    </h:dataTable>
 
-        <h:panelGroup rendered="#{empty userBean.users}">
-            <p>No users found.</p>
-        </h:panelGroup>
-    </h:panelGroup>
-
-    <p>
-        <h:link outcome="/index" value="Home"/>
-        | <a href="#{request.contextPath}/users">Servlet/JSP List</a>
-    </p>
-</h:body>
-</html>
+                    <h:panelGroup rendered="#{empty userBean.users}" styleClass="text-muted">
+                        <div class="alert alert-info mb-0">No users match the current filters.</div>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

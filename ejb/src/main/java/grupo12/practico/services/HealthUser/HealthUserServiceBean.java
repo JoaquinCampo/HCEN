@@ -1,6 +1,5 @@
 package grupo12.practico.services.HealthUser;
 
-import grupo12.practico.dto.HealthUserDTO;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import jakarta.ejb.EJB;
@@ -20,25 +19,39 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     private HealthUserRepositoryLocal userRepository;
 
     @Override
-    public List<HealthUserDTO> findAll() {
+    public List<HealthUser> findAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public HealthUserDTO findById(String id) {
+    public HealthUser findById(String id) {
         return userRepository.findById(id);
     }
 
     @Override
-    public List<HealthUserDTO> findByName(String name) {
+    public List<HealthUser> findByName(String name) {
         return userRepository.findByName(name);
     }
 
     @Override
-    public HealthUserDTO add(HealthUser user) {
+    public HealthUser add(HealthUser user) {
         validateUser(user);
-
         return userRepository.add(user);
+    }
+
+    @Override
+    public List<HealthUser> getAllUsers() {
+        return findAll();
+    }
+
+    @Override
+    public List<HealthUser> findUsersByName(String name) {
+        return findByName(name);
+    }
+
+    @Override
+    public HealthUser addUser(HealthUser healthUser) {
+        return add(healthUser);
     }
 
     private void validateUser(HealthUser healthUser) {
@@ -51,6 +64,13 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         if (isBlank(healthUser.getDocument())) {
             throw new ValidationException("User document is required");
         }
+        if (healthUser.getDocumentType() == null) {
+            throw new ValidationException("User document type is required");
+        }
+        // Password is optional until authentication system is implemented
+        // if (isBlank(healthUser.getPasswordHash())) {
+        // throw new ValidationException("User password is required");
+        // }
     }
 
     private boolean isBlank(String value) {

@@ -1,4 +1,4 @@
-package grupo12.practico.web.HealthWorker;
+package grupo12.practico.web.healthworker;
 
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;

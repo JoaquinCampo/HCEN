@@ -1,9 +1,10 @@
-package grupo12.practico.web.HealthWorker;
+package grupo12.practico.web.healthworker;
 
+import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,12 +23,12 @@ public class AddHealthWorkerServlet extends HttpServlet {
     private HealthWorkerServiceLocal healthWorkerService;
 
     @EJB
-    private HealthProviderServiceLocal healthProviderService;
+    private ClinicServiceLocal clinicService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("genders", Gender.values());
-        req.setAttribute("healthProviders", healthProviderService.findAll());
+        req.setAttribute("healthProviders", clinicService.findAll());
         req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-form.jsp").forward(req, resp);
     }
 
@@ -35,9 +36,9 @@ public class AddHealthWorkerServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String firstName = req.getParameter("firstName");
         String lastName = req.getParameter("lastName");
-        String dni = req.getParameter("dni");
+        String document = req.getParameter("document");
         String genderParam = req.getParameter("gender");
-        String specialty = req.getParameter("specialty");
+        String documentTypeParam = req.getParameter("documentType");
         String licenseNumber = req.getParameter("licenseNumber");
         String hireDateParam = req.getParameter("hireDate");
         String[] healthProvidersParams = req.getParameterValues("healthProviders");
@@ -46,11 +47,13 @@ public class AddHealthWorkerServlet extends HttpServlet {
             HealthWorker hw = new HealthWorker();
             hw.setFirstName(firstName);
             hw.setLastName(lastName);
-            hw.setDni(dni);
+            hw.setDocument(document);
+            if (documentTypeParam != null && !documentTypeParam.isBlank()) {
+                hw.setDocumentType(DocumentType.valueOf(documentTypeParam));
+            }
             if (genderParam != null && !genderParam.isEmpty()) {
                 hw.setGender(Gender.valueOf(genderParam));
             }
-            hw.setSpecialty(specialty);
             hw.setLicenseNumber(licenseNumber);
             if (hireDateParam != null && !hireDateParam.isEmpty()) {
                 hw.setHireDate(LocalDate.parse(hireDateParam));
@@ -58,7 +61,7 @@ public class AddHealthWorkerServlet extends HttpServlet {
             if (healthProvidersParams != null && healthProvidersParams.length > 0) {
                 for (String healthProviderParam : healthProvidersParams) {
                     if (healthProviderParam != null && !healthProviderParam.trim().isEmpty()) {
-                        hw.addHealthProvider(healthProviderService.findById(healthProviderParam));
+                        hw.addHealthProvider(clinicService.findById(healthProviderParam));
                     }
                 }
             }
@@ -68,12 +71,12 @@ public class AddHealthWorkerServlet extends HttpServlet {
         } catch (ValidationException ex) {
             req.setAttribute("error", ex.getMessage());
             req.setAttribute("genders", Gender.values());
-            req.setAttribute("healthProviders", healthProviderService.findAll());
+            req.setAttribute("healthProviders", clinicService.findAll());
             req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-form.jsp").forward(req, resp);
         } catch (Exception ex) {
             req.setAttribute("error", "Unexpected error: " + ex.getMessage());
             req.setAttribute("genders", Gender.values());
-            req.setAttribute("healthProviders", healthProviderService.findAll());
+            req.setAttribute("healthProviders", clinicService.findAll());
             req.getRequestDispatcher("/WEB-INF/jsp/health-worker/healthworker-form.jsp").forward(req, resp);
         }
     }

@@ -9,17 +9,17 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 
 @WebServlet(name = "ListHealthProvidersServlet", urlPatterns = "/healthproviders")
 public class ListHealthProvidersServlet extends HttpServlet {
 
     @EJB
-    private HealthProviderServiceLocal healthProviderService;
+    private ClinicServiceLocal clinicService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("healthProviders", healthProviderService.findAll());
+        req.setAttribute("healthProviders", clinicService.findAll());
         req.getRequestDispatcher("/WEB-INF/jsp/health-provider/healthprovider-list.jsp").forward(req, resp);
     }
 }

@@ -1,5 +1,6 @@
 package grupo12.practico.web.jsf;
 
+import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
@@ -61,6 +62,10 @@ public class HealthWorkerBean implements Serializable {
 
     public Gender[] getGenders() {
         return Gender.values();
+    }
+
+    public DocumentType[] getDocumentTypes() {
+        return DocumentType.values();
     }
 
     public List<HealthWorker> getWorkers() {

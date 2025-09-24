@@ -1,7 +1,8 @@
 package grupo12.practico.web.HealthProvider;
 
 import grupo12.practico.models.Clinic;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.models.ClinicType;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 public class AddHealthProviderServlet extends HttpServlet {
 
     @EJB
-    private HealthProviderServiceLocal healthProviderService;
+    private ClinicServiceLocal clinicService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,6 +32,7 @@ public class AddHealthProviderServlet extends HttpServlet {
         String phone = req.getParameter("phone");
         String email = req.getParameter("email");
         String registrationNumber = req.getParameter("registrationNumber");
+        String typeParam = req.getParameter("type");
         String registrationDateParam = req.getParameter("registrationDate");
         String activeParam = req.getParameter("active");
 
@@ -42,6 +44,10 @@ public class AddHealthProviderServlet extends HttpServlet {
             hp.setEmail(email);
             hp.setRegistrationNumber(registrationNumber);
 
+            if (typeParam != null && !typeParam.isEmpty()) {
+                hp.setType(ClinicType.valueOf(typeParam));
+            }
+
             if (registrationDateParam != null && !registrationDateParam.isEmpty()) {
                 hp.setRegistrationDate(LocalDate.parse(registrationDateParam));
             }
@@ -50,7 +56,7 @@ public class AddHealthProviderServlet extends HttpServlet {
                 hp.setActive("on".equals(activeParam) || "true".equalsIgnoreCase(activeParam));
             }
 
-            healthProviderService.addHealthProvider(hp);
+            clinicService.addClinic(hp);
             resp.sendRedirect(req.getContextPath() + "/healthproviders");
         } catch (ValidationException ex) {
             req.setAttribute("error", ex.getMessage());

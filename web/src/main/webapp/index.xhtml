@@ -1,39 +1,38 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
-<h:head>
-        <title>Practico - JSF</title>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <style>
-                body { font-family: sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; }
-                .links a { display: inline-block; margin: 8px 8px 0 0; padding: 8px 12px; background: #1976d2; color: #fff; text-decoration: none; border-radius: 4px; }
-                .links a:hover { background: #125aa0; }
-        </style>
-        <h:outputStylesheet/>
-        <h:outputScript/>
-    </h:head>
-<h:body>
-    <h1>Practico </h1>
-    <p>Demo simple de JSF sobre el módulo existente.</p>
-
-    <div class="links">
-        <h:link outcome="/user/list" value="Listar Usuarios"/>
-        <h:link outcome="/user/form" value="Crear Usuario"/>
-        <br/>
-        <h:link outcome="/health-worker/list" value="Listar Health Workers"/>
-        <h:link outcome="/health-worker/form" value="Crear Health Worker"/>
-        <br/>
-        <h:link outcome="/health-provider/list" value="Listar Health Providers"/>
-        <h:link outcome="/health-provider/form" value="Crear Health Provider"/>
-        <br/>
-        <h:link outcome="/clinical-document/list" value="Listar Clinical Documents"/>
-        <h:link outcome="/clinical-document/form" value="Crear Clinical Document"/>
-    </div>
-
-    <p style="margin-top: 24px;">
-        Servlets/JSP: <a href="users">/users</a>
-    </p>
-    
-</h:body>
-</html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/layout.xhtml">
+    <ui:define name="title">Home</ui:define>
+    <ui:define name="content">
+        <section class="row g-4">
+            <div class="col-12 col-lg-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="card-title h3">Welcome to Practico</h2>
+                        <p class="text-muted">Manage people, clinics, clinical documents, and fine-grained access in one place.</p>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <h:link outcome="/user/list" styleClass="btn btn-primary">Manage Users</h:link>
+                            <h:link outcome="/health-worker/list" styleClass="btn btn-outline-primary">Health Workers</h:link>
+                            <h:link outcome="/health-provider/list" styleClass="btn btn-outline-primary">Clinics</h:link>
+                            <h:link outcome="/clinical-document/list" styleClass="btn btn-outline-primary">Clinical Documents</h:link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-5">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h3 class="card-title h5">Quick Actions</h3>
+                        <div class="list-group list-group-flush">
+                            <h:link outcome="/user/form" styleClass="list-group-item list-group-item-action">Create Health User</h:link>
+                            <h:link outcome="/health-worker/form" styleClass="list-group-item list-group-item-action">Register Health Worker</h:link>
+                            <h:link outcome="/health-provider/form" styleClass="list-group-item list-group-item-action">Add Clinic</h:link>
+                            <h:link outcome="/clinical-document/form" styleClass="list-group-item list-group-item-action">Add Clinical Document</h:link>
+                            <h:link outcome="/access-grant/list" styleClass="list-group-item list-group-item-action">Manage Access Grants</h:link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </ui:define>
+</ui:composition>

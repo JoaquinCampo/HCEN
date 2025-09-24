@@ -1,12 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> <%@ page
-import="java.util.List" %> <%@ page import="grupo12.practico.models.User" %> <%@
+import="java.util.List" %> <%@ page import="grupo12.practico.models.HealthUser" %> <%@
 page import="grupo12.practico.models.HealthWorker" %> <%@ page
-import="grupo12.practico.models.HealthProvider" %> <% List<User>
-  users = (List<User
-    >) request.getAttribute("users"); List<HealthWorker>
+import="grupo12.practico.models.Clinic" %> <% List<HealthUser>
+  users = (List<HealthUser
+    >) request.getAttribute("healthUsers"); List<HealthWorker>
       healthWorkers = (List<HealthWorker
-        >) request.getAttribute("healthWorkers"); List<HealthProvider>
-          healthProviders = (List<HealthProvider
+        >) request.getAttribute("healthWorkers"); List<Clinic>
+          healthProviders = (List<Clinic
             >) request.getAttribute("healthProviders"); String error = (String)
             request.getAttribute("error"); %>
             <html>
@@ -124,7 +124,7 @@ import="grupo12.practico.models.HealthProvider" %> <% List<User>
                     >Provider (Custodian) - optional:
                     <select name="providerId">
                       <option value="">-- Select Health Provider --</option>
-                      <% if (healthProviders != null) { for (HealthProvider hp :
+                      <% if (healthProviders != null) { for (Clinic hp :
                       healthProviders) { %>
                       <option value="<%= hp.getId() %>">
                         <%= hp.getName() %>

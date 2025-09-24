@@ -1,8 +1,9 @@
 package grupo12.practico.models;
 
+import java.util.HashSet;
 import java.util.Set;
-
 import java.util.stream.Collectors;
+
 import grupo12.practico.dto.HealthWorkerDTO;
 
 public class HealthWorker extends User {
@@ -10,8 +11,10 @@ public class HealthWorker extends User {
     private Set<Specialty> specialties;
     private Set<ClinicalHistory> clinicalHistories;
     private Set<ClinicalDocument> clinicalDocuments;
+    private Set<HealthUser> patients;
 
     private String licenseNumber;
+    private java.time.LocalDate hireDate;
 
     public HealthWorker() {
         super();
@@ -23,6 +26,14 @@ public class HealthWorker extends User {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public java.time.LocalDate getHireDate() {
+        return hireDate;
+    }
+
+    public void setHireDate(java.time.LocalDate hireDate) {
+        this.hireDate = hireDate;
     }
 
     public Set<Clinic> getClinics() {
@@ -55,6 +66,51 @@ public class HealthWorker extends User {
 
     public void setClinicalDocuments(Set<ClinicalDocument> clinicalDocuments) {
         this.clinicalDocuments = clinicalDocuments;
+    }
+
+    // Relationship methods
+    public void addHealthProvider(Clinic clinic) {
+        if (clinic == null) {
+            return;
+        }
+        if (this.clinics == null) {
+            this.clinics = new HashSet<>();
+        }
+        if (this.clinics.add(clinic)) {
+            clinic.addHealthWorker(this);
+        }
+    }
+
+    // Alias for getClinics for backwards compatibility
+    public Set<Clinic> getHealthProviders() {
+        return getClinics();
+    }
+
+    public void addAuthoredDocument(ClinicalDocument document) {
+        if (this.clinicalDocuments == null) {
+            this.clinicalDocuments = new HashSet<>();
+        }
+        this.clinicalDocuments.add(document);
+    }
+
+    public Set<HealthUser> getPatients() {
+        return patients;
+    }
+
+    public void setPatients(Set<HealthUser> patients) {
+        this.patients = patients;
+    }
+
+    public void addPatient(HealthUser healthUser) {
+        if (healthUser == null) {
+            return;
+        }
+        if (this.patients == null) {
+            this.patients = new HashSet<>();
+        }
+        if (this.patients.add(healthUser)) {
+            healthUser.addHealthWorker(this);
+        }
     }
 
     public HealthWorkerDTO toDto() {

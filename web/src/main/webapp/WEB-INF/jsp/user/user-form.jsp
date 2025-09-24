@@ -1,11 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> <%@ page
 import="java.util.List" %> <%@ page
 import="grupo12.practico.models.HealthWorker" %> <%@ page
-import="grupo12.practico.models.HealthProvider" %> <%@ page
+import="grupo12.practico.models.Clinic" %> <%@ page
+import="grupo12.practico.models.DocumentType" %> <%@ page
 import="grupo12.practico.models.Gender" %> <% List<HealthWorker>
   healthWorkers = (List<HealthWorker
-    >) request.getAttribute("healthWorkers"); List<HealthProvider>
-  healthProviders = (List<HealthProvider
+    >) request.getAttribute("healthWorkers"); List<Clinic>
+  healthProviders = (List<Clinic
     >) request.getAttribute("healthProviders"); %>
     <html>
       <head>
@@ -88,8 +89,23 @@ import="grupo12.practico.models.Gender" %> <% List<HealthWorker>
           </label>
 
           <label
-            >DNI:
-            <input type="text" name="dni" required />
+            >Document:
+            <input type="text" name="document" required />
+          </label>
+
+          <label
+            >Document Type:
+            <select name="documentType" required>
+              <option value="">-- Select --</option>
+              <% for (DocumentType type : DocumentType.values()) { %>
+              <option value="<%= type.name() %>"><%= type.name() %></option>
+              <% } %>
+            </select>
+          </label>
+
+          <label
+            >Password (optional):
+            <input type="password" name="password" />
           </label>
 
           <label
@@ -135,10 +151,10 @@ import="grupo12.practico.models.Gender" %> <% List<HealthWorker>
           </label>
 
           <label
-            >Affiliated Health Provider (optional):
+            >Affiliated Clinic (optional):
             <select name="affiliatedHealthProviders" multiple>
-              <% if (healthProviders != null) { for (HealthProvider hp :
-              healthProviders) { %>
+              <% if (healthProviders != null) { for (Clinic hp : healthProviders)
+              { %>
               <option value="<%= hp.getId() %>">
                 <%= hp.getName() %>
               </option>
@@ -156,6 +172,4 @@ import="grupo12.practico.models.Gender" %> <% List<HealthWorker>
           <a href="<%= request.getContextPath() %>/">Home</a>
         </div>
       </body>
-    </html></HealthWorker
-  ></HealthWorker
->
+    </html>

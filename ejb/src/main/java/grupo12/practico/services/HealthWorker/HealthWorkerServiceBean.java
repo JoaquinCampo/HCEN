@@ -54,6 +54,12 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
         if (isBlank(hw.getFirstName()) || isBlank(hw.getLastName())) {
             throw new ValidationException("HealthWorker first name and last name are required");
         }
+        if (isBlank(hw.getDocument())) {
+            throw new ValidationException("HealthWorker document is required");
+        }
+        if (hw.getDocumentType() == null) {
+            throw new ValidationException("HealthWorker document type is required");
+        }
         if (isBlank(hw.getLicenseNumber())) {
             throw new ValidationException("License number is required");
         }

@@ -4,16 +4,28 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
-import grupo12.practico.dto.HealthUserDTO;
 import grupo12.practico.models.HealthUser;
 
 @Local
 public interface HealthUserServiceLocal {
-    List<HealthUserDTO> findAll();
+    List<HealthUser> findAll();
 
-    HealthUserDTO findById(String id);
+    HealthUser findById(String id);
 
-    List<HealthUserDTO> findByName(String name);
+    List<HealthUser> findByName(String name);
 
-    HealthUserDTO add(HealthUser healthUser);
+    HealthUser add(HealthUser healthUser);
+
+    // Alias methods for backwards compatibility
+    default List<HealthUser> getAllUsers() {
+        return findAll();
+    }
+
+    default List<HealthUser> findUsersByName(String name) {
+        return findByName(name);
+    }
+
+    default HealthUser addUser(HealthUser healthUser) {
+        return add(healthUser);
+    }
 }

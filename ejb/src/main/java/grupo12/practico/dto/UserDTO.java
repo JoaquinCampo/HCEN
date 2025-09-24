@@ -19,6 +19,7 @@ public class UserDTO implements Serializable {
     private String phone;
     private String imageUrl;
     private String address;
+    private LocalDate dateOfBirth;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
@@ -100,6 +101,14 @@ public class UserDTO implements Serializable {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public LocalDate getCreatedAt() {

@@ -9,23 +9,23 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 
 @WebServlet(name = "SearchHealthProvidersServlet", urlPatterns = "/healthproviders/search")
 public class SearchHealthProvidersServlet extends HttpServlet {
 
     @EJB
-    private HealthProviderServiceLocal healthProviderService;
+    private ClinicServiceLocal clinicService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String name = req.getParameter("name");
 
         if (name != null && !name.trim().isEmpty()) {
-            req.setAttribute("healthProviders", healthProviderService.findByName(name.trim()));
+            req.setAttribute("healthProviders", clinicService.findByName(name.trim()));
             req.setAttribute("searchName", name.trim());
         } else {
-            req.setAttribute("healthProviders", healthProviderService.findAll());
+            req.setAttribute("healthProviders", clinicService.findAll());
         }
 
         req.getRequestDispatcher("/WEB-INF/jsp/health-provider/healthprovider-search.jsp").forward(req, resp);

@@ -10,10 +10,12 @@ import grupo12.practico.models.ClinicalDocument;
 import grupo12.practico.models.ClinicalHistory;
 import grupo12.practico.models.Gender;
 import grupo12.practico.models.Clinic;
+import grupo12.practico.models.ClinicType;
 import grupo12.practico.models.HealthWorker;
+import grupo12.practico.models.HealthUser;
 import grupo12.practico.models.User;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceRemote;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceRemote;
+import grupo12.practico.services.Clinic.ClinicServiceRemote;
 import grupo12.practico.services.HealthUser.HealthUserServiceRemote;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceRemote;
 
@@ -34,8 +36,9 @@ public class Main {
                 System.out.println("=== Practico Console ===");
                 System.out.println("1) Users");
                 System.out.println("2) Health Workers");
-                System.out.println("3) Health Providers");
+                System.out.println("3) Clinics");
                 System.out.println("4) Clinical Documents");
+                System.out.println("5) Access Grants");
                 System.out.println("0) Exit");
                 System.out.print("Choose: ");
                 String choice = in.nextLine();
@@ -49,10 +52,13 @@ public class Main {
                         healthWorkersMenu(in, locator);
                         break;
                     case "3":
-                        healthProvidersMenu(in, locator);
+                        clinicsMenu(in, locator);
                         break;
                     case "4":
                         documentsMenu(in, locator);
+                        break;
+                    case "5":
+                        accessGrantsMenu(in, locator);
                         break;
                     default:
                         System.out.println("Unknown option");
@@ -65,7 +71,7 @@ public class Main {
         try {
             HealthUserServiceRemote userService = locator.userService();
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
+            ClinicServiceRemote clinicService = locator.clinicService();
             while (true) {
                 System.out.println();
                 System.out.println("-- Users --");
@@ -79,7 +85,7 @@ public class Main {
                     return;
                 switch (c) {
                     case "1":
-                        User u = new User();
+                        HealthUser u = new HealthUser();
                         System.out.print("First name: ");
                         String firstName = in.nextLine().trim();
                         if (firstName.isEmpty()) {
@@ -102,9 +108,14 @@ public class Main {
                             System.out.println("Error: DNI is required");
                             continue;
                         }
-                        u.setDni(dni);
+                        u.setDocument(dni);
                         System.out.print("Email: ");
                         u.setEmail(in.nextLine());
+                        System.out.print("Password (optional): ");
+                        String password = in.nextLine();
+                        if (!password.isEmpty()) {
+                            u.setPassword(password);
+                        }
                         System.out.print("Phone: ");
                         u.setPhone(in.nextLine());
                         System.out.print("Address: ");
@@ -148,7 +159,7 @@ public class Main {
                         System.out.print("Add affiliated provider by ID (empty to skip): ");
                         String hpId = in.nextLine();
                         if (!hpId.isBlank()) {
-                            Clinic hp = hpService.findById(hpId.trim());
+                            Clinic hp = clinicService.findById(hpId.trim());
                             if (hp != null)
                                 u.addAffiliatedHealthProvider(hp);
                         }
@@ -163,7 +174,7 @@ public class Main {
                         break;
                     case "2":
                         try {
-                            List<User> users = userService.getAllUsers();
+                            List<HealthUser> users = userService.getAllUsers();
                             if (users.isEmpty()) {
                                 System.out.println("No users found.");
                             } else {
@@ -178,7 +189,7 @@ public class Main {
                         System.out.print("Query: ");
                         String q = in.nextLine();
                         try {
-                            List<User> searchResults = userService.findUsersByName(q);
+                            List<HealthUser> searchResults = userService.findUsersByName(q);
                             if (searchResults.isEmpty()) {
                                 System.out.println("No users found matching: " + q);
                             } else {
@@ -201,7 +212,7 @@ public class Main {
     private static void healthWorkersMenu(Scanner in, ServiceLocator locator) {
         try {
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
+            ClinicServiceRemote clinicService = locator.clinicService();
             while (true) {
                 System.out.println();
                 System.out.println("-- Health Workers --");
@@ -233,7 +244,7 @@ public class Main {
                         hw.setLastName(hwLastName);
 
                         System.out.print("DNI: ");
-                        hw.setDni(in.nextLine());
+                        hw.setDocument(in.nextLine());
                         System.out.print("Gender (MALE/FEMALE/OTHER) or empty: ");
                         String g = in.nextLine();
                         if (!g.isBlank()) {
@@ -242,9 +253,6 @@ public class Main {
                             } catch (Exception ignore) {
                             }
                         }
-                        System.out.print("Specialty: ");
-                        hw.setSpecialty(in.nextLine());
-
                         System.out.print("License number: ");
                         String licenseNumber = in.nextLine().trim();
                         if (licenseNumber.isEmpty()) {
@@ -267,7 +275,7 @@ public class Main {
                         System.out.print("Add provider by ID (empty to skip): ");
                         String hpId = in.nextLine();
                         if (!hpId.isBlank()) {
-                            Clinic hp = hpService.findById(hpId.trim());
+                            Clinic hp = clinicService.findById(hpId.trim());
                             if (hp != null)
                                 hw.addHealthProvider(hp);
                         }
@@ -298,14 +306,14 @@ public class Main {
         }
     }
 
-    private static void healthProvidersMenu(Scanner in, ServiceLocator locator) {
+    private static void clinicsMenu(Scanner in, ServiceLocator locator) {
         try {
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
+            ClinicServiceRemote clinicService = locator.clinicService();
             while (true) {
                 System.out.println();
-                System.out.println("-- Health Providers --");
-                System.out.println("1) Add provider");
-                System.out.println("2) List providers");
+                System.out.println("-- Clinics --");
+                System.out.println("1) Add clinic");
+                System.out.println("2) List clinics");
                 System.out.println("3) Search by name");
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
@@ -336,6 +344,19 @@ public class Main {
                         hp.setEmail(in.nextLine());
                         System.out.print("Registration number: ");
                         hp.setRegistrationNumber(in.nextLine());
+                        System.out.print(
+                                "Clinic type (HOSPITAL/POLYCLINIC/PRIVATE_PRACTICE/LABORATORY/DIAGNOSTIC_CENTER/SPECIALTY_CLINIC/EMERGENCY_ROOM/REHABILITATION_CENTER/NURSING_HOME/PHARMACY): ");
+                        String typeStr = in.nextLine().trim().toUpperCase();
+                        if (!typeStr.isEmpty()) {
+                            try {
+                                hp.setType(ClinicType.valueOf(typeStr));
+                            } catch (Exception e) {
+                                System.out.println("Invalid clinic type, setting to HOSPITAL as default");
+                                hp.setType(ClinicType.HOSPITAL);
+                            }
+                        } else {
+                            hp.setType(ClinicType.HOSPITAL);
+                        }
                         System.out.print("Registration date (YYYY-MM-DD, empty=today): ");
                         String rd = in.nextLine();
                         LocalDate registrationDate;
@@ -355,7 +376,7 @@ public class Main {
                         }
                         hp.setRegistrationDate(registrationDate);
                         try {
-                            Clinic addedHp = hpService.addHealthProvider(hp);
+                            Clinic addedHp = clinicService.addClinic(hp);
                             System.out.println("Health provider added successfully with ID: " + addedHp.getId());
                         } catch (Exception ex) {
                             System.out.println("Failed to add health provider: " + ex.getMessage());
@@ -363,12 +384,12 @@ public class Main {
                         }
                         break;
                     case "2":
-                        hpService.findAll().forEach(x -> System.out.println(x.getId() + " | " + x.getName()));
+                        clinicService.findAll().forEach(x -> System.out.println(x.getId() + " | " + x.getName()));
                         break;
                     case "3":
                         System.out.print("Query: ");
                         String q = in.nextLine();
-                        hpService.findByName(q).forEach(x -> System.out.println(x.getId() + " | " + x.getName()));
+                        clinicService.findByName(q).forEach(x -> System.out.println(x.getId() + " | " + x.getName()));
                         break;
                     default:
                         System.out.println("Unknown option");
@@ -384,7 +405,7 @@ public class Main {
             ClinicalDocumentServiceRemote docService = locator.clinicalDocumentService();
             HealthUserServiceRemote userService = locator.userService();
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
+            ClinicServiceRemote clinicService = locator.clinicService();
             while (true) {
                 System.out.println();
                 System.out.println("-- Clinical Documents --");
@@ -415,20 +436,12 @@ public class Main {
                             System.out.println("Error: Patient ID is required");
                             continue;
                         }
-                        User patient = userService.findById(userId);
+                        HealthUser patient = userService.findById(userId);
                         if (patient == null) {
                             System.out.println("Error: Patient not found with ID: " + userId);
                             continue;
                         }
-                        ClinicalHistory history = null;
-                        if (patient != null) {
-                            history = patient.getClinicalHistory();
-                            if (history == null) {
-                                history = new ClinicalHistory();
-                                history.setPatient(patient);
-                                patient.setClinicalHistory(history);
-                            }
-                        }
+                        ClinicalHistory history = (patient != null) ? patient.getOrCreateClinicalHistory() : null;
                         doc.setClinicalHistory(history);
                         System.out.print("Author ID (empty optional): ");
                         String authorId = in.nextLine();
@@ -439,7 +452,7 @@ public class Main {
                         System.out.print("Provider ID (empty optional): ");
                         String providerId = in.nextLine();
                         if (!providerId.isBlank()) {
-                            Clinic provider = hpService.findById(providerId.trim());
+                            Clinic provider = clinicService.findById(providerId.trim());
                             doc.setProvider(provider);
                         }
                         try {
@@ -479,6 +492,17 @@ public class Main {
                         System.out.println("Unknown option");
                 }
             }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void accessGrantsMenu(Scanner in, ServiceLocator locator) {
+        try {
+            // Note: AccessGrant service would need to be added to ServiceLocator
+            // For now, just show a placeholder
+            System.out.println("Access Grants management coming soon...");
+            System.out.println("This feature will allow managing clinical data access permissions.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }

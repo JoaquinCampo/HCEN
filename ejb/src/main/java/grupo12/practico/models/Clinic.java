@@ -1,6 +1,7 @@
 package grupo12.practico.models;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -14,6 +15,10 @@ public class Clinic {
     private String phone;
     private String address;
     private String domain;
+    private String registrationNumber;
+    private LocalDate registrationDate;
+    private ClinicType type;
+    private boolean active;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
@@ -26,6 +31,7 @@ public class Clinic {
         this.id = UUID.randomUUID().toString();
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
+        this.active = true; // Clinics are active by default
     }
 
     public String getId() {
@@ -76,6 +82,38 @@ public class Clinic {
         this.domain = domain;
     }
 
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
+
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+    }
+
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public ClinicType getType() {
+        return type;
+    }
+
+    public void setType(ClinicType type) {
+        this.type = type;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public LocalDate getCreatedAt() {
         return createdAt;
     }
@@ -124,6 +162,41 @@ public class Clinic {
         this.clinicalHistories = clinicalHistories;
     }
 
+    // Relationship methods
+    public void addHealthWorker(HealthWorker healthWorker) {
+        if (healthWorker == null) {
+            return;
+        }
+        if (this.healthWorkers == null) {
+            this.healthWorkers = new HashSet<>();
+        }
+        if (this.healthWorkers.add(healthWorker)) {
+            healthWorker.addHealthProvider(this);
+        }
+    }
+
+    public void addClinicalDocument(ClinicalDocument document) {
+        if (this.clinicalHistories == null) {
+            this.clinicalHistories = new java.util.HashSet<>();
+        }
+        // Add document to clinical history if it exists
+        if (document != null && document.getClinicalHistory() != null) {
+            this.clinicalHistories.add(document.getClinicalHistory());
+        }
+    }
+
+    public void addHealthUser(HealthUser healthUser) {
+        if (healthUser == null) {
+            return;
+        }
+        if (this.healthUsers == null) {
+            this.healthUsers = new HashSet<>();
+        }
+        if (this.healthUsers.add(healthUser)) {
+            healthUser.addAffiliatedHealthProvider(this);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -148,6 +221,8 @@ public class Clinic {
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +
                 ", domain='" + domain + '\'' +
+                ", type=" + type +
+                ", active=" + active +
                 '}';
     }
 
@@ -159,6 +234,8 @@ public class Clinic {
         dto.setPhone(phone);
         dto.setAddress(address);
         dto.setDomain(domain);
+        dto.setType(type != null ? type.name() : null);
+        // Note: active field not in DTO currently
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
         return dto;

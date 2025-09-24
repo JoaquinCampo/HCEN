@@ -12,6 +12,7 @@ import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
 import java.util.List;
+import java.util.Set;
 
 @Stateless
 @Local(ClinicalDocumentServiceLocal.class)
@@ -27,11 +28,23 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
 
         ClinicalHistory history = doc.getClinicalHistory();
         HealthWorker author = doc.getAuthor();
+        Set<HealthWorker> authors = doc.getHealthWorkers();
         Clinic provider = doc.getProvider();
+
         if (history != null)
             history.addDocument(doc);
+
+        // Handle all authors (both single author and healthWorkers set)
         if (author != null)
             author.addAuthoredDocument(doc);
+        if (authors != null) {
+            for (HealthWorker auth : authors) {
+                if (auth != null) {
+                    auth.addAuthoredDocument(doc);
+                }
+            }
+        }
+
         if (provider != null)
             provider.addClinicalDocument(doc);
 
@@ -89,7 +102,13 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
         if (doc.getClinicalHistory() == null || doc.getClinicalHistory().getPatient() == null) {
             throw new ValidationException("Clinical history with patient is required");
         }
-        // Author and Provider are now optional - no validation required
+
+        // At least one author is required (context specifies 1..* authors)
+        boolean hasAuthor = (doc.getAuthor() != null) ||
+                (doc.getHealthWorkers() != null && !doc.getHealthWorkers().isEmpty());
+        if (!hasAuthor) {
+            throw new ValidationException("At least one author is required for clinical documents");
+        }
     }
 
     private boolean isBlank(String s) {

@@ -11,6 +11,9 @@ public class ClinicalHistory {
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
+    private HealthUser patient;
+    private java.util.Set<ClinicalDocument> documents;
+
     public ClinicalHistory() {
         this.id = UUID.randomUUID().toString();
         this.createdAt = LocalDate.now();
@@ -39,6 +42,29 @@ public class ClinicalHistory {
 
     public void setUpdatedAt(LocalDate updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public HealthUser getPatient() {
+        return patient;
+    }
+
+    public void setPatient(HealthUser patient) {
+        this.patient = patient;
+    }
+
+    public java.util.Set<ClinicalDocument> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(java.util.Set<ClinicalDocument> documents) {
+        this.documents = documents;
+    }
+
+    public void addDocument(ClinicalDocument document) {
+        if (this.documents == null) {
+            this.documents = new java.util.HashSet<>();
+        }
+        this.documents.add(document);
     }
 
     @Override
@@ -70,7 +96,7 @@ public class ClinicalHistory {
         dto.setId(id);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
-        // patientId will be filled where we have the association available
+        dto.setHealthUserId(patient != null ? patient.getId() : null);
         return dto;
     }
 }

@@ -1,8 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> <%@ page
-import="java.util.List" %> <%@ page import="grupo12.practico.models.Gender" %>
-<%@ page import="grupo12.practico.models.HealthProvider" %> <%
-List<HealthProvider>
-  healthProviders = (List<HealthProvider
+import="java.util.List" %> <%@ page import="grupo12.practico.models.DocumentType" %>
+<%@ page import="grupo12.practico.models.Gender" %>
+<%@ page import="grupo12.practico.models.Clinic" %> <%
+List<Clinic>
+  healthProviders = (List<Clinic
     >) request.getAttribute("healthProviders"); %>
     <html>
       <head>
@@ -87,8 +88,18 @@ List<HealthProvider>
           </label>
 
           <label
-            >DNI:
-            <input type="text" name="dni" required />
+            >Document:
+            <input type="text" name="document" required />
+          </label>
+
+          <label
+            >Document Type:
+            <select name="documentType" required>
+              <option value="">-- Select --</option>
+              <% for (DocumentType type : DocumentType.values()) { %>
+              <option value="<%= type.name() %>"><%= type.name() %></option>
+              <% } %>
+            </select>
           </label>
 
           <label
@@ -102,11 +113,6 @@ List<HealthProvider>
           </label>
 
           <label
-            >Specialty:
-            <input type="text" name="specialty" />
-          </label>
-
-          <label
             >License Number:
             <input type="text" name="licenseNumber" required />
           </label>
@@ -117,10 +123,10 @@ List<HealthProvider>
           </label>
 
           <label
-            >Health Providers (optional):
+            >Clinics (optional):
             <select name="healthProviders" multiple>
-              <% if (healthProviders != null) { for (HealthProvider hp :
-              healthProviders) { %>
+              <% if (healthProviders != null) { for (Clinic hp : healthProviders)
+              { %>
               <option value="<%= hp.getId() %>"><%= hp.getName() %></option>
               <% } } %>
             </select>
@@ -139,5 +145,3 @@ List<HealthProvider>
         </div>
       </body>
     </html>
-  </HealthProvider></HealthProvider
->
