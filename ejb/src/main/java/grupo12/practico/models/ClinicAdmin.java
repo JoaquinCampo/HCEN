@@ -3,7 +3,8 @@ package grupo12.practico.models;
 import java.util.Set;
 
 import java.util.stream.Collectors;
-import grupo12.practico.dto.ClinicAdminDTO;
+
+import grupo12.practico.dtos.ClinicAdmin.ClinicAdminDTO;
 
 public class ClinicAdmin extends User {
     private Set<Clinic> clinics;

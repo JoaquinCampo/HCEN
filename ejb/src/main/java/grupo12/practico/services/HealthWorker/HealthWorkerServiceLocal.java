@@ -4,15 +4,16 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
-import grupo12.practico.models.HealthWorker;
+import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 
 @Local
 public interface HealthWorkerServiceLocal {
-    HealthWorker addHealthWorker(HealthWorker healthWorker);
+    HealthWorkerDTO addHealthWorker(AddHealthWorkerDTO healthWorkerDTO);
 
-    List<HealthWorker> getAllHealthWorkers();
+    List<HealthWorkerDTO> getAllHealthWorkers();
 
-    List<HealthWorker> findHealthWorkersByName(String name);
+    List<HealthWorkerDTO> findHealthWorkersByName(String name);
 
-    HealthWorker findById(String id);
+    HealthWorkerDTO findById(String id);
 }

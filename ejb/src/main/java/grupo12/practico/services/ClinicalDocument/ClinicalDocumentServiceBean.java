@@ -1,10 +1,14 @@
 package grupo12.practico.services.ClinicalDocument;
 
 import grupo12.practico.models.ClinicalDocument;
+import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.models.ClinicalHistory;
-import grupo12.practico.models.Clinic;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
+import grupo12.practico.repositories.ClinicalHistory.ClinicalHistoryRepositoryLocal;
+import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
+import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -12,7 +16,7 @@ import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Stateless
 @Local(ClinicalDocumentServiceLocal.class)
@@ -22,92 +26,74 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
     @EJB
     private ClinicalDocumentRepositoryLocal repository;
 
+    @EJB
+    private ClinicalHistoryRepositoryLocal clinicalHistoryRepository;
+
+    @EJB
+    private HealthWorkerRepositoryLocal healthWorkerRepository;
+
+    @EJB
+    private ClinicRepositoryLocal clinicRepository;
+
     @Override
-    public ClinicalDocument addClinicalDocument(ClinicalDocument doc) {
-        validate(doc);
+    public ClinicalDocumentDTO addClinicalDocument(AddClinicalDocumentDTO addClinicalDocumentDTO) {
+        validate(addClinicalDocumentDTO);
 
-        ClinicalHistory history = doc.getClinicalHistory();
-        HealthWorker author = doc.getAuthor();
-        Set<HealthWorker> authors = doc.getHealthWorkers();
-        Clinic provider = doc.getProvider();
+        String clinicalHistoryId = addClinicalDocumentDTO.getClinicalHistoryId();
+        String authorId = addClinicalDocumentDTO.getAuthorId();
 
-        if (history != null)
-            history.addDocument(doc);
+        ClinicalHistory clinicalHistory = clinicalHistoryRepository.findById(clinicalHistoryId);
 
-        // Handle all authors (both single author and healthWorkers set)
-        if (author != null)
-            author.addAuthoredDocument(doc);
-        if (authors != null) {
-            for (HealthWorker auth : authors) {
-                if (auth != null) {
-                    auth.addAuthoredDocument(doc);
-                }
-            }
+        if (clinicalHistory == null) {
+            throw new ValidationException("Clinical history not found");
         }
 
-        if (provider != null)
-            provider.addClinicalDocument(doc);
+        HealthWorker author = healthWorkerRepository.findById(authorId);
 
-        return repository.add(doc);
+        if (author == null) {
+            throw new ValidationException("Author not found");
+        }
+
+        ClinicalDocument clinicalDocument = new ClinicalDocument();
+        clinicalDocument.setTitle(addClinicalDocumentDTO.getTitle());
+        clinicalDocument.setContentUrl(addClinicalDocumentDTO.getContentUrl());
+        clinicalDocument.setClinicalHistory(clinicalHistory);
+        clinicalDocument.setAuthor(author);
+
+        author.addAuthoredDocument(clinicalDocument);
+
+        clinicalHistory.addDocument(clinicalDocument);
+
+        return repository.add(clinicalDocument).toDto();
     }
 
     @Override
-    public List<ClinicalDocument> getAllDocuments() {
-        return repository.findAll();
+    public List<ClinicalDocumentDTO> getAllDocuments() {
+        return repository.findAll().stream()
+                .map(ClinicalDocument::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ClinicalDocument> getDocumentsByPatient(String userId) {
-        return repository.findByPatientId(userId);
+    public List<ClinicalDocumentDTO> getDocumentsByPatient(String userId) {
+        return repository.findByPatientId(userId).stream()
+                .map(ClinicalDocument::toDto)
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public List<ClinicalDocument> getDocumentsByAuthor(String healthWorkerId) {
-        return repository.findByAuthorId(healthWorkerId);
-    }
-
-    @Override
-    public List<ClinicalDocument> getDocumentsByProvider(String providerId) {
-        return repository.findByProviderId(providerId);
-    }
-
-    // --- Name-based search delegations ---
-    @Override
-    public List<ClinicalDocument> searchByPatientName(String query) {
-        return repository.findByPatientName(query);
-    }
-
-    @Override
-    public List<ClinicalDocument> searchByAuthorName(String query) {
-        return repository.findByAuthorName(query);
-    }
-
-    @Override
-    public List<ClinicalDocument> searchByProviderName(String query) {
-        return repository.findByProviderName(query);
-    }
-
-    @Override
-    public List<ClinicalDocument> searchByAnyName(String query) {
-        return repository.findByAnyName(query);
-    }
-
-    private void validate(ClinicalDocument doc) {
-        if (doc == null) {
+    private void validate(AddClinicalDocumentDTO addClinicalDocumentDTO) {
+        if (addClinicalDocumentDTO == null) {
             throw new ValidationException("ClinicalDocument must not be null");
         }
-        if (isBlank(doc.getTitle())) {
+        if (isBlank(addClinicalDocumentDTO.getTitle())) {
             throw new ValidationException("Title is required");
         }
-        if (doc.getClinicalHistory() == null || doc.getClinicalHistory().getPatient() == null) {
+        if (addClinicalDocumentDTO.getClinicalHistoryId() == null
+                || addClinicalDocumentDTO.getClinicalHistoryId().isEmpty()) {
             throw new ValidationException("Clinical history with patient is required");
         }
-
-        // At least one author is required (context specifies 1..* authors)
-        boolean hasAuthor = (doc.getAuthor() != null) ||
-                (doc.getHealthWorkers() != null && !doc.getHealthWorkers().isEmpty());
-        if (!hasAuthor) {
-            throw new ValidationException("At least one author is required for clinical documents");
+        if (addClinicalDocumentDTO.getAuthorId() == null || addClinicalDocumentDTO.getAuthorId().isEmpty()) {
+            throw new ValidationException("Author is required");
         }
     }
 

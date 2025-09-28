@@ -69,9 +69,7 @@ public class DataSeeder {
         clinic1.setPhone("+598 2901 2345");
         clinic1.setAddress("Av. 18 de Julio 1234, Montevideo");
         clinic1.setDomain("hcm.com.uy");
-        clinic1.setRegistrationNumber("CLINIC-001");
-        clinic1.setRegistrationDate(LocalDate.of(1995, 3, 15));
-        clinic1.setType(ClinicType.HOSPITAL);
+        clinic1.setType("HOSPITAL");
         clinicRepository.add(clinic1);
 
         Clinic clinic2 = new Clinic();
@@ -80,9 +78,7 @@ public class DataSeeder {
         clinic2.setPhone("+598 2711 5678");
         clinic2.setAddress("Bv. Artigas 456, Montevideo");
         clinic2.setDomain("sanatorio.com.uy");
-        clinic2.setRegistrationNumber("CLINIC-002");
-        clinic2.setRegistrationDate(LocalDate.of(1988, 7, 22));
-        clinic2.setType(ClinicType.PRIVATE_PRACTICE);
+        clinic2.setType("PRIVATE_PRACTICE");
         clinicRepository.add(clinic2);
 
         Clinic clinic3 = new Clinic();
@@ -91,9 +87,7 @@ public class DataSeeder {
         clinic3.setPhone("+598 2604 7890");
         clinic3.setAddress("Rambla Gandhi 789, Punta del Este");
         clinic3.setDomain("puntagorda.uy");
-        clinic3.setRegistrationNumber("CLINIC-003");
-        clinic3.setRegistrationDate(LocalDate.of(2005, 11, 8));
-        clinic3.setType(ClinicType.DIAGNOSTIC_CENTER);
+        clinic3.setType("DIAGNOSTIC_CENTER");
         clinicRepository.add(clinic3);
 
         Clinic clinic4 = new Clinic();
@@ -102,9 +96,7 @@ public class DataSeeder {
         clinic4.setPhone("+598 4622 3456");
         clinic4.setAddress("Av. Sarandí 321, Rivera");
         clinic4.setDomain("policlinicorivera.com.uy");
-        clinic4.setRegistrationNumber("CLINIC-004");
-        clinic4.setRegistrationDate(LocalDate.of(1999, 1, 30));
-        clinic4.setType(ClinicType.POLYCLINIC);
+        clinic4.setType("POLYCLINIC");
         clinicRepository.add(clinic4);
     }
 
@@ -334,8 +326,8 @@ public class DataSeeder {
         // Document 1 - Medical Record for Lucia
         ClinicalDocument doc1 = new ClinicalDocument();
         doc1.setTitle("Initial Consultation - Cardiovascular Check");
-        doc1.setContent(
-                "Patient presents with mild hypertension. Recommended lifestyle changes and follow-up in 3 months.");
+        doc1.setContentUrl(
+                "https://health-records-bucket.s3.amazonaws.com/documents/lucia-cardiovascular-check-2024.pdf");
         doc1.setClinicalHistory(healthUsers.get(0).getOrCreateClinicalHistory());
         doc1.setAuthor(healthWorkers.get(0));
         doc1.setProvider(clinics.get(0));
@@ -345,7 +337,7 @@ public class DataSeeder {
         // Document 2 - Prescription for Miguel
         ClinicalDocument doc2 = new ClinicalDocument();
         doc2.setTitle("Blood Pressure Medication Prescription");
-        doc2.setContent("Prescribed: Enalapril 10mg daily. Monitor blood pressure weekly.");
+        doc2.setContentUrl("https://health-records-bucket.s3.amazonaws.com/documents/miguel-prescription-2024.pdf");
         doc2.setClinicalHistory(healthUsers.get(1).getOrCreateClinicalHistory());
         doc2.setAuthor(healthWorkers.get(1));
         doc2.setProvider(clinics.get(1));
@@ -355,7 +347,7 @@ public class DataSeeder {
         // Document 3 - Pediatric Check for Sofia
         ClinicalDocument doc3 = new ClinicalDocument();
         doc3.setTitle("Well-child Visit - 8 Years Old");
-        doc3.setContent("Height: 125cm, Weight: 28kg. All vaccinations up to date. Development normal.");
+        doc3.setContentUrl("https://health-records-bucket.s3.amazonaws.com/documents/sofia-pediatric-check-2024.pdf");
         doc3.setClinicalHistory(healthUsers.get(2).getOrCreateClinicalHistory());
         doc3.setAuthor(healthWorkers.get(2));
         doc3.setProvider(clinics.get(2));
@@ -365,8 +357,8 @@ public class DataSeeder {
         // Document 4 - Surgery Report for Roberto
         ClinicalDocument doc4 = new ClinicalDocument();
         doc4.setTitle("Appendectomy Surgery Report");
-        doc4.setContent(
-                "Emergency appendectomy performed successfully. Patient recovered well, discharged after 3 days.");
+        doc4.setContentUrl(
+                "https://health-records-bucket.s3.amazonaws.com/documents/roberto-appendectomy-report-2024.pdf");
         doc4.setClinicalHistory(healthUsers.get(3).getOrCreateClinicalHistory());
         doc4.setAuthor(healthWorkers.get(3));
         doc4.setProvider(clinics.get(3));

@@ -6,8 +6,8 @@ public class HcenAdmin extends User {
         super();
     }
 
-    public grupo12.practico.dto.HcenAdminDTO toDto() {
-        grupo12.practico.dto.HcenAdminDTO dto = new grupo12.practico.dto.HcenAdminDTO();
+    public grupo12.practico.dtos.HcenAdmin.HcenAdminDTO toDto() {
+        grupo12.practico.dtos.HcenAdmin.HcenAdminDTO dto = new grupo12.practico.dtos.HcenAdmin.HcenAdminDTO();
         dto.setId(getId());
         dto.setDocument(getDocument());
         dto.setDocumentType(getDocumentType());

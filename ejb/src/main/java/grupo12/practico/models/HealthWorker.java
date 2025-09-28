@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import grupo12.practico.dto.HealthWorkerDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 
 public class HealthWorker extends User {
     private Set<Clinic> clinics;

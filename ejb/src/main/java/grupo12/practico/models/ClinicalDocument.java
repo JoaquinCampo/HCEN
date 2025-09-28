@@ -5,14 +5,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import grupo12.practico.dto.ClinicalDocumentDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 
 public class ClinicalDocument {
     private String id;
     private String title;
-    private String content;
     private String contentUrl;
-    private LocalDate issuedAt;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
@@ -25,7 +23,6 @@ public class ClinicalDocument {
         this.id = UUID.randomUUID().toString();
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
-        this.issuedAt = LocalDate.now(); // Set issued date to creation date
     }
 
     public String getId() {
@@ -42,22 +39,6 @@ public class ClinicalDocument {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public LocalDate getIssuedAt() {
-        return issuedAt;
-    }
-
-    public void setIssuedAt(LocalDate issuedAt) {
-        this.issuedAt = issuedAt;
     }
 
     public String getContentUrl() {
@@ -154,7 +135,6 @@ public class ClinicalDocument {
         return "ClinicalDocument{" +
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
-                ", issuedAt=" + issuedAt +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
@@ -164,8 +144,7 @@ public class ClinicalDocument {
         ClinicalDocumentDTO dto = new ClinicalDocumentDTO();
         dto.setId(id);
         dto.setTitle(title);
-        dto.setContent(content != null ? content : contentUrl);
-        dto.setIssuedAt(issuedAt);
+        dto.setContentUrl(contentUrl);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
         dto.setClinicalHistoryId(clinicalHistory != null ? clinicalHistory.getId() : null);

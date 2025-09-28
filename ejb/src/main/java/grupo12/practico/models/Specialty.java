@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import grupo12.practico.dto.SpecialtyDTO;
+import grupo12.practico.dtos.SpecialtyDTO;
 
 public class Specialty {
     private String id;

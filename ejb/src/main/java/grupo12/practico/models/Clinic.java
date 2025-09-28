@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import grupo12.practico.dto.ClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
 
 public class Clinic {
     private String id;
@@ -15,9 +15,7 @@ public class Clinic {
     private String phone;
     private String address;
     private String domain;
-    private String registrationNumber;
-    private LocalDate registrationDate;
-    private ClinicType type;
+    private String type;
     private boolean active;
     private LocalDate createdAt;
     private LocalDate updatedAt;
@@ -82,27 +80,11 @@ public class Clinic {
         this.domain = domain;
     }
 
-    public String getRegistrationNumber() {
-        return registrationNumber;
-    }
-
-    public void setRegistrationNumber(String registrationNumber) {
-        this.registrationNumber = registrationNumber;
-    }
-
-    public LocalDate getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(LocalDate registrationDate) {
-        this.registrationDate = registrationDate;
-    }
-
-    public ClinicType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(ClinicType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -234,8 +216,7 @@ public class Clinic {
         dto.setPhone(phone);
         dto.setAddress(address);
         dto.setDomain(domain);
-        dto.setType(type != null ? type.name() : null);
-        // Note: active field not in DTO currently
+        dto.setType(type);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
         return dto;

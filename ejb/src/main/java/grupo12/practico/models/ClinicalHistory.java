@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-import grupo12.practico.dto.ClinicalHistoryDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryDTO;
 
 public class ClinicalHistory {
     private String id;

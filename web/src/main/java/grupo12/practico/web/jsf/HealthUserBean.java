@@ -1,10 +1,10 @@
 package grupo12.practico.web.jsf;
 
-import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
-import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
+import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
-import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
@@ -16,43 +16,43 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Named("healthWorkerBean")
+@Named("healthUserBean")
 @ViewScoped
-public class HealthWorkerBean implements Serializable {
+public class HealthUserBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @EJB
-    private HealthWorkerServiceLocal service;
+    private HealthUserServiceLocal userService;
 
-    private List<HealthWorkerDTO> workers;
-    private AddHealthWorkerDTO newWorker;
+    private List<HealthUserDTO> users;
+    private AddHealthUserDTO newUser;
     private String searchQuery;
 
     @PostConstruct
     public void init() {
-        newWorker = new AddHealthWorkerDTO();
-        workers = new ArrayList<>();
+        newUser = new AddHealthUserDTO();
+        users = new ArrayList<>();
         loadAll();
     }
 
     public void loadAll() {
-        workers = service.getAllHealthWorkers();
+        users = userService.findAll();
     }
 
     public void search() {
         if (searchQuery == null || searchQuery.trim().isEmpty()) {
             loadAll();
         } else {
-            workers = service.findHealthWorkersByName(searchQuery.trim());
+            users = userService.findByName(searchQuery.trim());
         }
     }
 
     public String save() {
         try {
-            service.addHealthWorker(newWorker);
+            userService.add(newUser);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Health Worker created", null));
-            newWorker = new AddHealthWorkerDTO();
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "User created successfully", null));
+            newUser = new AddHealthUserDTO();
             return "list?faces-redirect=true";
         } catch (RuntimeException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -69,23 +69,24 @@ public class HealthWorkerBean implements Serializable {
         return DocumentType.values();
     }
 
-    public List<HealthWorkerDTO> getWorkers() {
-        return workers;
+    // Getters and setters
+    public List<HealthUserDTO> getUsers() {
+        return users;
     }
 
-    public AddHealthWorkerDTO getNewWorker() {
-        return newWorker;
+    public AddHealthUserDTO getNewUser() {
+        return newUser;
     }
 
-    public void setNewWorker(AddHealthWorkerDTO hw) {
-        this.newWorker = hw;
+    public void setNewUser(AddHealthUserDTO newUser) {
+        this.newUser = newUser;
     }
 
     public String getSearchQuery() {
         return searchQuery;
     }
 
-    public void setSearchQuery(String q) {
-        this.searchQuery = q;
+    public void setSearchQuery(String searchQuery) {
+        this.searchQuery = searchQuery;
     }
 }

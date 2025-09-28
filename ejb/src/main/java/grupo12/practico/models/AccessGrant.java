@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-import grupo12.practico.dto.AccessGrantDTO;
+import grupo12.practico.dtos.AccessGrantDTO;
 
 /**
  * Represents access permissions for clinical histories.

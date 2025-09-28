@@ -4,15 +4,16 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
-import grupo12.practico.models.Clinic;
+import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
 
 @Local
 public interface ClinicServiceLocal {
-    Clinic addClinic(Clinic clinic);
+    ClinicDTO addClinic(AddClinicDTO addClinicDTO);
 
-    List<Clinic> findAll();
+    List<ClinicDTO> findAll();
 
-    Clinic findById(String id);
+    ClinicDTO findById(String id);
 
-    List<Clinic> findByName(String name);
+    List<ClinicDTO> findByName(String name);
 }

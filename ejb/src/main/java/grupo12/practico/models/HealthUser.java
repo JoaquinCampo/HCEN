@@ -3,7 +3,8 @@ package grupo12.practico.models;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import grupo12.practico.dto.HealthUserDTO;
+
+import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 
 public class HealthUser extends User {
     private ClinicalHistory clinicalHistory;

@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-import grupo12.practico.dto.UserDTO;
+import grupo12.practico.dtos.User.UserDTO;
 
 public abstract class User {
     private String id;

@@ -1,6 +1,7 @@
 package grupo12.practico.web.jsf;
 
-import grupo12.practico.models.Clinic;
+import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.models.ClinicType;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import jakarta.annotation.PostConstruct;
@@ -22,13 +23,13 @@ public class ClinicBean implements Serializable {
     @EJB
     private ClinicServiceLocal service;
 
-    private List<Clinic> providers;
-    private Clinic newProvider;
+    private List<ClinicDTO> providers;
+    private AddClinicDTO newProvider;
     private String searchQuery;
 
     @PostConstruct
     public void init() {
-        newProvider = new Clinic();
+        newProvider = new AddClinicDTO();
         providers = new ArrayList<>();
         loadAll();
     }
@@ -50,7 +51,7 @@ public class ClinicBean implements Serializable {
             service.addClinic(newProvider);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Clinic created", null));
-            newProvider = new Clinic();
+            newProvider = new AddClinicDTO();
             return "list?faces-redirect=true";
         } catch (RuntimeException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -59,15 +60,15 @@ public class ClinicBean implements Serializable {
         }
     }
 
-    public List<Clinic> getProviders() {
+    public List<ClinicDTO> getProviders() {
         return providers;
     }
 
-    public Clinic getNewProvider() {
+    public AddClinicDTO getNewProvider() {
         return newProvider;
     }
 
-    public void setNewProvider(Clinic hp) {
+    public void setNewProvider(AddClinicDTO hp) {
         this.newProvider = hp;
     }
 

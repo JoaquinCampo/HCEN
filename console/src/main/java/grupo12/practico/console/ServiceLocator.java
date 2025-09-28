@@ -25,7 +25,7 @@ public final class ServiceLocator {
     }
 
     public HealthUserServiceRemote userService() throws NamingException {
-        String jndi = ejb("UserServiceBean", HealthUserServiceRemote.class.getName());
+        String jndi = ejb("HealthUserServiceBean", HealthUserServiceRemote.class.getName());
         return (HealthUserServiceRemote) context.lookup(jndi);
     }
 

@@ -4,26 +4,14 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
-import grupo12.practico.models.ClinicalDocument;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 
 @Local
 public interface ClinicalDocumentServiceLocal {
-    ClinicalDocument addClinicalDocument(ClinicalDocument doc);
+    ClinicalDocumentDTO addClinicalDocument(AddClinicalDocumentDTO addClinicalDocumentDTO);
 
-    List<ClinicalDocument> getAllDocuments();
+    List<ClinicalDocumentDTO> getAllDocuments();
 
-    List<ClinicalDocument> getDocumentsByPatient(String userId);
-
-    List<ClinicalDocument> getDocumentsByAuthor(String healthWorkerId);
-
-    List<ClinicalDocument> getDocumentsByProvider(String providerId);
-
-    // New: name-based searches
-    List<ClinicalDocument> searchByPatientName(String query);
-
-    List<ClinicalDocument> searchByAuthorName(String query);
-
-    List<ClinicalDocument> searchByProviderName(String query);
-
-    List<ClinicalDocument> searchByAnyName(String query);
+    List<ClinicalDocumentDTO> getDocumentsByPatient(String userId);
 }
