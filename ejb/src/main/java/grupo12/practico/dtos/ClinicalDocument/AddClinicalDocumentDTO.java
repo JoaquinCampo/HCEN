@@ -1,11 +1,12 @@
 package grupo12.practico.dtos.ClinicalDocument;
 
+import java.util.Set;
+
 public class AddClinicalDocumentDTO {
     private String title;
     private String contentUrl;
     private String clinicalHistoryId;
-    private String authorId;
-    private String providerId;
+    private Set<String> healthWorkerIds;
 
     public String getTitle() {
         return title;
@@ -31,19 +32,11 @@ public class AddClinicalDocumentDTO {
         this.clinicalHistoryId = clinicalHistoryId;
     }
 
-    public String getAuthorId() {
-        return authorId;
+    public Set<String> getHealthWorkerIds() {
+        return healthWorkerIds;
     }
 
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
-    }
-
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
+    public void setHealthWorkerIds(Set<String> healthWorkerIds) {
+        this.healthWorkerIds = healthWorkerIds;
     }
 }

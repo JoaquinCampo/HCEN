@@ -15,7 +15,9 @@ import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -36,11 +38,11 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
     private ClinicRepositoryLocal clinicRepository;
 
     @Override
-    public ClinicalDocumentDTO addClinicalDocument(AddClinicalDocumentDTO addClinicalDocumentDTO) {
+    public ClinicalDocumentDTO add(AddClinicalDocumentDTO addClinicalDocumentDTO) {
         validate(addClinicalDocumentDTO);
 
         String clinicalHistoryId = addClinicalDocumentDTO.getClinicalHistoryId();
-        String authorId = addClinicalDocumentDTO.getAuthorId();
+        Set<String> healthWorkerIds = addClinicalDocumentDTO.getHealthWorkerIds();
 
         ClinicalHistory clinicalHistory = clinicalHistoryRepository.findById(clinicalHistoryId);
 
@@ -48,52 +50,71 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
             throw new ValidationException("Clinical history not found");
         }
 
-        HealthWorker author = healthWorkerRepository.findById(authorId);
-
-        if (author == null) {
-            throw new ValidationException("Author not found");
+        Set<HealthWorker> healthWorkers = new HashSet<>();
+        for (String healthWorkerId : healthWorkerIds) {
+            HealthWorker healthWorker = healthWorkerRepository.findById(healthWorkerId);
+            if (healthWorker == null) {
+                throw new ValidationException("Health worker not found");
+            }
+            healthWorkers.add(healthWorker);
         }
 
         ClinicalDocument clinicalDocument = new ClinicalDocument();
+
         clinicalDocument.setTitle(addClinicalDocumentDTO.getTitle());
         clinicalDocument.setContentUrl(addClinicalDocumentDTO.getContentUrl());
         clinicalDocument.setClinicalHistory(clinicalHistory);
-        clinicalDocument.setAuthor(author);
+        clinicalDocument.setHealthWorkers(healthWorkers);
 
-        author.addAuthoredDocument(clinicalDocument);
+        Set<ClinicalDocument> clinicalHistoryClinicalDocuments = clinicalHistory.getClinicalDocuments();
+        clinicalHistoryClinicalDocuments.add(clinicalDocument);
+        clinicalHistory.setClinicalDocuments(clinicalHistoryClinicalDocuments);
 
-        clinicalHistory.addDocument(clinicalDocument);
+        healthWorkers.forEach(healthWorker -> {
+            Set<ClinicalDocument> healthWorkerClinicalDocuments = healthWorker.getClinicalDocuments();
+            healthWorkerClinicalDocuments.add(clinicalDocument);
+            healthWorker.setClinicalDocuments(healthWorkerClinicalDocuments);
+        });
 
         return repository.add(clinicalDocument).toDto();
     }
 
     @Override
-    public List<ClinicalDocumentDTO> getAllDocuments() {
+    public List<ClinicalDocumentDTO> findAll() {
         return repository.findAll().stream()
                 .map(ClinicalDocument::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ClinicalDocumentDTO> getDocumentsByPatient(String userId) {
-        return repository.findByPatientId(userId).stream()
+    public ClinicalDocumentDTO findById(String id) {
+        return repository.findById(id).toDto();
+    }
+
+    @Override
+    public List<ClinicalDocumentDTO> findByTitle(String title) {
+        return repository.findByTitle(title).stream()
                 .map(ClinicalDocument::toDto)
                 .collect(Collectors.toList());
     }
 
     private void validate(AddClinicalDocumentDTO addClinicalDocumentDTO) {
         if (addClinicalDocumentDTO == null) {
-            throw new ValidationException("ClinicalDocument must not be null");
+            throw new ValidationException("Clinical document is required");
         }
         if (isBlank(addClinicalDocumentDTO.getTitle())) {
             throw new ValidationException("Title is required");
         }
+        if (isBlank(addClinicalDocumentDTO.getContentUrl())) {
+            throw new ValidationException("Content URL is required");
+        }
         if (addClinicalDocumentDTO.getClinicalHistoryId() == null
                 || addClinicalDocumentDTO.getClinicalHistoryId().isEmpty()) {
-            throw new ValidationException("Clinical history with patient is required");
+            throw new ValidationException("Clinical history is required");
         }
-        if (addClinicalDocumentDTO.getAuthorId() == null || addClinicalDocumentDTO.getAuthorId().isEmpty()) {
-            throw new ValidationException("Author is required");
+        if (addClinicalDocumentDTO.getHealthWorkerIds() == null
+                || addClinicalDocumentDTO.getHealthWorkerIds().isEmpty()) {
+            throw new ValidationException("Health workers are required");
         }
     }
 

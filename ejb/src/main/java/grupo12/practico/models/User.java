@@ -134,50 +134,6 @@ public abstract class User {
         this.passwordUpdatedAt = passwordUpdatedAt;
     }
 
-    /**
-     * Sets a plain text password and automatically hashes it with salt.
-     * 
-     * @param plainPassword The plain text password to hash
-     */
-    public void setPassword(String plainPassword) {
-        if (plainPassword != null && !plainPassword.trim().isEmpty()) {
-            this.passwordSalt = grupo12.practico.services.PasswordUtil.generateSalt();
-            this.passwordHash = grupo12.practico.services.PasswordUtil.hashPassword(plainPassword, this.passwordSalt);
-            this.passwordUpdatedAt = LocalDate.now();
-        }
-    }
-
-    /**
-     * Verifies a plain text password against the stored hash.
-     * 
-     * @param plainPassword The plain text password to verify
-     * @return true if the password matches, false otherwise
-     */
-    public boolean verifyPassword(String plainPassword) {
-        if (this.passwordHash == null || this.passwordSalt == null) {
-            return false;
-        }
-        return grupo12.practico.services.PasswordUtil.verifyPassword(plainPassword, this.passwordHash,
-                this.passwordSalt);
-    }
-
-    // Relationship methods - to be implemented by subclasses
-    public void addHealthWorker(HealthWorker healthWorker) {
-        // Default implementation - do nothing
-    }
-
-    public void addAffiliatedHealthProvider(Clinic clinic) {
-        // Default implementation - do nothing
-    }
-
-    public ClinicalHistory getClinicalHistory() {
-        return null; // Default implementation - no clinical history
-    }
-
-    public void setClinicalHistory(ClinicalHistory clinicalHistory) {
-        // Default implementation - do nothing
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -232,7 +188,6 @@ public abstract class User {
         dto.setDateOfBirth(dateOfBirth);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
-        // Note: Password fields are intentionally not exposed in DTO for security
         return dto;
     }
 }

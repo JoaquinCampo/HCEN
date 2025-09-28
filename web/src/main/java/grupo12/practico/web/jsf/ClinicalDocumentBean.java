@@ -2,11 +2,9 @@ package grupo12.practico.web.jsf;
 
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
-import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
-import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import jakarta.annotation.PostConstruct;
@@ -31,20 +29,16 @@ public class ClinicalDocumentBean implements Serializable {
     private HealthUserServiceLocal userService;
     @EJB
     private HealthWorkerServiceLocal workerService;
-    @EJB
-    private ClinicServiceLocal clinicService;
 
     private List<ClinicalDocumentDTO> documents;
     private AddClinicalDocumentDTO newDocument;
     private String searchQuery;
 
     private String selectedPatientId;
-    private String selectedAuthorId;
-    private String selectedProviderId;
+    private String[] selectedHealthWorkerIds;
 
     private List<HealthUserDTO> users;
     private List<HealthWorkerDTO> workers;
-    private List<ClinicDTO> providers;
 
     @PostConstruct
     public void init() {
@@ -52,12 +46,11 @@ public class ClinicalDocumentBean implements Serializable {
         documents = new ArrayList<>();
         users = userService.findAll();
         workers = workerService.getAllHealthWorkers();
-        providers = clinicService.findAll();
         loadAll();
     }
 
     public void loadAll() {
-        documents = docService.getAllDocuments();
+        documents = docService.findAll();
     }
 
     public void search() {
@@ -77,28 +70,23 @@ public class ClinicalDocumentBean implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Patient is required", null));
                 return null;
             }
-            if (selectedAuthorId == null || selectedAuthorId.isEmpty()) {
+            if (selectedHealthWorkerIds == null || selectedHealthWorkerIds.length == 0) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Author is required", null));
-                return null;
-            }
-            if (selectedProviderId == null || selectedProviderId.isEmpty()) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Provider is required", null));
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "At least one health worker is required", null));
                 return null;
             }
 
             // Set the IDs in the DTO
             newDocument.setClinicalHistoryId(selectedPatientId);
-            newDocument.setAuthorId(selectedAuthorId);
-            newDocument.setProviderId(selectedProviderId);
+            newDocument.setHealthWorkerIds(java.util.Set.of(selectedHealthWorkerIds));
 
-            docService.addClinicalDocument(newDocument);
+            docService.add(newDocument);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Clinical document created", null));
 
             newDocument = new AddClinicalDocumentDTO();
-            selectedPatientId = selectedAuthorId = selectedProviderId = null;
+            selectedPatientId = null;
+            selectedHealthWorkerIds = null;
             return "list?faces-redirect=true";
         } catch (RuntimeException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -136,20 +124,12 @@ public class ClinicalDocumentBean implements Serializable {
         this.selectedPatientId = id;
     }
 
-    public String getSelectedAuthorId() {
-        return selectedAuthorId;
+    public String[] getSelectedHealthWorkerIds() {
+        return selectedHealthWorkerIds;
     }
 
-    public void setSelectedAuthorId(String id) {
-        this.selectedAuthorId = id;
-    }
-
-    public String getSelectedProviderId() {
-        return selectedProviderId;
-    }
-
-    public void setSelectedProviderId(String id) {
-        this.selectedProviderId = id;
+    public void setSelectedHealthWorkerIds(String[] ids) {
+        this.selectedHealthWorkerIds = ids;
     }
 
     public List<HealthUserDTO> getUsers() {
@@ -160,7 +140,4 @@ public class ClinicalDocumentBean implements Serializable {
         return workers;
     }
 
-    public List<ClinicDTO> getProviders() {
-        return providers;
-    }
 }

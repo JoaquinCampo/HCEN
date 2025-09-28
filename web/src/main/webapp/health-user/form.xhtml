@@ -5,7 +5,7 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
-  <ui:define name="title">Register Health Worker</ui:define>
+  <ui:define name="title">Create Health User</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
@@ -21,13 +21,13 @@
         />
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 class="card-title h4 mb-0">Register Health Worker</h2>
+            <h2 class="card-title h4 mb-0">Create Health User</h2>
             <small class="text-muted"
-              >Collect core information about medical professionals.</small
+              >Capture core demographic details for a new patient.</small
             >
           </div>
           <h:link
-            outcome="/health-worker/list"
+            outcome="/health-user/list"
             styleClass="btn btn-outline-secondary"
             >Back to list</h:link
           >
@@ -42,7 +42,7 @@
             />
             <h:inputText
               id="document"
-              value="#{healthWorkerBean.newWorker.document}"
+              value="#{healthUserBean.newUser.document}"
               required="true"
               styleClass="form-control"
             />
@@ -56,7 +56,7 @@
             />
             <h:selectOneMenu
               id="documentType"
-              value="#{healthWorkerBean.newWorker.documentType}"
+              value="#{healthUserBean.newUser.documentType}"
               required="true"
               styleClass="form-select"
             >
@@ -66,7 +66,7 @@
                 noSelectionOption="true"
               />
               <f:selectItems
-                value="#{healthWorkerBean.documentTypes}"
+                value="#{healthUserBean.documentTypes}"
                 var="type"
                 itemValue="#{type}"
                 itemLabel="#{type}"
@@ -83,7 +83,7 @@
             />
             <h:inputText
               id="firstName"
-              value="#{healthWorkerBean.newWorker.firstName}"
+              value="#{healthUserBean.newUser.firstName}"
               required="true"
               styleClass="form-control"
             />
@@ -97,7 +97,7 @@
             />
             <h:inputText
               id="lastName"
-              value="#{healthWorkerBean.newWorker.lastName}"
+              value="#{healthUserBean.newUser.lastName}"
               required="true"
               styleClass="form-control"
             />
@@ -106,13 +106,30 @@
 
           <div class="col-sm-6">
             <h:outputLabel
+              for="dob"
+              value="Date of Birth"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="dob"
+              value="#{healthUserBean.newUser.dateOfBirth}"
+              required="true"
+              styleClass="form-control"
+              placeholder="yyyy-MM-dd"
+            >
+              <f:convertDateTime type="localDate" pattern="yyyy-MM-dd" />
+            </h:inputText>
+            <h:message for="dob" styleClass="form-text text-danger" />
+          </div>
+          <div class="col-sm-6">
+            <h:outputLabel
               for="gender"
               value="Gender"
               styleClass="form-label"
             />
             <h:selectOneMenu
               id="gender"
-              value="#{healthWorkerBean.newWorker.gender}"
+              value="#{healthUserBean.newUser.gender}"
               required="true"
               styleClass="form-select"
             >
@@ -122,7 +139,7 @@
                 noSelectionOption="true"
               />
               <f:selectItems
-                value="#{healthWorkerBean.genders}"
+                value="#{healthUserBean.genders}"
                 var="gender"
                 itemValue="#{gender}"
                 itemLabel="#{gender}"
@@ -130,30 +147,62 @@
             </h:selectOneMenu>
             <h:message for="gender" styleClass="form-text text-danger" />
           </div>
+
           <div class="col-sm-6">
+            <h:outputLabel for="email" value="Email" styleClass="form-label" />
+            <h:inputText
+              id="email"
+              value="#{healthUserBean.newUser.email}"
+              styleClass="form-control"
+            />
+          </div>
+          <div class="col-sm-6">
+            <h:outputLabel for="phone" value="Phone" styleClass="form-label" />
+            <h:inputText
+              id="phone"
+              value="#{healthUserBean.newUser.phone}"
+              styleClass="form-control"
+            />
+          </div>
+
+          <div class="col-12">
             <h:outputLabel
-              for="license"
-              value="License Number"
+              for="address"
+              value="Address"
               styleClass="form-label"
             />
             <h:inputText
-              id="license"
-              value="#{healthWorkerBean.newWorker.licenseNumber}"
-              required="true"
+              id="address"
+              value="#{healthUserBean.newUser.address}"
               styleClass="form-control"
             />
-            <h:message for="license" styleClass="form-text text-danger" />
+          </div>
+
+          <div class="col-sm-6">
+            <h:outputLabel
+              for="password"
+              value="Password"
+              styleClass="form-label"
+            />
+            <h:inputSecret
+              id="password"
+              value="#{healthUserBean.newUser.password}"
+              required="true"
+              redisplay="false"
+              styleClass="form-control"
+            />
+            <h:message for="password" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-12 d-flex gap-2 mt-3">
             <h:commandButton
               value="Save"
-              action="#{healthWorkerBean.save}"
+              action="#{healthUserBean.save}"
               styleClass="btn btn-primary"
             />
             <h:commandButton
               value="Reset"
-              actionListener="#{healthWorkerBean.init}"
+              actionListener="#{healthUserBean.init}"
               immediate="true"
               styleClass="btn btn-outline-secondary"
             >

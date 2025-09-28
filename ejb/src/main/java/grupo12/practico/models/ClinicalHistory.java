@@ -3,6 +3,8 @@ package grupo12.practico.models;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.Set;
 
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryDTO;
 
@@ -11,8 +13,8 @@ public class ClinicalHistory {
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    private HealthUser patient;
-    private java.util.Set<ClinicalDocument> documents;
+    private HealthUser healthUser;
+    private java.util.Set<ClinicalDocument> clinicalDocuments;
 
     public ClinicalHistory() {
         this.id = UUID.randomUUID().toString();
@@ -44,27 +46,20 @@ public class ClinicalHistory {
         this.updatedAt = updatedAt;
     }
 
-    public HealthUser getPatient() {
-        return patient;
+    public HealthUser getHealthUser() {
+        return healthUser;
     }
 
-    public void setPatient(HealthUser patient) {
-        this.patient = patient;
+    public void setHealthUser(HealthUser healthUser) {
+        this.healthUser = healthUser;
     }
 
-    public java.util.Set<ClinicalDocument> getDocuments() {
-        return documents;
+    public Set<ClinicalDocument> getClinicalDocuments() {
+        return clinicalDocuments;
     }
 
-    public void setDocuments(java.util.Set<ClinicalDocument> documents) {
-        this.documents = documents;
-    }
-
-    public void addDocument(ClinicalDocument document) {
-        if (this.documents == null) {
-            this.documents = new java.util.HashSet<>();
-        }
-        this.documents.add(document);
+    public void setClinicalDocuments(Set<ClinicalDocument> clinicalDocuments) {
+        this.clinicalDocuments = clinicalDocuments;
     }
 
     @Override
@@ -96,7 +91,10 @@ public class ClinicalHistory {
         dto.setId(id);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
-        dto.setHealthUserId(patient != null ? patient.getId() : null);
+        dto.setHealthUserId(healthUser != null ? healthUser.getId() : null);
+        dto.setClinicalDocumentIds(clinicalDocuments != null
+                ? clinicalDocuments.stream().map(ClinicalDocument::getId).collect(Collectors.toSet())
+                : null);
         return dto;
     }
 }

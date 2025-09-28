@@ -1,18 +1,19 @@
 package grupo12.practico.services.HealthUser;
 
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.Clinic;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
+import grupo12.practico.services.PasswordUtil;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,11 +58,6 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         return savedUser.toDto();
     }
 
-    public ClinicalHistoryDTO getOrCreateClinicalHistory(String userId) {
-        HealthUser user = userRepository.findById(userId);
-        return user.getOrCreateClinicalHistory().toDto();
-    }
-
     private void validateCreateUserDTO(AddHealthUserDTO addHealthUserDTO) {
         if (addHealthUserDTO == null) {
             throw new ValidationException("User data must not be null");
@@ -83,7 +79,6 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     private HealthUser convertToHealthUser(AddHealthUserDTO dto) {
         HealthUser user = new HealthUser();
 
-        // Copy base user fields
         user.setDocument(dto.getDocument());
         user.setDocumentType(dto.getDocumentType());
         user.setFirstName(dto.getFirstName());
@@ -95,9 +90,13 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         user.setAddress(dto.getAddress());
         user.setDateOfBirth(dto.getDateOfBirth());
 
-        user.setPasswordHash(dto.getPassword());
+        String salt = PasswordUtil.generateSalt();
+        String hashedPassword = PasswordUtil.hashPassword(dto.getPassword(), salt);
 
-        // Set clinics if provided
+        user.setPasswordSalt(salt);
+        user.setPasswordHash(hashedPassword);
+        user.setPasswordUpdatedAt(LocalDate.now());
+
         if (dto.getClinicIds() != null && !dto.getClinicIds().isEmpty()) {
             Set<Clinic> clinics = new HashSet<>();
             for (String clinicId : dto.getClinicIds()) {

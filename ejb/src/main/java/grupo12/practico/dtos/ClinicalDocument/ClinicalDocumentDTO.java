@@ -15,7 +15,6 @@ public class ClinicalDocumentDTO implements Serializable {
     private LocalDate updatedAt;
     private String clinicalHistoryId;
     private Set<String> healthWorkerIds;
-    private Set<String> clinicIds;
 
     public String getId() {
         return id;
@@ -79,13 +78,5 @@ public class ClinicalDocumentDTO implements Serializable {
 
     public void setHealthWorkerIds(Set<String> healthWorkerIds) {
         this.healthWorkerIds = healthWorkerIds;
-    }
-
-    public Set<String> getClinicIds() {
-        return clinicIds;
-    }
-
-    public void setClinicIds(Set<String> clinicIds) {
-        this.clinicIds = clinicIds;
     }
 }

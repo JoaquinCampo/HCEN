@@ -1,72 +1,124 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                template="/WEB-INF/templates/layout.xhtml">
-    <ui:define name="title">Clinical Documents</ui:define>
-    <ui:define name="content">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h2 class="card-title h4 mb-0">Clinical Documents</h2>
-                        <small class="text-muted">Repository of documents linked to patient histories.</small>
-                    </div>
-                    <h:link outcome="/clinical-document/form" styleClass="btn btn-primary">New Document</h:link>
-                </div>
-
-                <h:form id="searchForm" styleClass="row gy-2 gx-2 align-items-end">
-                    <div class="col-sm-8 col-lg-5">
-                        <h:outputLabel for="search" value="Search" styleClass="form-label"/>
-                        <h:inputText id="search" value="#{clinicalDocumentBean.searchQuery}" styleClass="form-control"
-                                     placeholder="Patient, author, or clinic">
-                            <f:ajax event="keyup" listener="#{clinicalDocumentBean.search}" render="results globalMessages"/>
-                        </h:inputText>
-                    </div>
-                    <div class="col-sm-4 col-lg-3 d-flex gap-2">
-                        <h:commandButton value="Search" actionListener="#{clinicalDocumentBean.search}" styleClass="btn btn-outline-primary">
-                            <f:ajax render="results globalMessages"/>
-                        </h:commandButton>
-                        <h:commandButton value="Reset" actionListener="#{clinicalDocumentBean.loadAll}" immediate="true" styleClass="btn btn-outline-secondary">
-                            <f:ajax render="@form results globalMessages"/>
-                        </h:commandButton>
-                    </div>
-                </h:form>
-
-                <h:panelGroup id="results" layout="block" styleClass="table-responsive mt-4">
-                    <h:dataTable value="#{clinicalDocumentBean.documents}" var="doc" rendered="#{not empty clinicalDocumentBean.documents}" styleClass="table table-striped align-middle">
-                        <h:column>
-                            <f:facet name="header">Title</f:facet>
-                            <div class="fw-semibold">#{doc.title}</div>
-                            <small class="text-muted">Issued #{doc.issuedAt}</small>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">Patient</f:facet>
-                            <span class="text-muted">
-                                #{doc.clinicalHistory != null and doc.clinicalHistory.patient != null
-                                  ? doc.clinicalHistory.patient.firstName.concat(' ').concat(doc.clinicalHistory.patient.lastName)
-                                  : '—'}
-                            </span>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">Author</f:facet>
-                            <span class="text-muted">#{doc.author != null ? doc.author.firstName.concat(' ').concat(doc.author.lastName) : '—'}</span>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">Clinic</f:facet>
-                            <span class="text-muted">#{doc.provider != null ? doc.provider.name : '—'}</span>
-                        </h:column>
-                        <h:column>
-                            <f:facet name="header">Created</f:facet>
-                            <span class="text-muted">#{doc.createdAt}</span>
-                        </h:column>
-                    </h:dataTable>
-
-                    <h:panelGroup rendered="#{empty clinicalDocumentBean.documents}" styleClass="text-muted">
-                        <div class="alert alert-info mb-0">No clinical documents available yet.</div>
-                    </h:panelGroup>
-                </h:panelGroup>
-            </div>
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  template="/WEB-INF/templates/layout.xhtml"
+>
+  <ui:define name="title">Clinical Documents</ui:define>
+  <ui:define name="content">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="card-title h4 mb-0">Clinical Documents</h2>
+            <small class="text-muted"
+              >Repository of documents linked to patient histories.</small
+            >
+          </div>
+          <h:link outcome="/clinical-document/form" styleClass="btn btn-primary"
+            >New Document</h:link
+          >
         </div>
-    </ui:define>
+
+        <h:form id="searchForm" styleClass="row gy-2 gx-2 align-items-end">
+          <div class="col-sm-8 col-lg-5">
+            <h:outputLabel
+              for="search"
+              value="Search"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="search"
+              value="#{clinicalDocumentBean.searchQuery}"
+              styleClass="form-control"
+              placeholder="Patient, author, or clinic"
+            >
+              <f:ajax
+                event="keyup"
+                listener="#{clinicalDocumentBean.search}"
+                render="results globalMessages"
+              />
+            </h:inputText>
+          </div>
+          <div class="col-sm-4 col-lg-3 d-flex gap-2">
+            <h:commandButton
+              value="Search"
+              actionListener="#{clinicalDocumentBean.search}"
+              styleClass="btn btn-outline-primary"
+            >
+              <f:ajax render="results globalMessages" />
+            </h:commandButton>
+            <h:commandButton
+              value="Reset"
+              actionListener="#{clinicalDocumentBean.loadAll}"
+              immediate="true"
+              styleClass="btn btn-outline-secondary"
+            >
+              <f:ajax render="@form results globalMessages" />
+            </h:commandButton>
+          </div>
+        </h:form>
+
+        <h:panelGroup
+          id="results"
+          layout="block"
+          styleClass="table-responsive mt-4"
+        >
+          <h:dataTable
+            value="#{clinicalDocumentBean.documents}"
+            var="doc"
+            rendered="#{not empty clinicalDocumentBean.documents}"
+            styleClass="table table-striped align-middle"
+          >
+            <h:column>
+              <f:facet name="header">Title</f:facet>
+              <div class="fw-semibold">#{doc.title}</div>
+              <small class="text-muted">Issued #{doc.issuedAt}</small>
+            </h:column>
+            <h:column>
+              <f:facet name="header">Patient ID</f:facet>
+              <span class="text-muted">#{doc.clinicalHistoryId}</span>
+            </h:column>
+            <h:column>
+              <f:facet name="header">Health Worker IDs</f:facet>
+              <span class="text-muted">
+                <ui:repeat value="#{doc.healthWorkerIds}" var="workerId">
+                  <span class="badge bg-light text-dark border me-1"
+                    >#{workerId}</span
+                  >
+                </ui:repeat>
+              </span>
+            </h:column>
+            <h:column>
+              <f:facet name="header">Content URL</f:facet>
+              <span class="text-muted">
+                <h:outputLink
+                  value="#{doc.contentUrl}"
+                  target="_blank"
+                  rendered="#{not empty doc.contentUrl}"
+                >
+                  View Document
+                </h:outputLink>
+                <span rendered="#{empty doc.contentUrl}">—</span>
+              </span>
+            </h:column>
+            <h:column>
+              <f:facet name="header">Created</f:facet>
+              <span class="text-muted">#{doc.createdAt}</span>
+            </h:column>
+          </h:dataTable>
+
+          <h:panelGroup
+            rendered="#{empty clinicalDocumentBean.documents}"
+            styleClass="text-muted"
+          >
+            <div class="alert alert-info mb-0">
+              No clinical documents available yet.
+            </div>
+          </h:panelGroup>
+        </h:panelGroup>
+      </div>
+    </div>
+  </ui:define>
 </ui:composition>

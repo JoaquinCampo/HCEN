@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 
@@ -15,8 +16,6 @@ public class ClinicalDocument {
     private LocalDate updatedAt;
 
     private ClinicalHistory clinicalHistory;
-    private HealthWorker author;
-    private Clinic provider;
     private Set<HealthWorker> healthWorkers;
 
     public ClinicalDocument() {
@@ -73,46 +72,12 @@ public class ClinicalDocument {
         this.clinicalHistory = clinicalHistory;
     }
 
-    public HealthWorker getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(HealthWorker author) {
-        this.author = author;
-        // Also add to the healthWorkers set for consistency
-        if (author != null) {
-            if (this.healthWorkers == null) {
-                this.healthWorkers = new java.util.HashSet<>();
-            }
-            this.healthWorkers.add(author);
-        }
-    }
-
-    public Clinic getProvider() {
-        return provider;
-    }
-
-    public void setProvider(Clinic provider) {
-        this.provider = provider;
-    }
-
     public Set<HealthWorker> getHealthWorkers() {
         return healthWorkers;
     }
 
     public void setHealthWorkers(Set<HealthWorker> healthWorkers) {
         this.healthWorkers = healthWorkers;
-    }
-
-    public void addAuthor(HealthWorker author) {
-        if (this.healthWorkers == null) {
-            this.healthWorkers = new java.util.HashSet<>();
-        }
-        this.healthWorkers.add(author);
-        // Set as primary author if not set
-        if (this.author == null) {
-            this.author = author;
-        }
     }
 
     @Override
@@ -148,9 +113,9 @@ public class ClinicalDocument {
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
         dto.setClinicalHistoryId(clinicalHistory != null ? clinicalHistory.getId() : null);
-        // Add author and provider IDs
-        dto.setHealthWorkerIds(author != null ? java.util.Set.of(author.getId()) : null);
-        dto.setClinicIds(provider != null ? java.util.Set.of(provider.getId()) : null);
+        dto.setHealthWorkerIds(
+                healthWorkers != null ? healthWorkers.stream().map(HealthWorker::getId).collect(Collectors.toSet())
+                        : null);
         return dto;
     }
 }

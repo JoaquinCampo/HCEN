@@ -1,13 +1,15 @@
 package grupo12.practico.models;
 
+import grupo12.practico.dtos.HcenAdmin.HcenAdminDTO;
+
 public class HcenAdmin extends User {
 
     public HcenAdmin() {
         super();
     }
 
-    public grupo12.practico.dtos.HcenAdmin.HcenAdminDTO toDto() {
-        grupo12.practico.dtos.HcenAdmin.HcenAdminDTO dto = new grupo12.practico.dtos.HcenAdmin.HcenAdminDTO();
+    public HcenAdminDTO toDto() {
+        HcenAdminDTO dto = new HcenAdminDTO();
         dto.setId(getId());
         dto.setDocument(getDocument());
         dto.setDocumentType(getDocumentType());

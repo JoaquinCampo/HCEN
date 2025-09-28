@@ -5,38 +5,38 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
-  <ui:define name="title">Health Workers</ui:define>
+  <ui:define name="title">Health Users</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 class="card-title h4 mb-0">Health Workers</h2>
+            <h2 class="card-title h4 mb-0">Health Users</h2>
             <small class="text-muted"
-              >Medical professionals registered in the system.</small
+              >Search, browse, and manage registered patients.</small
             >
           </div>
-          <h:link outcome="/health-worker/form" styleClass="btn btn-primary"
-            >New Health Worker</h:link
+          <h:link outcome="/health-user/form" styleClass="btn btn-primary"
+            >New User</h:link
           >
         </div>
 
         <h:form id="searchForm" styleClass="row gy-2 gx-2 align-items-end">
           <div class="col-sm-6 col-lg-4">
             <h:outputLabel
-              for="search"
+              for="searchQuery"
               value="Search by name"
               styleClass="form-label"
             />
             <h:inputText
-              id="search"
-              value="#{healthWorkerBean.searchQuery}"
+              id="searchQuery"
+              value="#{healthUserBean.searchQuery}"
               styleClass="form-control"
-              placeholder="e.g. Smith"
+              placeholder="e.g. Jane Doe"
             >
               <f:ajax
                 event="keyup"
-                listener="#{healthWorkerBean.search}"
+                listener="#{healthUserBean.search}"
                 render="results globalMessages"
               />
             </h:inputText>
@@ -44,14 +44,14 @@
           <div class="col-sm-6 col-lg-3 d-flex gap-2">
             <h:commandButton
               value="Search"
-              actionListener="#{healthWorkerBean.search}"
+              actionListener="#{healthUserBean.search}"
               styleClass="btn btn-outline-primary"
             >
               <f:ajax render="results globalMessages" />
             </h:commandButton>
             <h:commandButton
               value="Reset"
-              actionListener="#{healthWorkerBean.loadAll}"
+              actionListener="#{healthUserBean.loadAll}"
               immediate="true"
               styleClass="btn btn-outline-secondary"
             >
@@ -66,51 +66,44 @@
           styleClass="table-responsive mt-4"
         >
           <h:dataTable
-            value="#{healthWorkerBean.workers}"
-            var="w"
-            rendered="#{not empty healthWorkerBean.workers}"
+            value="#{healthUserBean.users}"
+            var="u"
+            rendered="#{not empty healthUserBean.users}"
             styleClass="table table-striped align-middle"
           >
             <h:column>
               <f:facet name="header">Document</f:facet>
-              <div class="fw-semibold">#{w.document}</div>
-              <small class="text-muted">#{w.documentType}</small>
+              <div class="fw-semibold">#{u.document}</div>
+              <small class="text-muted">#{u.documentType}</small>
             </h:column>
             <h:column>
               <f:facet name="header">Name</f:facet>
-              #{w.firstName} #{w.lastName}
+              #{u.firstName} #{u.lastName}
             </h:column>
             <h:column>
               <f:facet name="header">Gender</f:facet>
-              #{w.gender}
+              #{u.gender}
             </h:column>
             <h:column>
-              <f:facet name="header">License</f:facet>
-              <div class="fw-semibold">#{w.licenseNumber}</div>
+              <f:facet name="header">Email</f:facet>
+              <span class="text-muted">#{empty u.email ? '—' : u.email}</span>
             </h:column>
             <h:column>
-              <f:facet name="header">Clinic IDs</f:facet>
-              <h:panelGroup rendered="#{not empty w.clinicIds}">
-                <ui:repeat value="#{w.clinicIds}" var="clinicId">
-                  <span class="badge bg-light text-dark border me-1 mb-1"
-                    >#{clinicId}</span
-                  >
-                </ui:repeat>
-              </h:panelGroup>
-              <h:panelGroup
-                rendered="#{empty w.clinicIds}"
-                styleClass="text-muted"
-                >—</h:panelGroup
-              >
+              <f:facet name="header">Phone</f:facet>
+              <span class="text-muted">#{empty u.phone ? '—' : u.phone}</span>
+            </h:column>
+            <h:column>
+              <f:facet name="header">Created</f:facet>
+              <span class="text-muted">#{u.createdAt}</span>
             </h:column>
           </h:dataTable>
 
           <h:panelGroup
-            rendered="#{empty healthWorkerBean.workers}"
+            rendered="#{empty healthUserBean.users}"
             styleClass="text-muted"
           >
             <div class="alert alert-info mb-0">
-              No health workers match the current filters.
+              No users match the current filters.
             </div>
           </h:panelGroup>
         </h:panelGroup>

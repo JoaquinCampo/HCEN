@@ -4,7 +4,6 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 
@@ -17,7 +16,4 @@ public interface HealthUserServiceLocal {
     List<HealthUserDTO> findByName(String name);
 
     HealthUserDTO add(AddHealthUserDTO addHealthUserDTO);
-
-    ClinicalHistoryDTO getOrCreateClinicalHistory(String userId);
-
 }

@@ -9,9 +9,11 @@ import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 
 @Local
 public interface ClinicalDocumentServiceLocal {
-    ClinicalDocumentDTO addClinicalDocument(AddClinicalDocumentDTO addClinicalDocumentDTO);
+    ClinicalDocumentDTO add(AddClinicalDocumentDTO addClinicalDocumentDTO);
 
-    List<ClinicalDocumentDTO> getAllDocuments();
+    List<ClinicalDocumentDTO> findAll();
 
-    List<ClinicalDocumentDTO> getDocumentsByPatient(String userId);
+    ClinicalDocumentDTO findById(String id);
+
+    List<ClinicalDocumentDTO> findByTitle(String title);
 }

@@ -2,6 +2,7 @@ package grupo12.practico.dtos.ClinicalHistory;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Set;
 
 public class ClinicalHistoryDTO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -10,6 +11,7 @@ public class ClinicalHistoryDTO implements Serializable {
     private LocalDate createdAt;
     private LocalDate updatedAt;
     private String healthUserId;
+    private Set<String> clinicalDocumentIds;
 
     public String getId() {
         return id;
@@ -41,5 +43,13 @@ public class ClinicalHistoryDTO implements Serializable {
 
     public void setHealthUserId(String healthUserId) {
         this.healthUserId = healthUserId;
+    }
+
+    public Set<String> getClinicalDocumentIds() {
+        return clinicalDocumentIds;
+    }
+
+    public void setClinicalDocumentIds(Set<String> clinicalDocumentIds) {
+        this.clinicalDocumentIds = clinicalDocumentIds;
     }
 }

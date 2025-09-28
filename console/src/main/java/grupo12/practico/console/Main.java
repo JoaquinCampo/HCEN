@@ -41,7 +41,8 @@ public class Main {
                 System.out.println("2) Health Workers");
                 System.out.println("3) Clinics");
                 System.out.println("4) Clinical Documents");
-                System.out.println("5) Access Grants");
+                // System.out.println("5) Access Grants"); // COMMENTED OUT: AccessGrantService
+                // does not exist
                 System.out.println("0) Exit");
                 System.out.print("Choose: ");
                 String choice = in.nextLine();
@@ -59,9 +60,6 @@ public class Main {
                         break;
                     case "4":
                         documentsMenu(in, locator);
-                        break;
-                    case "5":
-                        accessGrantsMenu(in, locator);
                         break;
                     default:
                         System.out.println("Unknown option");
@@ -110,7 +108,7 @@ public class Main {
                             continue;
                         }
                         u.setDocument(dni);
-                        u.setDocumentType(DocumentType.ID); // Set default document type
+                        u.setDocumentType(DocumentType.ID);
 
                         System.out.print("Email: ");
                         u.setEmail(in.nextLine());
@@ -388,7 +386,6 @@ public class Main {
             ClinicalDocumentServiceRemote docService = locator.clinicalDocumentService();
             HealthUserServiceRemote userService = locator.userService();
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
-            ClinicServiceRemote clinicService = locator.clinicService();
             while (true) {
                 System.out.println();
                 System.out.println("-- Clinical Documents --");
@@ -445,24 +442,10 @@ public class Main {
                             System.out.println("Error: Author not found with ID: " + authorId);
                             continue;
                         }
-                        doc.setAuthorId(authorId);
-
-                        System.out.print("Provider ID: ");
-                        String providerId = in.nextLine().trim();
-                        if (providerId.isEmpty()) {
-                            System.out.println("Error: Provider ID is required");
-                            continue;
-                        }
-                        // Verify provider exists
-                        ClinicDTO provider = clinicService.findById(providerId);
-                        if (provider == null) {
-                            System.out.println("Error: Provider not found with ID: " + providerId);
-                            continue;
-                        }
-                        doc.setProviderId(providerId);
+                        doc.setHealthWorkerIds(java.util.Set.of(authorId));
 
                         try {
-                            ClinicalDocumentDTO addedDoc = docService.addClinicalDocument(doc);
+                            ClinicalDocumentDTO addedDoc = docService.add(doc);
                             System.out.println("Clinical document added successfully with ID: " + addedDoc.getId());
                         } catch (Exception ex) {
                             System.out.println("Failed to add clinical document: " + ex.getMessage());
@@ -470,12 +453,12 @@ public class Main {
                         }
                         break;
                     case "2":
-                        docService.getAllDocuments().forEach(x -> System.out.println(x.getId() + " | " + x.getTitle()));
+                        docService.findAll().forEach(x -> System.out.println(x.getId() + " | " + x.getTitle()));
                         break;
                     case "3":
                         System.out.println("Search functionality not available in simplified service.");
                         System.out.println("Showing all documents instead:");
-                        docService.getAllDocuments().forEach(x -> System.out.println(x.getId() + " | " + x.getTitle()));
+                        docService.findAll().forEach(x -> System.out.println(x.getId() + " | " + x.getTitle()));
                         break;
                     default:
                         System.out.println("Unknown option");
@@ -486,14 +469,19 @@ public class Main {
         }
     }
 
-    private static void accessGrantsMenu(Scanner in, ServiceLocator locator) {
-        try {
-            // Note: AccessGrant service would need to be added to ServiceLocator
-            // For now, just show a placeholder
-            System.out.println("Access Grants management coming soon...");
-            System.out.println("This feature will allow managing clinical data access permissions.");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
+    // COMMENTED OUT: AccessGrantService does not exist
+    /*
+     * private static void accessGrantsMenu(Scanner in, ServiceLocator locator) {
+     * try {
+     * // Note: AccessGrant service would need to be added to ServiceLocator
+     * // For now, just show a placeholder
+     * System.out.println("Access Grants management coming soon...");
+     * System.out.
+     * println("This feature will allow managing clinical data access permissions."
+     * );
+     * } catch (Exception e) {
+     * System.out.println("Error: " + e.getMessage());
+     * }
+     * }
+     */
 }
