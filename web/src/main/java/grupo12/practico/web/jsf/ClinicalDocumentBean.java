@@ -1,10 +1,12 @@
 package grupo12.practico.web.jsf;
 
-import grupo12.practico.models.*;
+import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
-import grupo12.practico.services.User.UserServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
@@ -24,73 +26,67 @@ public class ClinicalDocumentBean implements Serializable {
     @EJB
     private ClinicalDocumentServiceLocal docService;
     @EJB
-    private UserServiceLocal userService;
+    private HealthUserServiceLocal userService;
     @EJB
     private HealthWorkerServiceLocal workerService;
-    @EJB
-    private HealthProviderServiceLocal providerService;
 
-    private List<ClinicalDocument> documents;
-    private ClinicalDocument newDocument;
+    private List<ClinicalDocumentDTO> documents;
+    private AddClinicalDocumentDTO newDocument;
     private String searchQuery;
 
     private String selectedPatientId;
-    private String selectedAuthorId;
-    private String selectedProviderId;
+    private String[] selectedHealthWorkerIds;
 
-    private List<User> users;
-    private List<HealthWorker> workers;
-    private List<HealthProvider> providers;
+    private List<HealthUserDTO> users;
+    private List<HealthWorkerDTO> workers;
 
     @PostConstruct
     public void init() {
-        newDocument = new ClinicalDocument();
+        newDocument = new AddClinicalDocumentDTO();
         documents = new ArrayList<>();
         users = userService.findAll();
         workers = workerService.getAllHealthWorkers();
-        providers = providerService.findAll();
         loadAll();
     }
 
     public void loadAll() {
-        documents = docService.getAllDocuments();
+        documents = docService.findAll();
     }
 
     public void search() {
         if (searchQuery == null || searchQuery.trim().isEmpty()) {
             loadAll();
         } else {
-            documents = docService.searchByAnyName(searchQuery.trim());
+            // For now, just load all documents since search methods are not available in
+            // the simplified service
+            loadAll();
         }
     }
 
     public String save() {
         try {
-            User patient = selectedPatientId != null && !selectedPatientId.isEmpty()
-                    ? userService.findById(selectedPatientId)
-                    : null;
-            if (patient == null) {
+            if (selectedPatientId == null || selectedPatientId.isEmpty()) {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Patient is required", null));
                 return null;
             }
-            ClinicalHistory history = new ClinicalHistory();
-            history.setPatient(patient);
-            newDocument.setClinicalHistory(history);
-
-            if (selectedAuthorId != null && !selectedAuthorId.isEmpty()) {
-                newDocument.setAuthor(workerService.findById(selectedAuthorId));
-            }
-            if (selectedProviderId != null && !selectedProviderId.isEmpty()) {
-                newDocument.setProvider(providerService.findById(selectedProviderId));
+            if (selectedHealthWorkerIds == null || selectedHealthWorkerIds.length == 0) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "At least one health worker is required", null));
+                return null;
             }
 
-            docService.addClinicalDocument(newDocument);
+            // Set the IDs in the DTO
+            newDocument.setClinicalHistoryId(selectedPatientId);
+            newDocument.setHealthWorkerIds(java.util.Set.of(selectedHealthWorkerIds));
+
+            docService.add(newDocument);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Clinical document created", null));
 
-            newDocument = new ClinicalDocument();
-            selectedPatientId = selectedAuthorId = selectedProviderId = null;
+            newDocument = new AddClinicalDocumentDTO();
+            selectedPatientId = null;
+            selectedHealthWorkerIds = null;
             return "list?faces-redirect=true";
         } catch (RuntimeException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -100,15 +96,15 @@ public class ClinicalDocumentBean implements Serializable {
     }
 
     // getters/setters
-    public List<ClinicalDocument> getDocuments() {
+    public List<ClinicalDocumentDTO> getDocuments() {
         return documents;
     }
 
-    public ClinicalDocument getNewDocument() {
+    public AddClinicalDocumentDTO getNewDocument() {
         return newDocument;
     }
 
-    public void setNewDocument(ClinicalDocument doc) {
+    public void setNewDocument(AddClinicalDocumentDTO doc) {
         this.newDocument = doc;
     }
 
@@ -128,31 +124,20 @@ public class ClinicalDocumentBean implements Serializable {
         this.selectedPatientId = id;
     }
 
-    public String getSelectedAuthorId() {
-        return selectedAuthorId;
+    public String[] getSelectedHealthWorkerIds() {
+        return selectedHealthWorkerIds;
     }
 
-    public void setSelectedAuthorId(String id) {
-        this.selectedAuthorId = id;
+    public void setSelectedHealthWorkerIds(String[] ids) {
+        this.selectedHealthWorkerIds = ids;
     }
 
-    public String getSelectedProviderId() {
-        return selectedProviderId;
-    }
-
-    public void setSelectedProviderId(String id) {
-        this.selectedProviderId = id;
-    }
-
-    public List<User> getUsers() {
+    public List<HealthUserDTO> getUsers() {
         return users;
     }
 
-    public List<HealthWorker> getWorkers() {
+    public List<HealthWorkerDTO> getWorkers() {
         return workers;
     }
 
-    public List<HealthProvider> getProviders() {
-        return providers;
-    }
 }

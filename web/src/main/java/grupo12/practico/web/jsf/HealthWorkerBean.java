@@ -1,7 +1,9 @@
 package grupo12.practico.web.jsf;
 
+import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
-import grupo12.practico.models.HealthWorker;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -22,13 +24,13 @@ public class HealthWorkerBean implements Serializable {
     @EJB
     private HealthWorkerServiceLocal service;
 
-    private List<HealthWorker> workers;
-    private HealthWorker newWorker;
+    private List<HealthWorkerDTO> workers;
+    private AddHealthWorkerDTO newWorker;
     private String searchQuery;
 
     @PostConstruct
     public void init() {
-        newWorker = new HealthWorker();
+        newWorker = new AddHealthWorkerDTO();
         workers = new ArrayList<>();
         loadAll();
     }
@@ -50,7 +52,7 @@ public class HealthWorkerBean implements Serializable {
             service.addHealthWorker(newWorker);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Health Worker created", null));
-            newWorker = new HealthWorker();
+            newWorker = new AddHealthWorkerDTO();
             return "list?faces-redirect=true";
         } catch (RuntimeException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -63,15 +65,19 @@ public class HealthWorkerBean implements Serializable {
         return Gender.values();
     }
 
-    public List<HealthWorker> getWorkers() {
+    public DocumentType[] getDocumentTypes() {
+        return DocumentType.values();
+    }
+
+    public List<HealthWorkerDTO> getWorkers() {
         return workers;
     }
 
-    public HealthWorker getNewWorker() {
+    public AddHealthWorkerDTO getNewWorker() {
         return newWorker;
     }
 
-    public void setNewWorker(HealthWorker hw) {
+    public void setNewWorker(AddHealthWorkerDTO hw) {
         this.newWorker = hw;
     }
 

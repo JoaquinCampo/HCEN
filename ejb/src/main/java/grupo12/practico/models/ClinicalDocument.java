@@ -1,24 +1,29 @@
 package grupo12.practico.models;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class ClinicalDocument implements Serializable {
-    private static final long serialVersionUID = 1L;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+
+public class ClinicalDocument {
     private String id;
     private String title;
-    private String content;
-    private LocalDateTime issuedAt;
+    private String contentUrl;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
 
     private ClinicalHistory clinicalHistory;
-    private HealthWorker author;
-    private HealthProvider provider;
+    private Set<HealthWorker> healthWorkers;
 
     public ClinicalDocument() {
         this.id = UUID.randomUUID().toString();
-        this.issuedAt = LocalDateTime.now();
+        this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDate.now();
+        this.healthWorkers = new HashSet<>();
     }
 
     public String getId() {
@@ -37,20 +42,28 @@ public class ClinicalDocument implements Serializable {
         this.title = title;
     }
 
-    public String getContent() {
-        return content;
+    public String getContentUrl() {
+        return contentUrl;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
     }
 
-    public LocalDateTime getIssuedAt() {
-        return issuedAt;
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
-    public void setIssuedAt(LocalDateTime issuedAt) {
-        this.issuedAt = issuedAt;
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDate updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public ClinicalHistory getClinicalHistory() {
@@ -61,20 +74,12 @@ public class ClinicalDocument implements Serializable {
         this.clinicalHistory = clinicalHistory;
     }
 
-    public HealthWorker getAuthor() {
-        return author;
+    public Set<HealthWorker> getHealthWorkers() {
+        return healthWorkers;
     }
 
-    public void setAuthor(HealthWorker author) {
-        this.author = author;
-    }
-
-    public HealthProvider getProvider() {
-        return provider;
-    }
-
-    public void setProvider(HealthProvider provider) {
-        this.provider = provider;
+    public void setHealthWorkers(Set<HealthWorker> healthWorkers) {
+        this.healthWorkers = healthWorkers;
     }
 
     @Override
@@ -97,7 +102,22 @@ public class ClinicalDocument implements Serializable {
         return "ClinicalDocument{" +
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
-                ", issuedAt=" + issuedAt +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
+    }
+
+    public ClinicalDocumentDTO toDto() {
+        ClinicalDocumentDTO dto = new ClinicalDocumentDTO();
+        dto.setId(id);
+        dto.setTitle(title);
+        dto.setContentUrl(contentUrl);
+        dto.setCreatedAt(createdAt);
+        dto.setUpdatedAt(updatedAt);
+        dto.setClinicalHistoryId(clinicalHistory != null ? clinicalHistory.getId() : null);
+        dto.setHealthWorkerIds(
+                healthWorkers != null ? healthWorkers.stream().map(HealthWorker::getId).collect(Collectors.toSet())
+                        : null);
+        return dto;
     }
 }

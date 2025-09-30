@@ -6,16 +6,21 @@ import java.util.Scanner;
 
 import javax.naming.Context;
 
-import grupo12.practico.models.ClinicalDocument;
-import grupo12.practico.models.ClinicalHistory;
+import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
+import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
-import grupo12.practico.models.HealthProvider;
-import grupo12.practico.models.HealthWorker;
-import grupo12.practico.models.User;
+import grupo12.practico.models.ClinicType;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceRemote;
-import grupo12.practico.services.HealthProvider.HealthProviderServiceRemote;
+import grupo12.practico.services.Clinic.ClinicServiceRemote;
+import grupo12.practico.services.HealthUser.HealthUserServiceRemote;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceRemote;
-import grupo12.practico.services.User.UserServiceRemote;
 
 public class Main {
 
@@ -34,18 +39,30 @@ public class Main {
                 System.out.println("=== Practico Console ===");
                 System.out.println("1) Users");
                 System.out.println("2) Health Workers");
-                System.out.println("3) Health Providers");
+                System.out.println("3) Clinics");
                 System.out.println("4) Clinical Documents");
+                // System.out.println("5) Access Grants"); // COMMENTED OUT: AccessGrantService
+                // does not exist
                 System.out.println("0) Exit");
                 System.out.print("Choose: ");
                 String choice = in.nextLine();
-                if ("0".equals(choice)) break;
+                if ("0".equals(choice))
+                    break;
                 switch (choice) {
-                    case "1": usersMenu(in, locator); break;
-                    case "2": healthWorkersMenu(in, locator); break;
-                    case "3": healthProvidersMenu(in, locator); break;
-                    case "4": documentsMenu(in, locator); break;
-                    default: System.out.println("Unknown option");
+                    case "1":
+                        usersMenu(in, locator);
+                        break;
+                    case "2":
+                        healthWorkersMenu(in, locator);
+                        break;
+                    case "3":
+                        clinicsMenu(in, locator);
+                        break;
+                    case "4":
+                        documentsMenu(in, locator);
+                        break;
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         }
@@ -53,49 +70,82 @@ public class Main {
 
     private static void usersMenu(Scanner in, ServiceLocator locator) {
         try {
-            UserServiceRemote userService = locator.userService();
-            HealthWorkerServiceRemote hwService = locator.healthWorkerService();
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
+            HealthUserServiceRemote userService = locator.userService();
             while (true) {
                 System.out.println();
                 System.out.println("-- Users --");
                 System.out.println("1) Add user");
                 System.out.println("2) List users");
                 System.out.println("3) Search by name");
+                System.out.println("4) Find by ID");
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
-                        User u = new User();
-                        System.out.print("First name: "); String firstName = in.nextLine().trim();
+                        AddHealthUserDTO u = new AddHealthUserDTO();
+                        System.out.print("First name: ");
+                        String firstName = in.nextLine().trim();
                         if (firstName.isEmpty()) {
                             System.out.println("Error: First name is required");
                             continue;
                         }
                         u.setFirstName(firstName);
 
-                        System.out.print("Last name: "); String lastName = in.nextLine().trim();
+                        System.out.print("Last name: ");
+                        String lastName = in.nextLine().trim();
                         if (lastName.isEmpty()) {
                             System.out.println("Error: Last name is required");
                             continue;
                         }
                         u.setLastName(lastName);
 
-                        System.out.print("DNI: "); String dni = in.nextLine().trim();
+                        System.out.print("DNI: ");
+                        String dni = in.nextLine().trim();
                         if (dni.isEmpty()) {
                             System.out.println("Error: DNI is required");
                             continue;
                         }
-                        u.setDni(dni);
-                        System.out.print("Email: "); u.setEmail(in.nextLine());
-                        System.out.print("Phone: "); u.setPhone(in.nextLine());
-                        System.out.print("Address: "); u.setAddress(in.nextLine());
+                        u.setDocument(dni);
+
+                        // Document type selection
+                        System.out.print("Document type (ID/PASSPORT/DRIVER_LICENSE) [ID]: ");
+                        String docTypeStr = in.nextLine().trim().toUpperCase();
+                        if (docTypeStr.isEmpty()) {
+                            u.setDocumentType(DocumentType.ID);
+                        } else {
+                            try {
+                                u.setDocumentType(DocumentType.valueOf(docTypeStr));
+                            } catch (Exception e) {
+                                System.out.println("Invalid document type, using ID as default");
+                                u.setDocumentType(DocumentType.ID);
+                            }
+                        }
+
+                        System.out.print("Email: ");
+                        u.setEmail(in.nextLine());
+
+                        System.out.print("Password: ");
+                        String password = in.nextLine().trim();
+                        if (password.isEmpty()) {
+                            System.out.println("Error: Password is required");
+                            continue;
+                        }
+                        u.setPassword(password);
+
+                        System.out.print("Phone: ");
+                        u.setPhone(in.nextLine());
+                        System.out.print("Address: ");
+                        u.setAddress(in.nextLine());
                         System.out.print("Gender (MALE/FEMALE/OTHER) or empty: ");
                         String g = in.nextLine();
                         if (!g.isBlank()) {
-                            try { u.setGender(Gender.valueOf(g.trim().toUpperCase())); } catch (Exception ignore) {}
+                            try {
+                                u.setGender(Gender.valueOf(g.trim().toUpperCase()));
+                            } catch (Exception ignore) {
+                            }
                         }
                         System.out.print("Date of birth (YYYY-MM-DD): ");
                         String dob = in.nextLine();
@@ -117,22 +167,15 @@ public class Main {
                             continue;
                         }
 
-                        System.out.print("Add health worker by ID (empty to skip): ");
-                        String hwId = in.nextLine();
-                        if (!hwId.isBlank()) {
-                            HealthWorker hw = hwService.findById(hwId.trim());
-                            if (hw != null) u.addHealthWorker(hw);
-                        }
-
-                        System.out.print("Add affiliated provider by ID (empty to skip): ");
-                        String hpId = in.nextLine();
-                        if (!hpId.isBlank()) {
-                            HealthProvider hp = hpService.findById(hpId.trim());
-                            if (hp != null) u.addAffiliatedHealthProvider(hp);
+                        // Note: Clinic associations are now handled via clinicIds in the DTO
+                        System.out.print("Add clinic ID (empty to skip): ");
+                        String clinicId = in.nextLine();
+                        if (!clinicId.isBlank()) {
+                            u.setClinicIds(java.util.Set.of(clinicId.trim()));
                         }
 
                         try {
-                            User addedUser = userService.addUser(u);
+                            HealthUserDTO addedUser = userService.add(u);
                             System.out.println("User added successfully with ID: " + addedUser.getId());
                         } catch (Exception ex) {
                             System.out.println("Failed to add user: " + ex.getMessage());
@@ -141,11 +184,26 @@ public class Main {
                         break;
                     case "2":
                         try {
-                            List<User> users = userService.getAllUsers();
+                            List<HealthUserDTO> users = userService.findAll();
                             if (users.isEmpty()) {
                                 System.out.println("No users found.");
                             } else {
-                                users.forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                                System.out.println("\n--- Users List ---");
+                                users.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Name: " + x.getFirstName() + " " + x.getLastName());
+                                    System.out
+                                            .println("Document: " + x.getDocument() + " (" + x.getDocumentType() + ")");
+                                    System.out.println(
+                                            "Gender: " + (x.getGender() != null ? x.getGender() : "Not specified"));
+                                    System.out.println(
+                                            "Email: " + (x.getEmail() != null ? x.getEmail() : "Not provided"));
+                                    System.out.println(
+                                            "Phone: " + (x.getPhone() != null ? x.getPhone() : "Not provided"));
+                                    System.out.println(
+                                            "Created: " + (x.getCreatedAt() != null ? x.getCreatedAt() : "Unknown"));
+                                    System.out.println("---");
+                                });
                             }
                         } catch (Exception ex) {
                             System.out.println("Failed to retrieve users: " + ex.getMessage());
@@ -155,17 +213,62 @@ public class Main {
                         System.out.print("Query: ");
                         String q = in.nextLine();
                         try {
-                            List<User> searchResults = userService.findUsersByName(q);
+                            List<HealthUserDTO> searchResults = userService.findByName(q);
                             if (searchResults.isEmpty()) {
                                 System.out.println("No users found matching: " + q);
                             } else {
-                                searchResults.forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                                System.out.println("\n--- Search Results ---");
+                                searchResults.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Name: " + x.getFirstName() + " " + x.getLastName());
+                                    System.out
+                                            .println("Document: " + x.getDocument() + " (" + x.getDocumentType() + ")");
+                                    System.out.println("---");
+                                });
                             }
                         } catch (Exception ex) {
                             System.out.println("Failed to search users: " + ex.getMessage());
                         }
                         break;
-                    default: System.out.println("Unknown option");
+                    case "4":
+                        System.out.print("User ID: ");
+                        String userId = in.nextLine().trim();
+                        if (userId.isEmpty()) {
+                            System.out.println("Error: User ID is required");
+                            continue;
+                        }
+                        try {
+                            HealthUserDTO user = userService.findById(userId);
+                            if (user == null) {
+                                System.out.println("No user found with ID: " + userId);
+                            } else {
+                                System.out.println("\n--- User Details ---");
+                                System.out.println("ID: " + user.getId());
+                                System.out.println("Name: " + user.getFirstName() + " " + user.getLastName());
+                                System.out.println(
+                                        "Document: " + user.getDocument() + " (" + user.getDocumentType() + ")");
+                                System.out.println(
+                                        "Gender: " + (user.getGender() != null ? user.getGender() : "Not specified"));
+                                System.out.println("Date of Birth: "
+                                        + (user.getDateOfBirth() != null ? user.getDateOfBirth() : "Not provided"));
+                                System.out.println(
+                                        "Email: " + (user.getEmail() != null ? user.getEmail() : "Not provided"));
+                                System.out.println(
+                                        "Phone: " + (user.getPhone() != null ? user.getPhone() : "Not provided"));
+                                System.out.println(
+                                        "Address: " + (user.getAddress() != null ? user.getAddress() : "Not provided"));
+                                System.out.println("Clinical History ID: "
+                                        + (user.getClinicalHistoryId() != null ? user.getClinicalHistoryId()
+                                                : "Not assigned"));
+                                System.out.println(
+                                        "Created: " + (user.getCreatedAt() != null ? user.getCreatedAt() : "Unknown"));
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to find user: " + ex.getMessage());
+                        }
+                        break;
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
@@ -176,66 +279,91 @@ public class Main {
     private static void healthWorkersMenu(Scanner in, ServiceLocator locator) {
         try {
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
             while (true) {
                 System.out.println();
                 System.out.println("-- Health Workers --");
                 System.out.println("1) Add health worker");
                 System.out.println("2) List health workers");
                 System.out.println("3) Search by name");
+                System.out.println("4) Find by ID");
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
-                        HealthWorker hw = new HealthWorker();
-                        System.out.print("First name: "); String hwFirstName = in.nextLine().trim();
+                        AddHealthWorkerDTO hw = new AddHealthWorkerDTO();
+                        System.out.print("First name: ");
+                        String hwFirstName = in.nextLine().trim();
                         if (hwFirstName.isEmpty()) {
                             System.out.println("Error: First name is required");
                             continue;
                         }
                         hw.setFirstName(hwFirstName);
 
-                        System.out.print("Last name: "); String hwLastName = in.nextLine().trim();
+                        System.out.print("Last name: ");
+                        String hwLastName = in.nextLine().trim();
                         if (hwLastName.isEmpty()) {
                             System.out.println("Error: Last name is required");
                             continue;
                         }
                         hw.setLastName(hwLastName);
 
-                        System.out.print("DNI: "); hw.setDni(in.nextLine());
+                        System.out.print("DNI: ");
+                        String dni = in.nextLine().trim();
+                        if (dni.isEmpty()) {
+                            System.out.println("Error: DNI is required");
+                            continue;
+                        }
+                        hw.setDocument(dni);
+
+                        // Document type selection
+                        System.out.print("Document type (ID/PASSPORT/DRIVER_LICENSE) [ID]: ");
+                        String docTypeStr = in.nextLine().trim().toUpperCase();
+                        if (docTypeStr.isEmpty()) {
+                            hw.setDocumentType(DocumentType.ID);
+                        } else {
+                            try {
+                                hw.setDocumentType(DocumentType.valueOf(docTypeStr));
+                            } catch (Exception e) {
+                                System.out.println("Invalid document type, using ID as default");
+                                hw.setDocumentType(DocumentType.ID);
+                            }
+                        }
+
+                        System.out.print("Password: ");
+                        String password = in.nextLine().trim();
+                        if (password.isEmpty()) {
+                            System.out.println("Error: Password is required");
+                            continue;
+                        }
+                        hw.setPassword(password);
+
                         System.out.print("Gender (MALE/FEMALE/OTHER) or empty: ");
                         String g = in.nextLine();
-                        if (!g.isBlank()) { try { hw.setGender(Gender.valueOf(g.trim().toUpperCase())); } catch (Exception ignore) {} }
-                        System.out.print("Specialty: "); hw.setSpecialty(in.nextLine());
-
-                        System.out.print("License number: "); String licenseNumber = in.nextLine().trim();
+                        if (!g.isBlank()) {
+                            try {
+                                hw.setGender(Gender.valueOf(g.trim().toUpperCase()));
+                            } catch (Exception ignore) {
+                            }
+                        }
+                        System.out.print("License number: ");
+                        String licenseNumber = in.nextLine().trim();
                         if (licenseNumber.isEmpty()) {
                             System.out.println("Error: License number is required");
                             continue;
                         }
                         hw.setLicenseNumber(licenseNumber);
-                        System.out.print("Hire date (YYYY-MM-DD, empty=today): ");
-                        String hd = in.nextLine();
-                        if (!hd.isBlank()) {
-                            try {
-                                hw.setHireDate(LocalDate.parse(hd.trim()));
-                            } catch (Exception e) {
-                                System.out.println("Error: Invalid date format. Please use YYYY-MM-DD format");
-                                continue;
-                            }
-                        } else {
-                            hw.setHireDate(LocalDate.now());
+
+                        System.out.print("Add clinic ID (empty to skip): ");
+                        String clinicId = in.nextLine();
+                        if (!clinicId.isBlank()) {
+                            hw.setClinicIds(java.util.Set.of(clinicId.trim()));
                         }
-                        System.out.print("Add provider by ID (empty to skip): ");
-                        String hpId = in.nextLine();
-                        if (!hpId.isBlank()) {
-                            HealthProvider hp = hpService.findById(hpId.trim());
-                            if (hp != null) hw.addHealthProvider(hp);
-                        }
+
                         try {
-                            HealthWorker addedHw = hwService.addHealthWorker(hw);
+                            HealthWorkerDTO addedHw = hwService.addHealthWorker(hw);
                             System.out.println("Health worker added successfully with ID: " + addedHw.getId());
                         } catch (Exception ex) {
                             System.out.println("Failed to add health worker: " + ex.getMessage());
@@ -243,14 +371,88 @@ public class Main {
                         }
                         break;
                     case "2":
-                        hwService.getAllHealthWorkers().forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                        try {
+                            List<HealthWorkerDTO> workers = hwService.getAllHealthWorkers();
+                            if (workers.isEmpty()) {
+                                System.out.println("No health workers found.");
+                            } else {
+                                System.out.println("\n--- Health Workers List ---");
+                                workers.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Name: " + x.getFirstName() + " " + x.getLastName());
+                                    System.out
+                                            .println("Document: " + x.getDocument() + " (" + x.getDocumentType() + ")");
+                                    System.out.println(
+                                            "Gender: " + (x.getGender() != null ? x.getGender() : "Not specified"));
+                                    System.out.println("License: " + x.getLicenseNumber());
+                                    System.out.println(
+                                            "Clinic IDs: " + (x.getClinicIds() != null && !x.getClinicIds().isEmpty()
+                                                    ? String.join(", ", x.getClinicIds())
+                                                    : "None"));
+                                    System.out.println(
+                                            "Created: " + (x.getCreatedAt() != null ? x.getCreatedAt() : "Unknown"));
+                                    System.out.println("---");
+                                });
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to retrieve health workers: " + ex.getMessage());
+                        }
                         break;
                     case "3":
                         System.out.print("Query: ");
                         String q = in.nextLine();
-                        hwService.findHealthWorkersByName(q).forEach(x -> System.out.println(x.getId() + " | " + x.getFirstName() + " " + x.getLastName()));
+                        try {
+                            List<HealthWorkerDTO> searchResults = hwService.findHealthWorkersByName(q);
+                            if (searchResults.isEmpty()) {
+                                System.out.println("No health workers found matching: " + q);
+                            } else {
+                                System.out.println("\n--- Search Results ---");
+                                searchResults.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Name: " + x.getFirstName() + " " + x.getLastName());
+                                    System.out
+                                            .println("Document: " + x.getDocument() + " (" + x.getDocumentType() + ")");
+                                    System.out.println("License: " + x.getLicenseNumber());
+                                    System.out.println("---");
+                                });
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to search health workers: " + ex.getMessage());
+                        }
                         break;
-                    default: System.out.println("Unknown option");
+                    case "4":
+                        System.out.print("Health Worker ID: ");
+                        String hwId = in.nextLine().trim();
+                        if (hwId.isEmpty()) {
+                            System.out.println("Error: Health Worker ID is required");
+                            continue;
+                        }
+                        try {
+                            HealthWorkerDTO worker = hwService.findById(hwId);
+                            if (worker == null) {
+                                System.out.println("No health worker found with ID: " + hwId);
+                            } else {
+                                System.out.println("\n--- Health Worker Details ---");
+                                System.out.println("ID: " + worker.getId());
+                                System.out.println("Name: " + worker.getFirstName() + " " + worker.getLastName());
+                                System.out.println(
+                                        "Document: " + worker.getDocument() + " (" + worker.getDocumentType() + ")");
+                                System.out.println("Gender: "
+                                        + (worker.getGender() != null ? worker.getGender() : "Not specified"));
+                                System.out.println("License Number: " + worker.getLicenseNumber());
+                                System.out.println("Clinic IDs: "
+                                        + (worker.getClinicIds() != null && !worker.getClinicIds().isEmpty()
+                                                ? String.join(", ", worker.getClinicIds())
+                                                : "None"));
+                                System.out.println("Created: "
+                                        + (worker.getCreatedAt() != null ? worker.getCreatedAt() : "Unknown"));
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to find health worker: " + ex.getMessage());
+                        }
+                        break;
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
@@ -258,73 +460,153 @@ public class Main {
         }
     }
 
-    private static void healthProvidersMenu(Scanner in, ServiceLocator locator) {
+    private static void clinicsMenu(Scanner in, ServiceLocator locator) {
         try {
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
+            ClinicServiceRemote clinicService = locator.clinicService();
             while (true) {
                 System.out.println();
-                System.out.println("-- Health Providers --");
-                System.out.println("1) Add provider");
-                System.out.println("2) List providers");
+                System.out.println("-- Clinics --");
+                System.out.println("1) Add clinic");
+                System.out.println("2) List clinics");
                 System.out.println("3) Search by name");
+                System.out.println("4) Find by ID");
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
-                        HealthProvider hp = new HealthProvider();
-                        System.out.print("Name: "); String hpName = in.nextLine().trim();
+                        AddClinicDTO hp = new AddClinicDTO();
+                        System.out.print("Name: ");
+                        String hpName = in.nextLine().trim();
                         if (hpName.isEmpty()) {
                             System.out.println("Error: Name is required");
                             continue;
                         }
                         hp.setName(hpName);
 
-                        System.out.print("Address: "); String hpAddress = in.nextLine().trim();
+                        System.out.print("Address: ");
+                        String hpAddress = in.nextLine().trim();
                         if (hpAddress.isEmpty()) {
                             System.out.println("Error: Address is required");
                             continue;
                         }
                         hp.setAddress(hpAddress);
-                        System.out.print("Phone: "); hp.setPhone(in.nextLine());
-                        System.out.print("Email: "); hp.setEmail(in.nextLine());
-                        System.out.print("Registration number: "); hp.setRegistrationNumber(in.nextLine());
-                        System.out.print("Registration date (YYYY-MM-DD, empty=today): ");
-                        String rd = in.nextLine();
-                        LocalDate registrationDate;
-                        if (!rd.isBlank()) {
+                        System.out.print("Phone: ");
+                        hp.setPhone(in.nextLine());
+                        System.out.print("Email: ");
+                        hp.setEmail(in.nextLine());
+                        System.out.print("Domain: ");
+                        hp.setDomain(in.nextLine());
+                        System.out.print(
+                                "Clinic type (HOSPITAL/POLYCLINIC/PRIVATE_PRACTICE/LABORATORY/DIAGNOSTIC_CENTER/SPECIALTY_CLINIC/EMERGENCY_ROOM/REHABILITATION_CENTER/NURSING_HOME/PHARMACY): ");
+                        String typeStr = in.nextLine().trim().toUpperCase();
+                        if (!typeStr.isEmpty()) {
                             try {
-                                registrationDate = LocalDate.parse(rd.trim());
-                                if (registrationDate.isAfter(LocalDate.now())) {
-                                    System.out.println("Error: Registration date cannot be in the future");
-                                    continue;
-                                }
+                                hp.setType(ClinicType.valueOf(typeStr).toString());
                             } catch (Exception e) {
-                                System.out.println("Error: Invalid date format. Please use YYYY-MM-DD format");
-                                continue;
+                                System.out.println("Invalid clinic type, setting to HOSPITAL as default");
+                                hp.setType(ClinicType.HOSPITAL.toString());
                             }
                         } else {
-                            registrationDate = LocalDate.now();
+                            hp.setType(ClinicType.HOSPITAL.toString());
                         }
-                        hp.setRegistrationDate(registrationDate);
+
                         try {
-                            HealthProvider addedHp = hpService.addHealthProvider(hp);
-                            System.out.println("Health provider added successfully with ID: " + addedHp.getId());
+                            ClinicDTO addedHp = clinicService.addClinic(hp);
+                            System.out.println("Clinic added successfully with ID: " + addedHp.getId());
                         } catch (Exception ex) {
-                            System.out.println("Failed to add health provider: " + ex.getMessage());
+                            System.out.println("Failed to add clinic: " + ex.getMessage());
                             System.out.println("Please check your input and try again.");
                         }
                         break;
                     case "2":
-                        hpService.findAll().forEach(x -> System.out.println(x.getId() + " | " + x.getName()));
+                        try {
+                            List<ClinicDTO> clinics = clinicService.findAll();
+                            if (clinics.isEmpty()) {
+                                System.out.println("No clinics found.");
+                            } else {
+                                System.out.println("\n--- Clinics List ---");
+                                clinics.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Name: " + x.getName());
+                                    System.out
+                                            .println("Type: " + (x.getType() != null ? x.getType() : "Not specified"));
+                                    System.out.println(
+                                            "Address: " + (x.getAddress() != null ? x.getAddress() : "Not provided"));
+                                    System.out.println(
+                                            "Phone: " + (x.getPhone() != null ? x.getPhone() : "Not provided"));
+                                    System.out.println(
+                                            "Email: " + (x.getEmail() != null ? x.getEmail() : "Not provided"));
+                                    System.out.println(
+                                            "Domain: " + (x.getDomain() != null ? x.getDomain() : "Not provided"));
+                                    System.out.println(
+                                            "Created: " + (x.getCreatedAt() != null ? x.getCreatedAt() : "Unknown"));
+                                    System.out.println("---");
+                                });
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to retrieve clinics: " + ex.getMessage());
+                        }
                         break;
                     case "3":
                         System.out.print("Query: ");
                         String q = in.nextLine();
-                        hpService.findByName(q).forEach(x -> System.out.println(x.getId() + " | " + x.getName()));
+                        try {
+                            List<ClinicDTO> searchResults = clinicService.findByName(q);
+                            if (searchResults.isEmpty()) {
+                                System.out.println("No clinics found matching: " + q);
+                            } else {
+                                System.out.println("\n--- Search Results ---");
+                                searchResults.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Name: " + x.getName());
+                                    System.out
+                                            .println("Type: " + (x.getType() != null ? x.getType() : "Not specified"));
+                                    System.out.println(
+                                            "Address: " + (x.getAddress() != null ? x.getAddress() : "Not provided"));
+                                    System.out.println("---");
+                                });
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to search clinics: " + ex.getMessage());
+                        }
                         break;
-                    default: System.out.println("Unknown option");
+                    case "4":
+                        System.out.print("Clinic ID: ");
+                        String clinicId = in.nextLine().trim();
+                        if (clinicId.isEmpty()) {
+                            System.out.println("Error: Clinic ID is required");
+                            continue;
+                        }
+                        try {
+                            ClinicDTO clinic = clinicService.findById(clinicId);
+                            if (clinic == null) {
+                                System.out.println("No clinic found with ID: " + clinicId);
+                            } else {
+                                System.out.println("\n--- Clinic Details ---");
+                                System.out.println("ID: " + clinic.getId());
+                                System.out.println("Name: " + clinic.getName());
+                                System.out.println(
+                                        "Type: " + (clinic.getType() != null ? clinic.getType() : "Not specified"));
+                                System.out.println("Address: "
+                                        + (clinic.getAddress() != null ? clinic.getAddress() : "Not provided"));
+                                System.out.println(
+                                        "Phone: " + (clinic.getPhone() != null ? clinic.getPhone() : "Not provided"));
+                                System.out.println(
+                                        "Email: " + (clinic.getEmail() != null ? clinic.getEmail() : "Not provided"));
+                                System.out.println("Domain: "
+                                        + (clinic.getDomain() != null ? clinic.getDomain() : "Not provided"));
+                                System.out.println("Created: "
+                                        + (clinic.getCreatedAt() != null ? clinic.getCreatedAt() : "Unknown"));
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to find clinic: " + ex.getMessage());
+                        }
+                        break;
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
@@ -335,62 +617,97 @@ public class Main {
     private static void documentsMenu(Scanner in, ServiceLocator locator) {
         try {
             ClinicalDocumentServiceRemote docService = locator.clinicalDocumentService();
-            UserServiceRemote userService = locator.userService();
+            HealthUserServiceRemote userService = locator.userService();
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
-            HealthProviderServiceRemote hpService = locator.healthProviderService();
             while (true) {
                 System.out.println();
                 System.out.println("-- Clinical Documents --");
                 System.out.println("1) Add document");
                 System.out.println("2) List documents");
-                System.out.println("3) Search by patient/author/provider name");
+                System.out.println("3) Search by title");
+                System.out.println("4) Find by ID");
                 System.out.println("0) Back");
                 System.out.print("Choose: ");
                 String c = in.nextLine();
-                if ("0".equals(c)) return;
+                if ("0".equals(c))
+                    return;
                 switch (c) {
                     case "1":
-                        ClinicalDocument doc = new ClinicalDocument();
-                        System.out.print("Title: "); String title = in.nextLine().trim();
+                        AddClinicalDocumentDTO doc = new AddClinicalDocumentDTO();
+                        System.out.print("Title: ");
+                        String title = in.nextLine().trim();
                         if (title.isEmpty()) {
                             System.out.println("Error: Title is required");
                             continue;
                         }
                         doc.setTitle(title);
 
-                        System.out.print("Content: "); doc.setContent(in.nextLine());
-                        System.out.print("Patient ID: "); String userId = in.nextLine().trim();
+                        System.out.print("Content URL (S3 URL): ");
+                        String contentUrl = in.nextLine().trim();
+                        if (contentUrl.isEmpty()) {
+                            System.out.println("Error: Content URL is required");
+                            continue;
+                        }
+                        doc.setContentUrl(contentUrl);
+
+                        System.out.print("Patient ID: ");
+                        String userId = in.nextLine().trim();
                         if (userId.isEmpty()) {
                             System.out.println("Error: Patient ID is required");
                             continue;
                         }
-                        User patient = userService.findById(userId);
+                        // Verify patient exists
+                        HealthUserDTO patient = userService.findById(userId);
                         if (patient == null) {
                             System.out.println("Error: Patient not found with ID: " + userId);
                             continue;
                         }
-                        ClinicalHistory history = null;
-                        if (patient != null) {
-                            history = patient.getClinicalHistory();
-                            if (history == null) {
-                                history = new ClinicalHistory();
-                                history.setPatient(patient);
-                                patient.setClinicalHistory(history);
+                        doc.setClinicalHistoryId(userId); // Use patient ID as clinical history ID
+
+                        // Allow multiple health workers
+                        System.out.println("Health Workers (enter IDs separated by commas, or press Enter to skip): ");
+                        String healthWorkerIds = in.nextLine().trim();
+                        if (!healthWorkerIds.isEmpty()) {
+                            java.util.Set<String> workerIds = new java.util.HashSet<>();
+                            String[] ids = healthWorkerIds.split(",");
+                            boolean allValid = true;
+
+                            for (String id : ids) {
+                                String trimmedId = id.trim();
+                                if (!trimmedId.isEmpty()) {
+                                    // Verify health worker exists
+                                    try {
+                                        HealthWorkerDTO worker = hwService.findById(trimmedId);
+                                        if (worker == null) {
+                                            System.out
+                                                    .println("Warning: Health worker not found with ID: " + trimmedId);
+                                            allValid = false;
+                                        } else {
+                                            workerIds.add(trimmedId);
+                                        }
+                                    } catch (Exception e) {
+                                        System.out.println(
+                                                "Error checking health worker ID " + trimmedId + ": " + e.getMessage());
+                                        allValid = false;
+                                    }
+                                }
+                            }
+
+                            if (!allValid) {
+                                System.out.println("Some health worker IDs were invalid. Continue anyway? (y/n): ");
+                                String confirm = in.nextLine().trim().toLowerCase();
+                                if (!"y".equals(confirm) && !"yes".equals(confirm)) {
+                                    continue;
+                                }
+                            }
+
+                            if (!workerIds.isEmpty()) {
+                                doc.setHealthWorkerIds(workerIds);
                             }
                         }
-                        doc.setClinicalHistory(history);
-                        System.out.print("Author ID (empty optional): "); String authorId = in.nextLine();
-                        if (!authorId.isBlank()) {
-                            HealthWorker author = hwService.findById(authorId.trim());
-                            doc.setAuthor(author);
-                        }
-                        System.out.print("Provider ID (empty optional): "); String providerId = in.nextLine();
-                        if (!providerId.isBlank()) {
-                            HealthProvider provider = hpService.findById(providerId.trim());
-                            doc.setProvider(provider);
-                        }
+
                         try {
-                            ClinicalDocument addedDoc = docService.addClinicalDocument(doc);
+                            ClinicalDocumentDTO addedDoc = docService.add(doc);
                             System.out.println("Clinical document added successfully with ID: " + addedDoc.getId());
                         } catch (Exception ex) {
                             System.out.println("Failed to add clinical document: " + ex.getMessage());
@@ -398,29 +715,119 @@ public class Main {
                         }
                         break;
                     case "2":
-                        docService.getAllDocuments().forEach(x -> System.out.println(x.getId() + " | " + x.getTitle()));
+                        try {
+                            List<ClinicalDocumentDTO> documents = docService.findAll();
+                            if (documents.isEmpty()) {
+                                System.out.println("No clinical documents found.");
+                            } else {
+                                System.out.println("\n--- Clinical Documents List ---");
+                                documents.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Title: " + x.getTitle());
+                                    System.out.println("Patient ID: "
+                                            + (x.getClinicalHistoryId() != null ? x.getClinicalHistoryId()
+                                                    : "Not assigned"));
+                                    System.out.println("Health Worker IDs: "
+                                            + (x.getHealthWorkerIds() != null && !x.getHealthWorkerIds().isEmpty()
+                                                    ? String.join(", ", x.getHealthWorkerIds())
+                                                    : "None"));
+                                    System.out.println("Content URL: "
+                                            + (x.getContentUrl() != null ? x.getContentUrl() : "Not provided"));
+                                    System.out.println(
+                                            "Issued: " + (x.getIssuedAt() != null ? x.getIssuedAt() : "Unknown"));
+                                    System.out.println(
+                                            "Created: " + (x.getCreatedAt() != null ? x.getCreatedAt() : "Unknown"));
+                                    System.out.println("---");
+                                });
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to retrieve clinical documents: " + ex.getMessage());
+                        }
                         break;
                     case "3":
-                        System.out.print("Query: ");
-                        String q = in.nextLine();
-                        System.out.print("Scope (patient|author|provider|all): ");
-                        String scope = in.nextLine().trim().toLowerCase();
-                        List<ClinicalDocument> results;
-                        switch (scope) {
-                            case "patient": results = docService.searchByPatientName(q); break;
-                            case "author": results = docService.searchByAuthorName(q); break;
-                            case "provider": results = docService.searchByProviderName(q); break;
-                            default: results = docService.searchByAnyName(q); break;
+                        System.out.print("Search by title: ");
+                        String titleQuery = in.nextLine().trim();
+                        if (titleQuery.isEmpty()) {
+                            System.out.println("Error: Search query is required");
+                            continue;
                         }
-                        results.forEach(x -> System.out.println(x.getId() + " | " + x.getTitle()));
+                        try {
+                            List<ClinicalDocumentDTO> searchResults = docService.findByTitle(titleQuery);
+                            if (searchResults.isEmpty()) {
+                                System.out.println("No clinical documents found matching title: " + titleQuery);
+                            } else {
+                                System.out.println("\n--- Search Results ---");
+                                searchResults.forEach(x -> {
+                                    System.out.println("ID: " + x.getId());
+                                    System.out.println("Title: " + x.getTitle());
+                                    System.out.println("Patient ID: "
+                                            + (x.getClinicalHistoryId() != null ? x.getClinicalHistoryId()
+                                                    : "Not assigned"));
+                                    System.out.println("Content URL: "
+                                            + (x.getContentUrl() != null ? x.getContentUrl() : "Not provided"));
+                                    System.out.println("---");
+                                });
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to search clinical documents: " + ex.getMessage());
+                        }
                         break;
-                    default: System.out.println("Unknown option");
+                    case "4":
+                        System.out.print("Document ID: ");
+                        String docId = in.nextLine().trim();
+                        if (docId.isEmpty()) {
+                            System.out.println("Error: Document ID is required");
+                            continue;
+                        }
+                        try {
+                            ClinicalDocumentDTO document = docService.findById(docId);
+                            if (document == null) {
+                                System.out.println("No clinical document found with ID: " + docId);
+                            } else {
+                                System.out.println("\n--- Clinical Document Details ---");
+                                System.out.println("ID: " + document.getId());
+                                System.out.println("Title: " + document.getTitle());
+                                System.out.println("Patient ID: "
+                                        + (document.getClinicalHistoryId() != null ? document.getClinicalHistoryId()
+                                                : "Not assigned"));
+                                System.out.println("Health Worker IDs: " + (document.getHealthWorkerIds() != null
+                                        && !document.getHealthWorkerIds().isEmpty()
+                                                ? String.join(", ", document.getHealthWorkerIds())
+                                                : "None"));
+                                System.out.println(
+                                        "Content URL: " + (document.getContentUrl() != null ? document.getContentUrl()
+                                                : "Not provided"));
+                                System.out.println("Issued: "
+                                        + (document.getIssuedAt() != null ? document.getIssuedAt() : "Unknown"));
+                                System.out.println("Created: "
+                                        + (document.getCreatedAt() != null ? document.getCreatedAt() : "Unknown"));
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("Failed to find clinical document: " + ex.getMessage());
+                        }
+                        break;
+                    default:
+                        System.out.println("Unknown option");
                 }
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
+
+    // COMMENTED OUT: AccessGrantService does not exist
+    /*
+     * private static void accessGrantsMenu(Scanner in, ServiceLocator locator) {
+     * try {
+     * // Note: AccessGrant service would need to be added to ServiceLocator
+     * // For now, just show a placeholder
+     * System.out.println("Access Grants management coming soon...");
+     * System.out.
+     * println("This feature will allow managing clinical data access permissions."
+     * );
+     * } catch (Exception e) {
+     * System.out.println("Error: " + e.getMessage());
+     * }
+     * }
+     */
 }
-
-

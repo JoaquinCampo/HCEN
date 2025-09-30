@@ -1,31 +1,33 @@
 package grupo12.practico.models;
 
-import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
+import grupo12.practico.dtos.User.UserDTO;
+
+public abstract class User {
     private String id;
+    private String document;
+    private DocumentType documentType;
     private String firstName;
     private String lastName;
-    private String dni;
-    private LocalDate dateOfBirth;
     private Gender gender;
     private String email;
     private String phone;
+    private LocalDate dateOfBirth;
+    private String passwordHash;
+    private String passwordSalt;
+    private LocalDate passwordUpdatedAt;
+    private String imageUrl;
     private String address;
-
-    private Set<HealthWorker> healthWorkers = new HashSet<>();
-    private Set<HealthProvider> attendedHealthProviders = new HashSet<>();
-    private Set<HealthProvider> affiliatedHealthProviders = new HashSet<>();
-    private ClinicalHistory clinicalHistory;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
 
     public User() {
         this.id = UUID.randomUUID().toString();
+        this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDate.now();
     }
 
     public String getId() {
@@ -52,22 +54,6 @@ public class User implements Serializable {
         this.lastName = lastName;
     }
 
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
     public Gender getGender() {
         return gender;
     }
@@ -92,6 +78,14 @@ public class User implements Serializable {
         this.phone = phone;
     }
 
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
     public String getAddress() {
         return address;
     }
@@ -100,60 +94,68 @@ public class User implements Serializable {
         this.address = address;
     }
 
-    public Set<HealthWorker> getHealthWorkers() {
-        return healthWorkers;
+    public String getDocument() {
+        return document;
     }
 
-    public Set<HealthProvider> getAttendedHealthProviders() {
-        return attendedHealthProviders;
+    public void setDocument(String document) {
+        this.document = document;
     }
 
-    public void setAttendedHealthProviders(Set<HealthProvider> attendedHealthProviders) {
-        this.attendedHealthProviders = attendedHealthProviders != null ? attendedHealthProviders : new HashSet<>();
+    public DocumentType getDocumentType() {
+        return documentType;
     }
 
-    public Set<HealthProvider> getAffiliatedHealthProviders() {
-        return affiliatedHealthProviders;
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
     }
 
-    public void setAffiliatedHealthProviders(Set<HealthProvider> affiliatedHealthProviders) {
-        this.affiliatedHealthProviders = affiliatedHealthProviders != null ? affiliatedHealthProviders
-                : new HashSet<>();
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void addHealthWorker(HealthWorker healthWorker) {
-        if (healthWorker == null) {
-            return;
-        }
-        if (this.healthWorkers.add(healthWorker)) {
-            healthWorker.addPatient(this);
-        }
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
-    public void addAttendedHealthProvider(HealthProvider healthProvider) {
-        if (healthProvider == null) {
-            return;
-        }
-        if (this.attendedHealthProviders.add(healthProvider)) {
-            healthProvider.addAttendedPatient(this);
-        }
+    public String getPasswordSalt() {
+        return passwordSalt;
     }
 
-    public void addAffiliatedHealthProvider(HealthProvider healthProvider) {
-        if (healthProvider == null) {
-            return;
-        }
-        if (this.affiliatedHealthProviders.add(healthProvider)) {
-            healthProvider.addAffiliatedPatient(this);
-        }
+    public void setPasswordSalt(String passwordSalt) {
+        this.passwordSalt = passwordSalt;
     }
 
-    public ClinicalHistory getClinicalHistory() {
-        return clinicalHistory;
+    public LocalDate getPasswordUpdatedAt() {
+        return passwordUpdatedAt;
     }
 
-    public void setClinicalHistory(ClinicalHistory clinicalHistory) {
-        this.clinicalHistory = clinicalHistory;
+    public void setPasswordUpdatedAt(LocalDate passwordUpdatedAt) {
+        this.passwordUpdatedAt = passwordUpdatedAt;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDate updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -169,5 +171,23 @@ public class User implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public UserDTO toDto() {
+        UserDTO dto = new UserDTO();
+        dto.setId(id);
+        dto.setDocument(document);
+        dto.setDocumentType(documentType);
+        dto.setFirstName(firstName);
+        dto.setLastName(lastName);
+        dto.setGender(gender);
+        dto.setEmail(email);
+        dto.setPhone(phone);
+        dto.setImageUrl(imageUrl);
+        dto.setAddress(address);
+        dto.setDateOfBirth(dateOfBirth);
+        dto.setCreatedAt(createdAt);
+        dto.setUpdatedAt(updatedAt);
+        return dto;
     }
 }

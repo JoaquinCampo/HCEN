@@ -1,6 +1,8 @@
 package grupo12.practico.services.HealthWorker;
 
-import grupo12.practico.models.HealthProvider;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
+import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
 import jakarta.ejb.EJB;
@@ -10,6 +12,7 @@ import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Stateless
 @Local(HealthWorkerServiceLocal.class)
@@ -19,42 +22,54 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
     @EJB
     private HealthWorkerRepositoryLocal repository;
 
+    @EJB
+    private ClinicServiceLocal clinicService;
+
     @Override
-    public HealthWorker addHealthWorker(HealthWorker healthWorker) {
-        validateHealthWorker(healthWorker);
-        if (healthWorker.getHealthProviders() != null) {
-            for (HealthProvider hp : healthWorker.getHealthProviders()) {
-                if (hp != null) {
-                    hp.addHealthWorker(healthWorker);
-                }
-            }
-        }
-        return repository.add(healthWorker);
+    public HealthWorkerDTO addHealthWorker(AddHealthWorkerDTO addHealthWorkerDTO) {
+        validateHealthWorker(addHealthWorkerDTO);
+        HealthWorker healthWorker = new HealthWorker();
+        healthWorker.setFirstName(addHealthWorkerDTO.getFirstName());
+        healthWorker.setLastName(addHealthWorkerDTO.getLastName());
+        healthWorker.setDocument(addHealthWorkerDTO.getDocument());
+        healthWorker.setDocumentType(addHealthWorkerDTO.getDocumentType());
+        healthWorker.setLicenseNumber(addHealthWorkerDTO.getLicenseNumber());
+        return repository.add(healthWorker).toDto();
     }
 
     @Override
-    public List<HealthWorker> getAllHealthWorkers() {
-        return repository.findAll();
+    public List<HealthWorkerDTO> getAllHealthWorkers() {
+        return repository.findAll().stream()
+                .map(HealthWorker::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<HealthWorker> findHealthWorkersByName(String name) {
-        return repository.findByName(name);
+    public List<HealthWorkerDTO> findHealthWorkersByName(String name) {
+        return repository.findByName(name).stream()
+                .map(HealthWorker::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public HealthWorker findById(String id) {
-        return repository.findById(id);
+    public HealthWorkerDTO findById(String id) {
+        return repository.findById(id).toDto();
     }
 
-    private void validateHealthWorker(HealthWorker hw) {
-        if (hw == null) {
+    private void validateHealthWorker(AddHealthWorkerDTO addHealthWorkerDTO) {
+        if (addHealthWorkerDTO == null) {
             throw new ValidationException("HealthWorker must not be null");
         }
-        if (isBlank(hw.getFirstName()) || isBlank(hw.getLastName())) {
+        if (isBlank(addHealthWorkerDTO.getFirstName()) || isBlank(addHealthWorkerDTO.getLastName())) {
             throw new ValidationException("HealthWorker first name and last name are required");
         }
-        if (isBlank(hw.getLicenseNumber())) {
+        if (isBlank(addHealthWorkerDTO.getDocument())) {
+            throw new ValidationException("HealthWorker document is required");
+        }
+        if (addHealthWorkerDTO.getDocumentType() == null) {
+            throw new ValidationException("HealthWorker document type is required");
+        }
+        if (isBlank(addHealthWorkerDTO.getLicenseNumber())) {
             throw new ValidationException("License number is required");
         }
     }

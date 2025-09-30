@@ -1,0 +1,14 @@
+package grupo12.practico.models;
+
+public enum ClinicType {
+    HOSPITAL,
+    POLYCLINIC,
+    PRIVATE_PRACTICE,
+    LABORATORY,
+    DIAGNOSTIC_CENTER,
+    SPECIALTY_CLINIC,
+    EMERGENCY_ROOM,
+    REHABILITATION_CENTER,
+    NURSING_HOME,
+    PHARMACY
+}

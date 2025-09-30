@@ -1,0 +1,58 @@
+/* Basic theme tweaks on top of Bootstrap */
+body { color: #1f2937; }
+
+.table th, .table td { vertical-align: middle; }
+
+.form-label { font-weight: 600; }
+.form-text { display: block; margin-top: 4px; font-size: 0.875rem; }
+.text-danger { color: #b91c1c; }
+
+.list-group-item-action { border: none; padding: 0.75rem 1rem; }
+.list-group-item-action + .list-group-item-action { border-top: 1px solid rgba(0,0,0,0.05); }
+
+.page-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+.form-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.card { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Compact inputs in tables */
+table input[type="text"] { height: 38px; }
+
+/* Fancy gradient background */
+.gradient-bg {
+  background: linear-gradient(135deg, #f6f9ff 0%, #eef6ff 40%, #f9f9ff 100%);
+  min-height: 100vh;
+}
+
+/* Glassy navbar */
+.glassy-nav {
+  background: rgba(25, 118, 210, 0.9) !important;
+  backdrop-filter: blur(6px);
+}
+
+/* Button ripple effect */
+.btn { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute; border-radius: 50%; transform: scale(0);
+  background: rgba(255,255,255,0.6); opacity: 0.75; animation: ripple 0.6s linear;
+}
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* Card hover */
+.card { transition: transform .15s ease, box-shadow .15s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+
+/* Dark mode */
+:root[data-theme="dark"] {
+  --bs-body-bg: #0f172a; --bs-body-color: #e2e8f0;
+}
+:root[data-theme="dark"] body { background-color: var(--bs-body-bg); color: var(--bs-body-color); }
+:root[data-theme="dark"] .card { background-color: #111827; color: #e5e7eb; }
+:root[data-theme="dark"] .table { color: #e5e7eb; }
+:root[data-theme="dark"] .alert { background-color: #1f2937; border-color: #374151; color: #f3f4f6; }
+

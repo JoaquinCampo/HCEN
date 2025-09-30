@@ -1,58 +1,167 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<h:head>
-    <title>Create Health Worker</title>
-    <meta charset="UTF-8"/>
-    <style>body{font-family:sans-serif;max-width:800px;margin:24px auto;padding:0 16px}.form-row{margin-bottom:12px}label{display:block;margin-bottom:4px;font-weight:600}input,select{width:100%;padding:8px;border:1px solid #ccc;border-radius:4px}.btn{display:inline-block;padding:8px 16px;background:#1976d2;color:#fff;text-decoration:none;border-radius:4px;border:none;cursor:pointer}.btn:hover{background:#125aa0}.error{color:#c62828}</style>
-</h:head>
-<h:body>
-<h1>Create Health Worker</h1>
-<h:messages globalOnly="true" styleClass="error"/>
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  template="/WEB-INF/templates/layout.xhtml"
+>
+  <ui:define name="title">Register Health Worker</ui:define>
+  <ui:define name="content">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h:messages
+          id="formMessages"
+          globalOnly="true"
+          styleClass="alert alert-danger"
+          layout="list"
+          infoClass="alert alert-success"
+          warnClass="alert alert-warning"
+          errorClass="alert alert-danger"
+          fatalClass="alert alert-danger"
+        />
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="card-title h4 mb-0">Register Health Worker</h2>
+            <small class="text-muted"
+              >Collect core information about medical professionals.</small
+            >
+          </div>
+          <h:link
+            outcome="/health-worker/list"
+            styleClass="btn btn-outline-secondary"
+            >Back to list</h:link
+          >
+        </div>
 
-<h:form>
-    <div class="form-row">
-        <label for="dni">DNI</label>
-        <h:inputText id="dni" value="#{healthWorkerBean.newWorker.dni}" required="true"/>
-    </div>
-    <div class="form-row">
-        <label for="first">First Name</label>
-        <h:inputText id="first" value="#{healthWorkerBean.newWorker.firstName}" required="true"/>
-    </div>
-    <div class="form-row">
-        <label for="last">Last Name</label>
-        <h:inputText id="last" value="#{healthWorkerBean.newWorker.lastName}" required="true"/>
-    </div>
-    <div class="form-row">
-        <label for="gender">Gender</label>
-        <h:selectOneMenu id="gender" value="#{healthWorkerBean.newWorker.gender}" required="true">
-            <f:selectItem itemLabel="-- Select --" itemValue="#{null}" noSelectionOption="true"/>
-            <f:selectItems value="#{healthWorkerBean.genders}"/>
-        </h:selectOneMenu>
-    </div>
-    <div class="form-row">
-        <label for="license">License Number</label>
-        <h:inputText id="license" value="#{healthWorkerBean.newWorker.licenseNumber}" required="true"/>
-    </div>
-    <div class="form-row">
-        <label for="specialty">Specialty</label>
-        <h:inputText id="specialty" value="#{healthWorkerBean.newWorker.specialty}"/>
-    </div>
-    <div class="form-row">
-        <label for="hire">Hire Date (yyyy-MM-dd)</label>
-        <h:inputText id="hire" value="#{healthWorkerBean.newWorker.hireDate}">
-            <f:converter converterId="localDateConverter"/>
-        </h:inputText>
-        <h:message for="hire" styleClass="error"/>
-    </div>
-    <div class="form-row">
-        <h:commandButton value="Save" action="#{healthWorkerBean.save}" styleClass="btn"/>
-        <h:link outcome="/health-worker/list" value="Cancel" styleClass="btn"/>
-    </div>
-</h:form>
+        <h:form styleClass="row g-3">
+          <div class="col-md-6">
+            <h:outputLabel
+              for="document"
+              value="Document"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="document"
+              value="#{healthWorkerBean.newWorker.document}"
+              required="true"
+              styleClass="form-control"
+            />
+            <h:message for="document" styleClass="form-text text-danger" />
+          </div>
+          <div class="col-md-6">
+            <h:outputLabel
+              for="documentType"
+              value="Document Type"
+              styleClass="form-label"
+            />
+            <h:selectOneMenu
+              id="documentType"
+              value="#{healthWorkerBean.newWorker.documentType}"
+              required="true"
+              styleClass="form-select"
+            >
+              <f:selectItem
+                itemLabel="-- Select --"
+                itemValue=""
+                noSelectionOption="true"
+              />
+              <f:selectItems
+                value="#{healthWorkerBean.documentTypes}"
+                var="type"
+                itemValue="#{type}"
+                itemLabel="#{type}"
+              />
+            </h:selectOneMenu>
+            <h:message for="documentType" styleClass="form-text text-danger" />
+          </div>
 
-<p><h:link outcome="/index" value="Home"/></p>
+          <div class="col-sm-6">
+            <h:outputLabel
+              for="firstName"
+              value="First Name"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="firstName"
+              value="#{healthWorkerBean.newWorker.firstName}"
+              required="true"
+              styleClass="form-control"
+            />
+            <h:message for="firstName" styleClass="form-text text-danger" />
+          </div>
+          <div class="col-sm-6">
+            <h:outputLabel
+              for="lastName"
+              value="Last Name"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="lastName"
+              value="#{healthWorkerBean.newWorker.lastName}"
+              required="true"
+              styleClass="form-control"
+            />
+            <h:message for="lastName" styleClass="form-text text-danger" />
+          </div>
 
-</h:body>
-</html>
+          <div class="col-sm-6">
+            <h:outputLabel
+              for="gender"
+              value="Gender"
+              styleClass="form-label"
+            />
+            <h:selectOneMenu
+              id="gender"
+              value="#{healthWorkerBean.newWorker.gender}"
+              required="true"
+              styleClass="form-select"
+            >
+              <f:selectItem
+                itemLabel="-- Select --"
+                itemValue=""
+                noSelectionOption="true"
+              />
+              <f:selectItems
+                value="#{healthWorkerBean.genders}"
+                var="gender"
+                itemValue="#{gender}"
+                itemLabel="#{gender}"
+              />
+            </h:selectOneMenu>
+            <h:message for="gender" styleClass="form-text text-danger" />
+          </div>
+          <div class="col-sm-6">
+            <h:outputLabel
+              for="license"
+              value="License Number"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="license"
+              value="#{healthWorkerBean.newWorker.licenseNumber}"
+              required="true"
+              styleClass="form-control"
+            />
+            <h:message for="license" styleClass="form-text text-danger" />
+          </div>
+
+          <div class="col-12 d-flex gap-2 mt-3">
+            <h:commandButton
+              value="Save"
+              action="#{healthWorkerBean.save}"
+              styleClass="btn btn-primary"
+            />
+            <h:commandButton
+              value="Reset"
+              actionListener="#{healthWorkerBean.init}"
+              immediate="true"
+              styleClass="btn btn-outline-secondary"
+            >
+              <f:ajax render="@form" />
+            </h:commandButton>
+          </div>
+        </h:form>
+      </div>
+    </div>
+  </ui:define>
+</ui:composition>

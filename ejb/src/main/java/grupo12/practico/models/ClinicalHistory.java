@@ -1,27 +1,27 @@
 package grupo12.practico.models;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.Set;
 
-public class ClinicalHistory implements Serializable {
-    private static final long serialVersionUID = 1L;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryDTO;
+
+public class ClinicalHistory {
     private String id;
-    private String summary;
-    private LocalDate createdOn;
-    private int version;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
 
-    private User patient;
-    private Set<ClinicalDocument> documents = new HashSet<>();
+    private HealthUser healthUser;
+    private java.util.Set<ClinicalDocument> clinicalDocuments;
 
     public ClinicalHistory() {
         this.id = UUID.randomUUID().toString();
-        this.createdOn = LocalDate.now();
-        this.version = 1;
-        this.summary = "Initial history";
+        this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDate.now();
+        this.clinicalDocuments = new HashSet<>();
     }
 
     public String getId() {
@@ -32,46 +32,36 @@ public class ClinicalHistory implements Serializable {
         this.id = id;
     }
 
-    public String getSummary() {
-        return summary;
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
-    public void setSummary(String summary) {
-        this.summary = summary;
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public LocalDate getCreatedOn() {
-        return createdOn;
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setCreatedOn(LocalDate createdOn) {
-        this.createdOn = createdOn;
+    public void setUpdatedAt(LocalDate updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
-    public int getVersion() {
-        return version;
+    public HealthUser getHealthUser() {
+        return healthUser;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
+    public void setHealthUser(HealthUser healthUser) {
+        this.healthUser = healthUser;
     }
 
-    public User getPatient() {
-        return patient;
+    public Set<ClinicalDocument> getClinicalDocuments() {
+        return clinicalDocuments;
     }
 
-    public void setPatient(User patient) {
-        this.patient = patient;
-    }
-
-    public Set<ClinicalDocument> getDocuments() {
-        return documents;
-    }
-
-    public void addDocument(ClinicalDocument document) {
-        if (document == null)
-            return;
-        this.documents.add(document);
+    public void setClinicalDocuments(Set<ClinicalDocument> clinicalDocuments) {
+        this.clinicalDocuments = clinicalDocuments;
     }
 
     @Override
@@ -87,5 +77,26 @@ public class ClinicalHistory implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "ClinicalHistory{" +
+                "id='" + id + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
+
+    public ClinicalHistoryDTO toDto() {
+        ClinicalHistoryDTO dto = new ClinicalHistoryDTO();
+        dto.setId(id);
+        dto.setCreatedAt(createdAt);
+        dto.setUpdatedAt(updatedAt);
+        dto.setHealthUserId(healthUser != null ? healthUser.getId() : null);
+        dto.setClinicalDocumentIds(clinicalDocuments != null
+                ? clinicalDocuments.stream().map(ClinicalDocument::getId).collect(Collectors.toSet())
+                : null);
+        return dto;
     }
 }

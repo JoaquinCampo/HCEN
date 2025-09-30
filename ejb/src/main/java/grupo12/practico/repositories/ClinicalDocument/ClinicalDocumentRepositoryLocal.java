@@ -12,17 +12,7 @@ public interface ClinicalDocumentRepositoryLocal {
 
     List<ClinicalDocument> findAll();
 
-    List<ClinicalDocument> findByPatientId(String userId);
+    ClinicalDocument findById(String id);
 
-    List<ClinicalDocument> findByAuthorId(String healthWorkerId);
-
-    List<ClinicalDocument> findByProviderId(String providerId);
-
-    List<ClinicalDocument> findByPatientName(String query);
-
-    List<ClinicalDocument> findByAuthorName(String query);
-
-    List<ClinicalDocument> findByProviderName(String query);
-
-    List<ClinicalDocument> findByAnyName(String query);
+    List<ClinicalDocument> findByTitle(String title);
 }
