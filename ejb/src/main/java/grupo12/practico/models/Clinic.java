@@ -1,6 +1,7 @@
 package grupo12.practico.models;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +28,10 @@ public class Clinic {
         this.id = UUID.randomUUID().toString();
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
+        this.healthUsers = new HashSet<>();
+        this.healthWorkers = new HashSet<>();
+        this.clinicAdmins = new HashSet<>();
+        this.clinicalHistories = new HashSet<>();
     }
 
     public String getId() {

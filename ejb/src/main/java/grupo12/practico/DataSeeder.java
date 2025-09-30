@@ -2,6 +2,7 @@ package grupo12.practico;
 
 import grupo12.practico.models.*;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
+import grupo12.practico.repositories.ClinicalHistory.ClinicalHistoryRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
@@ -33,6 +34,9 @@ public class DataSeeder {
 
     @EJB
     private ClinicalDocumentRepositoryLocal clinicalDocumentRepository;
+
+    @EJB
+    private ClinicalHistoryRepositoryLocal clinicalHistoryRepository;
 
     @PostConstruct
     public void seedData() {
@@ -216,6 +220,11 @@ public class DataSeeder {
         hu1.setAddress("Calle Ejido 789, Montevideo");
         hu1.setDateOfBirth(LocalDate.of(1990, 2, 14));
 
+        ClinicalHistory ch1 = new ClinicalHistory();
+        ch1.setHealthUser(hu1);
+        hu1.setClinicalHistory(ch1);
+        clinicalHistoryRepository.add(ch1);
+
         if (!clinics.isEmpty()) {
             Set<Clinic> clinics1 = new HashSet<>();
             clinics1.add(clinics.get(0));
@@ -234,6 +243,11 @@ public class DataSeeder {
         hu2.setPhone("+598 99 678 901");
         hu2.setAddress("Av. Brasil 234, Montevideo");
         hu2.setDateOfBirth(LocalDate.of(1985, 11, 8));
+
+        ClinicalHistory ch2 = new ClinicalHistory();
+        ch2.setHealthUser(hu2);
+        hu2.setClinicalHistory(ch2);
+        clinicalHistoryRepository.add(ch2);
 
         if (!clinics.isEmpty()) {
             Set<Clinic> clinics2 = new HashSet<>();
@@ -254,6 +268,11 @@ public class DataSeeder {
         hu3.setAddress("Bv. España 567, Montevideo");
         hu3.setDateOfBirth(LocalDate.of(2015, 6, 22));
 
+        ClinicalHistory ch3 = new ClinicalHistory();
+        ch3.setHealthUser(hu3);
+        hu3.setClinicalHistory(ch3);
+        clinicalHistoryRepository.add(ch3);
+
         if (clinics.size() > 2) {
             Set<Clinic> clinics3 = new HashSet<>();
             clinics3.add(clinics.get(2));
@@ -272,6 +291,11 @@ public class DataSeeder {
         hu4.setPhone("+598 99 890 123");
         hu4.setAddress("Calle 25 de Mayo 890, Rivera");
         hu4.setDateOfBirth(LocalDate.of(1978, 9, 17));
+
+        ClinicalHistory ch4 = new ClinicalHistory();
+        ch4.setHealthUser(hu4);
+        hu4.setClinicalHistory(ch4);
+        clinicalHistoryRepository.add(ch4);
 
         if (clinics.size() > 3) {
             Set<Clinic> clinics4 = new HashSet<>();

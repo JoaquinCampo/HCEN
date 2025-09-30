@@ -3,8 +3,10 @@ package grupo12.practico.services.HealthUser;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.Clinic;
+import grupo12.practico.models.ClinicalHistory;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
+import grupo12.practico.repositories.ClinicalHistory.ClinicalHistoryRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.services.PasswordUtil;
 import jakarta.ejb.EJB;
@@ -30,6 +32,9 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     @EJB
     private ClinicRepositoryLocal clinicRepository;
 
+    @EJB
+    private ClinicalHistoryRepositoryLocal clinicalHistoryRepository;
+
     @Override
     public List<HealthUserDTO> findAll() {
         return userRepository.findAll().stream()
@@ -53,9 +58,15 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     @Override
     public HealthUserDTO add(AddHealthUserDTO addHealthUserDTO) {
         validateCreateUserDTO(addHealthUserDTO);
-        HealthUser user = convertToHealthUser(addHealthUserDTO);
-        HealthUser savedUser = userRepository.add(user);
-        return savedUser.toDto();
+
+        HealthUser healthUser = createHealthUserFromDTO(addHealthUserDTO);
+        ClinicalHistory clinicalHistory = new ClinicalHistory();
+        clinicalHistory.setHealthUser(healthUser);
+        healthUser.setClinicalHistory(clinicalHistory);
+
+        clinicalHistoryRepository.add(clinicalHistory);
+
+        return userRepository.add(healthUser).toDto();
     }
 
     private void validateCreateUserDTO(AddHealthUserDTO addHealthUserDTO) {
@@ -76,7 +87,7 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         }
     }
 
-    private HealthUser convertToHealthUser(AddHealthUserDTO dto) {
+    private HealthUser createHealthUserFromDTO(AddHealthUserDTO dto) {
         HealthUser user = new HealthUser();
 
         user.setDocument(dto.getDocument());

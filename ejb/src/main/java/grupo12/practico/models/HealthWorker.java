@@ -1,5 +1,6 @@
 package grupo12.practico.models;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,10 @@ public class HealthWorker extends User {
 
     public HealthWorker() {
         super();
+        this.clinics = new HashSet<>();
+        this.specialties = new HashSet<>();
+        this.clinicalHistories = new HashSet<>();
+        this.clinicalDocuments = new HashSet<>();
     }
 
     public String getLicenseNumber() {

@@ -1,5 +1,6 @@
 package grupo12.practico.models;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ public class ClinicAdmin extends User {
 
     public ClinicAdmin() {
         super();
+        this.clinics = new HashSet<>();
     }
 
     public Set<Clinic> getClinics() {
