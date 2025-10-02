@@ -2,41 +2,43 @@ package grupo12.practico.repositories.ClinicalHistory;
 
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
-import jakarta.ejb.Singleton;
-import jakarta.ejb.Startup;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 import grupo12.practico.models.ClinicalHistory;
 
-@Singleton
-@Startup
+@Stateless
 @Local(ClinicalHistoryRepositoryLocal.class)
 @Remote(ClinicalHistoryRepositoryRemote.class)
 public class ClinicalHistoryRepositoryBean implements ClinicalHistoryRepositoryRemote {
 
-    private final Map<String, ClinicalHistory> clinicalHistoryMap = new HashMap<>();
+    @PersistenceContext(unitName = "practicoPersistenceUnit")
+    private EntityManager em;
 
     @Override
     public List<ClinicalHistory> findAll() {
-        return new ArrayList<>(clinicalHistoryMap.values());
+        TypedQuery<ClinicalHistory> query = em.createQuery("SELECT c FROM ClinicalHistory c", ClinicalHistory.class);
+        return query.getResultList();
     }
 
     @Override
     public ClinicalHistory findById(String id) {
-        if (id == null || id.trim().isEmpty())
+        if (id == null || id.trim().isEmpty()) {
             return null;
-        return clinicalHistoryMap.get(id);
+        }
+        return em.find(ClinicalHistory.class, id);
     }
 
     @Override
     public ClinicalHistory add(ClinicalHistory clinicalHistory) {
-        if (clinicalHistory == null || clinicalHistory.getId() == null)
-            return clinicalHistory;
-        clinicalHistoryMap.put(clinicalHistory.getId(), clinicalHistory);
+        if (clinicalHistory == null) {
+            return null;
+        }
+        em.persist(clinicalHistory);
         return clinicalHistory;
     }
 

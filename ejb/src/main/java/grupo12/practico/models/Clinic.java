@@ -7,31 +7,70 @@ import java.util.Set;
 import java.util.UUID;
 
 import grupo12.practico.dtos.Clinic.ClinicDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "clinics")
 public class Clinic {
+    @Id
+    @Column(name = "id", nullable = false)
     private String id;
+
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "address")
     private String address;
+
+    @Column(name = "domain")
     private String domain;
+
+    @Column(name = "type")
     private String type;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDate updatedAt;
 
+    @ManyToMany(mappedBy = "clinics")
     private Set<HealthUser> healthUsers;
+
+    @ManyToMany(mappedBy = "clinics")
     private Set<HealthWorker> healthWorkers;
+
+    @ManyToMany(mappedBy = "clinics")
     private Set<ClinicAdmin> clinicAdmins;
+
+    @OneToMany(mappedBy = "clinic")
     private Set<ClinicalHistory> clinicalHistories;
 
     public Clinic() {
-        this.id = UUID.randomUUID().toString();
-        this.createdAt = LocalDate.now();
-        this.updatedAt = LocalDate.now();
         this.healthUsers = new HashSet<>();
         this.healthWorkers = new HashSet<>();
         this.clinicAdmins = new HashSet<>();
         this.clinicalHistories = new HashSet<>();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
+        this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDate.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDate.now();
     }
 
     public String getId() {

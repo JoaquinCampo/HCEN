@@ -1,7 +1,10 @@
 package grupo12.practico.models;
 
 import grupo12.practico.dtos.HcenAdmin.HcenAdminDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "hcen_admins")
 public class HcenAdmin extends User {
 
     public HcenAdmin() {

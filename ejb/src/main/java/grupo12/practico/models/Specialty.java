@@ -7,22 +7,43 @@ import java.util.Set;
 import java.util.UUID;
 
 import grupo12.practico.dtos.SpecialtyDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "specialties")
 public class Specialty {
+    @Id
+    @Column(name = "id", nullable = false)
     private String id;
+
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDate updatedAt;
 
+    @ManyToMany(mappedBy = "specialties")
     private Set<HealthWorker> healthWorkers;
-    private Set<ClinicalHistory> clinicalHistories;
 
     public Specialty() {
-        this.id = UUID.randomUUID().toString();
+        this.healthWorkers = new HashSet<>();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
-        this.healthWorkers = new HashSet<>();
-        this.clinicalHistories = new HashSet<>();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDate.now();
     }
 
     public String getId() {
@@ -63,14 +84,6 @@ public class Specialty {
 
     public void setHealthWorkers(Set<HealthWorker> healthWorkers) {
         this.healthWorkers = healthWorkers;
-    }
-
-    public Set<ClinicalHistory> getClinicalHistories() {
-        return clinicalHistories;
-    }
-
-    public void setClinicalHistories(Set<ClinicalHistory> clinicalHistories) {
-        this.clinicalHistories = clinicalHistories;
     }
 
     @Override

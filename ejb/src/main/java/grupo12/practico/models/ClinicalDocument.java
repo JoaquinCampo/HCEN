@@ -8,22 +8,51 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "clinical_documents")
 public class ClinicalDocument {
+    @Id
+    @Column(name = "id", length = 36, nullable = false)
     private String id;
+
+    @Column(name = "title", length = 255)
     private String title;
+
+    @Column(name = "content_url", length = 500)
     private String contentUrl;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDate updatedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "clinical_history_id")
     private ClinicalHistory clinicalHistory;
+
+    @ManyToMany
+    @JoinTable(name = "clinical_document_health_worker", joinColumns = @JoinColumn(name = "clinical_document_id"), inverseJoinColumns = @JoinColumn(name = "health_worker_id"))
     private Set<HealthWorker> healthWorkers;
 
     public ClinicalDocument() {
-        this.id = UUID.randomUUID().toString();
+        this.healthWorkers = new HashSet<>();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
-        this.healthWorkers = new HashSet<>();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDate.now();
     }
 
     public String getId() {
