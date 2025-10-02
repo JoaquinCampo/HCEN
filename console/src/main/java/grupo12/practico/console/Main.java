@@ -12,6 +12,7 @@ import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.messaging.HealthUserRegistrationProducerRemote;
 import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.models.DocumentType;
@@ -71,6 +72,7 @@ public class Main {
     private static void usersMenu(Scanner in, ServiceLocator locator) {
         try {
             HealthUserServiceRemote userService = locator.userService();
+            HealthUserRegistrationProducerRemote registrationProducer = locator.healthUserRegistrationProducer();
             while (true) {
                 System.out.println();
                 System.out.println("-- Users --");
@@ -175,8 +177,9 @@ public class Main {
                         }
 
                         try {
-                            HealthUserDTO addedUser = userService.add(u);
-                            System.out.println("User added successfully with ID: " + addedUser.getId());
+                            registrationProducer.enqueue(u);
+                            System.out.println(
+                                    "Request accepted; the user will be created asynchronously.");
                         } catch (Exception ex) {
                             System.out.println("Failed to add user: " + ex.getMessage());
                             System.out.println("Please check your input and try again.");
