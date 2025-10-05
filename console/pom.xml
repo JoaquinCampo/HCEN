@@ -14,12 +14,6 @@
   <packaging>jar</packaging>
   <name>practico-console</name>
 
-  <properties>
-    <maven.compiler.release>24</maven.compiler.release>
-    <maven.compiler.source>24</maven.compiler.source>
-    <maven.compiler.target>24</maven.compiler.target>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.wildfly</groupId>
