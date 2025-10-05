@@ -4,18 +4,18 @@
            http://java.sun.com/xml/ns/javaee/sun-jaxws.xsd">
     
     <endpoint name="HealthUserService"
-              implementation="grupo12.practico.soap.HealthUserWebService"
+              implementation="grupo12.practico.services.HealthUser.HealthUserServiceBean"
               url-pattern="/HealthUserService"/>
     
     <endpoint name="ClinicalDocumentService"
-              implementation="grupo12.practico.soap.ClinicalDocumentWebService"
+              implementation="grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceBean"
               url-pattern="/ClinicalDocumentService"/>
     
     <endpoint name="ClinicService"
-              implementation="grupo12.practico.soap.ClinicWebService"
+              implementation="grupo12.practico.services.Clinic.ClinicServiceBean"
               url-pattern="/ClinicService"/>
     
     <endpoint name="HealthWorkerService"
-              implementation="grupo12.practico.soap.HealthWorkerWebService"
+              implementation="grupo12.practico.services.HealthWorker.HealthWorkerServiceBean"
               url-pattern="/HealthWorkerService"/>
 </endpoints>

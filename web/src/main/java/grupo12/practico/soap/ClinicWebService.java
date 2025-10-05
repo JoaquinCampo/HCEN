@@ -13,25 +13,25 @@ import java.util.List;
 public class ClinicWebService {
 
     @EJB
-    private grupo12.practico.soap.ClinicSoapService clinicSoapService;
+    private grupo12.practico.services.Clinic.ClinicServiceLocal clinicService;
 
-    @WebMethod(operationName = "getAllClinics")
-    public List<ClinicDTO> getAllClinics() {
-        return clinicSoapService.getAllClinics();
+    @WebMethod(operationName = "findAll")
+    public List<ClinicDTO> findAll() {
+        return clinicService.findAll();
     }
 
-    @WebMethod(operationName = "getClinicById")
-    public ClinicDTO getClinicById(@WebParam(name = "id") String id) {
-        return clinicSoapService.getClinicById(id);
+    @WebMethod(operationName = "findById")
+    public ClinicDTO findById(@WebParam(name = "id") String id) {
+        return clinicService.findById(id);
     }
 
-    @WebMethod(operationName = "searchClinicsByName")
-    public List<ClinicDTO> searchClinicsByName(@WebParam(name = "name") String name) {
-        return clinicSoapService.searchClinicsByName(name);
+    @WebMethod(operationName = "findByName")
+    public List<ClinicDTO> findByName(@WebParam(name = "name") String name) {
+        return clinicService.findByName(name);
     }
 
-    @WebMethod(operationName = "createClinic")
-    public ClinicDTO createClinic(@WebParam(name = "clinicData") AddClinicDTO clinicData) {
-        return clinicSoapService.createClinic(clinicData);
+    @WebMethod(operationName = "add")
+    public ClinicDTO add(@WebParam(name = "clinicData") AddClinicDTO clinicData) {
+        return clinicService.addClinic(clinicData);
     }
 }
