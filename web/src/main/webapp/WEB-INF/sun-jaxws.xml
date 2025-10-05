@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoints xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           version="2.0" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+           http://java.sun.com/xml/ns/javaee/sun-jaxws.xsd">
+    
+    <endpoint name="HealthUserService"
+              implementation="grupo12.practico.soap.HealthUserWebService"
+              url-pattern="/HealthUserService"/>
+    
+    <endpoint name="ClinicalDocumentService"
+              implementation="grupo12.practico.soap.ClinicalDocumentWebService"
+              url-pattern="/ClinicalDocumentService"/>
+    
+    <endpoint name="ClinicService"
+              implementation="grupo12.practico.soap.ClinicWebService"
+              url-pattern="/ClinicService"/>
+</endpoints>
