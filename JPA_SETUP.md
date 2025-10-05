@@ -1,7 +1,7 @@
 ### Step 1: Start PostgreSQL
 
 ```bash
-# Start PostgreSQL and pgAdmin with Docker
+# Start PostgreSQL with Docker
 docker-compose up -d
 
 # Verify it's running
@@ -19,5 +19,3 @@ Then move the file to wildfly-37.0.0.Final/standalone/deployments/
 # Run WildFly configuration
 $WILDFLY_HOME/bin/jboss-cli.sh --connect --file=wildfly-postgresql-setup.cli
 ```
-
-### Step 3: Setup on Wildfly GUI (ver clase/diapos o preguntar a Fran)
