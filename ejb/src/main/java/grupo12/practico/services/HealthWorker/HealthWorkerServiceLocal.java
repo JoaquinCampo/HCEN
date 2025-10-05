@@ -9,11 +9,11 @@ import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 
 @Local
 public interface HealthWorkerServiceLocal {
-    HealthWorkerDTO addHealthWorker(AddHealthWorkerDTO healthWorkerDTO);
+    HealthWorkerDTO add(AddHealthWorkerDTO healthWorkerDTO);
 
-    List<HealthWorkerDTO> getAllHealthWorkers();
+    List<HealthWorkerDTO> findAll();
 
-    List<HealthWorkerDTO> findHealthWorkersByName(String name);
+    List<HealthWorkerDTO> findByName(String name);
 
     HealthWorkerDTO findById(String id);
 }

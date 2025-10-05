@@ -45,7 +45,7 @@ public class ClinicalDocumentBean implements Serializable {
         newDocument = new AddClinicalDocumentDTO();
         documents = new ArrayList<>();
         users = userService.findAll();
-        workers = workerService.getAllHealthWorkers();
+        workers = workerService.findAll();
         loadAll();
     }
 
@@ -57,9 +57,7 @@ public class ClinicalDocumentBean implements Serializable {
         if (searchQuery == null || searchQuery.trim().isEmpty()) {
             loadAll();
         } else {
-            // For now, just load all documents since search methods are not available in
-            // the simplified service
-            loadAll();
+            documents = docService.findByTitle(searchQuery.trim());
         }
     }
 

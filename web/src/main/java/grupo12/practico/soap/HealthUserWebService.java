@@ -2,6 +2,7 @@ package grupo12.practico.soap;
 
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerLocal;
 import jakarta.ejb.EJB;
 import jakarta.jws.WebService;
 import jakarta.jws.WebMethod;
@@ -14,6 +15,9 @@ public class HealthUserWebService {
 
     @EJB
     private grupo12.practico.services.HealthUser.HealthUserServiceLocal healthUserService;
+
+    @EJB
+    private HealthUserRegistrationProducerLocal healthUserRegistrationProducer;
 
     @WebMethod(operationName = "findAll")
     public List<HealthUserDTO> findAll() {
@@ -31,7 +35,8 @@ public class HealthUserWebService {
     }
 
     @WebMethod(operationName = "add")
-    public HealthUserDTO add(@WebParam(name = "healthUserData") AddHealthUserDTO healthUserData) {
-        return healthUserService.add(healthUserData);
+    public String add(@WebParam(name = "healthUserData") AddHealthUserDTO healthUserData) {
+        healthUserRegistrationProducer.enqueue(healthUserData);
+        return "Health user registration request queued successfully for document: " + healthUserData.getDocument();
     }
 }
