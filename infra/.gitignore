@@ -1,0 +1,9 @@
+# Terraform state
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Local overrides
+terraform.tfvars
+*.auto.tfvars

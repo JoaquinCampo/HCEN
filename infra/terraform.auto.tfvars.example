@@ -1,0 +1,10 @@
+# Copy this file to terraform.auto.tfvars (kept out of git) and fill in real credentials
+project_name     = "tse-lab"
+region           = "sa-east-1"
+public_ssh_key   = "ssh-ed25519 AAAA... user@example"
+instance_type    = "t3.small"
+
+db_username      = "your_db_username"
+db_password      = "your_db_password"
+wf_admin_user    = "admin"
+wf_admin_password = "your_wildfly_admin_password"
