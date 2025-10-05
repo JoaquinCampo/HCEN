@@ -2,6 +2,7 @@ package grupo12.practico.web.jsf;
 
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerLocal;
 import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
@@ -11,6 +12,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.validation.ValidationException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,6 +25,9 @@ public class HealthUserBean implements Serializable {
 
     @EJB
     private HealthUserServiceLocal userService;
+
+    @EJB
+    private HealthUserRegistrationProducerLocal registrationProducer;
 
     private List<HealthUserDTO> users;
     private AddHealthUserDTO newUser;
@@ -49,14 +54,21 @@ public class HealthUserBean implements Serializable {
 
     public String save() {
         try {
-            userService.add(newUser);
+            registrationProducer.enqueue(newUser);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "User created successfully", null));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Request accepted; the user will be created shortly", null));
             newUser = new AddHealthUserDTO();
             return "list?faces-redirect=true";
-        } catch (RuntimeException ex) {
+        } catch (ValidationException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, ex.getMessage(), null));
+            return null;
+        } catch (RuntimeException ex) {
+            String message = ex.getMessage() != null ? ex.getMessage()
+                    : "Unexpected error while queueing the user creation request";
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
             return null;
         }
     }
