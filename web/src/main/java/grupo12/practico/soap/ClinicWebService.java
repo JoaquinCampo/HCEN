@@ -2,6 +2,7 @@ package grupo12.practico.soap;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.messaging.Clinic.ClinicRegistrationProducerLocal;
 import jakarta.ejb.EJB;
 import jakarta.jws.WebService;
 import jakarta.jws.WebMethod;
@@ -14,6 +15,9 @@ public class ClinicWebService {
 
     @EJB
     private grupo12.practico.services.Clinic.ClinicServiceLocal clinicService;
+
+    @EJB
+    private ClinicRegistrationProducerLocal registrationProducer;
 
     @WebMethod(operationName = "findAll")
     public List<ClinicDTO> findAll() {
@@ -31,7 +35,12 @@ public class ClinicWebService {
     }
 
     @WebMethod(operationName = "add")
-    public ClinicDTO add(@WebParam(name = "clinicData") AddClinicDTO clinicData) {
-        return clinicService.addClinic(clinicData);
+    public String add(@WebParam(name = "clinicData") AddClinicDTO clinicData) {
+        try {
+            registrationProducer.enqueue(clinicData);
+            return "Clinic registration request accepted; the clinic will be created shortly";
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to enqueue clinic registration request: " + ex.getMessage(), ex);
+        }
     }
 }
