@@ -45,7 +45,7 @@ public class HealthUserResource {
     @POST
     public Response add(AddHealthUserDTO addHealthUserDTO) {
         HealthUserDTO created = healthUserService.add(addHealthUserDTO);
-        URI location = URI.create("/api/health-users/" + created.getId());
+        URI location = URI.create("/health-users/" + created.getId());
         return Response.created(location).entity(created).build();
     }
 }

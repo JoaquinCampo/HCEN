@@ -14,4 +14,8 @@
     <endpoint name="ClinicService"
               implementation="grupo12.practico.soap.ClinicWebService"
               url-pattern="/ClinicService"/>
+    
+    <endpoint name="HealthWorkerService"
+              implementation="grupo12.practico.soap.HealthWorkerWebService"
+              url-pattern="/HealthWorkerService"/>
 </endpoints>

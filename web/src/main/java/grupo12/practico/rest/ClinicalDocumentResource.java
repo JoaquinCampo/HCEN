@@ -45,7 +45,7 @@ public class ClinicalDocumentResource {
     @POST
     public Response add(AddClinicalDocumentDTO addClinicalDocumentDTO) {
         ClinicalDocumentDTO created = clinicalDocumentService.add(addClinicalDocumentDTO);
-        URI location = URI.create("/api/clinical-documents/" + created.getId());
+        URI location = URI.create("/clinical-documents/" + created.getId());
         return Response.created(location).entity(created).build();
     }
 }

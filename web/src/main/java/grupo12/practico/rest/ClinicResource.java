@@ -45,7 +45,7 @@ public class ClinicResource {
     @POST
     public Response add(AddClinicDTO addClinicDTO) {
         ClinicDTO created = clinicService.addClinic(addClinicDTO);
-        URI location = URI.create("/api/clinics/" + created.getId());
+        URI location = URI.create("/clinics/" + created.getId());
         return Response.created(location).entity(created).build();
     }
 }
