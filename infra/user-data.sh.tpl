@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-# Update & install Docker + Compose
-sudo dnf -y update
-sudo dnf -y install docker docker-compose-plugin
+# Update & install Docker + Compose on Ubuntu
+export DEBIAN_FRONTEND=noninteractive
+sudo apt-get update -y
+sudo apt-get install -y docker.io docker-compose-plugin
 sudo systemctl enable --now docker
-sudo usermod -aG docker ec2-user || true
+sudo usermod -aG docker ubuntu || true
 
 # App directory
 sudo mkdir -p /opt/practico
-sudo chown ec2-user:ec2-user /opt/practico
+sudo chown ubuntu:ubuntu /opt/practico
 
 # Compose file pointing to the application image hosted in Amazon ECR
 cat >/opt/practico/docker-compose.yml <<'YAML'

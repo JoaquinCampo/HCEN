@@ -1,10 +1,11 @@
-# Amazon Linux 2023 x86_64
-data "aws_ami" "al2023" {
-  owners      = ["137112412989"]
+# Ubuntu 24.04 LTS (Noble) x86_64
+data "aws_ami" "ubuntu" {
+  owners      = ["099720109477"]
   most_recent = true
+
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-noble-24.04-amd64-server-*"]
   }
 }
 
@@ -14,7 +15,7 @@ resource "aws_key_pair" "demo" {
 }
 
 resource "aws_instance" "app" {
-  ami                         = data.aws_ami.al2023.id
+  ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.public_a.id
   vpc_security_group_ids      = [aws_security_group.web.id]
