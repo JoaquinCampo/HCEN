@@ -26,7 +26,7 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
     private ClinicServiceLocal clinicService;
 
     @Override
-    public HealthWorkerDTO addHealthWorker(AddHealthWorkerDTO addHealthWorkerDTO) {
+    public HealthWorkerDTO add(AddHealthWorkerDTO addHealthWorkerDTO) {
         validateHealthWorker(addHealthWorkerDTO);
         HealthWorker healthWorker = new HealthWorker();
         healthWorker.setFirstName(addHealthWorkerDTO.getFirstName());
@@ -38,14 +38,14 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
     }
 
     @Override
-    public List<HealthWorkerDTO> getAllHealthWorkers() {
+    public List<HealthWorkerDTO> findAll() {
         return repository.findAll().stream()
                 .map(HealthWorker::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<HealthWorkerDTO> findHealthWorkersByName(String name) {
+    public List<HealthWorkerDTO> findByName(String name) {
         return repository.findByName(name).stream()
                 .map(HealthWorker::toDto)
                 .collect(Collectors.toList());

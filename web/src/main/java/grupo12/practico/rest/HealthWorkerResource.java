@@ -3,12 +3,11 @@ package grupo12.practico.rest;
 import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.messaging.HealthWorker.HealthWorkerRegistrationProducerLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.net.URI;
 import java.util.List;
 
 @Path("/health-workers")
@@ -19,9 +18,12 @@ public class HealthWorkerResource {
     @EJB
     private HealthWorkerServiceLocal healthWorkerService;
 
+    @EJB
+    private HealthWorkerRegistrationProducerLocal healthWorkerRegistrationProducer;
+
     @GET
     public List<HealthWorkerDTO> findAll() {
-        return healthWorkerService.getAllHealthWorkers();
+        return healthWorkerService.findAll();
     }
 
     @GET
@@ -39,13 +41,15 @@ public class HealthWorkerResource {
     @GET
     @Path("/search")
     public List<HealthWorkerDTO> findByName(@QueryParam("name") String name) {
-        return healthWorkerService.findHealthWorkersByName(name);
+        return healthWorkerService.findByName(name);
     }
 
     @POST
     public Response add(AddHealthWorkerDTO addHealthWorkerDTO) {
-        HealthWorkerDTO created = healthWorkerService.addHealthWorker(addHealthWorkerDTO);
-        URI location = URI.create("/health-workers/" + created.getId());
-        return Response.created(location).entity(created).build();
+        healthWorkerRegistrationProducer.enqueue(addHealthWorkerDTO);
+        return Response.accepted()
+                .entity("{\"message\":\"Health worker registration request queued successfully for document: "
+                        + addHealthWorkerDTO.getDocument() + "\"}")
+                .build();
     }
 }

@@ -5,6 +5,7 @@ import javax.naming.NamingException;
 
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceRemote;
 import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerRemote;
+import grupo12.practico.messaging.HealthWorker.HealthWorkerRegistrationProducerRemote;
 import grupo12.practico.services.Clinic.ClinicServiceRemote;
 import grupo12.practico.services.HealthUser.HealthUserServiceRemote;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceRemote;
@@ -39,6 +40,12 @@ public final class ServiceLocator {
     public HealthWorkerServiceRemote healthWorkerService() throws NamingException {
         String jndi = ejb("HealthWorkerServiceBean", HealthWorkerServiceRemote.class.getName());
         return (HealthWorkerServiceRemote) context.lookup(jndi);
+    }
+
+    public HealthWorkerRegistrationProducerRemote healthWorkerRegistrationProducer() throws NamingException {
+        String jndi = ejb("HealthWorkerRegistrationProducerBean",
+                HealthWorkerRegistrationProducerRemote.class.getName());
+        return (HealthWorkerRegistrationProducerRemote) context.lookup(jndi);
     }
 
     public ClinicServiceRemote clinicService() throws NamingException {

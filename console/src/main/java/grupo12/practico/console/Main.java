@@ -15,6 +15,7 @@ import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerRemote;
+import grupo12.practico.messaging.HealthWorker.HealthWorkerRegistrationProducerRemote;
 import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
 import grupo12.practico.models.ClinicType;
@@ -282,6 +283,7 @@ public class Main {
     private static void healthWorkersMenu(Scanner in, ServiceLocator locator) {
         try {
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
+            HealthWorkerRegistrationProducerRemote registrationProducer = locator.healthWorkerRegistrationProducer();
             while (true) {
                 System.out.println();
                 System.out.println("-- Health Workers --");
@@ -343,6 +345,28 @@ public class Main {
                         }
                         hw.setPassword(password);
 
+                        System.out.print("Email: ");
+                        hw.setEmail(in.nextLine());
+
+                        System.out.print("Phone: ");
+                        hw.setPhone(in.nextLine());
+
+                        System.out.print("Address: ");
+                        hw.setAddress(in.nextLine());
+
+                        System.out.print("Date of birth (YYYY-MM-DD): ");
+                        String dobStr = in.nextLine().trim();
+                        if (dobStr.isEmpty()) {
+                            System.out.println("Error: Date of birth is required");
+                            continue;
+                        }
+                        try {
+                            hw.setDateOfBirth(java.time.LocalDate.parse(dobStr));
+                        } catch (Exception e) {
+                            System.out.println("Error: Invalid date format. Please use YYYY-MM-DD");
+                            continue;
+                        }
+
                         System.out.print("Gender (MALE/FEMALE/OTHER) or empty: ");
                         String g = in.nextLine();
                         if (!g.isBlank()) {
@@ -366,16 +390,17 @@ public class Main {
                         }
 
                         try {
-                            HealthWorkerDTO addedHw = hwService.addHealthWorker(hw);
-                            System.out.println("Health worker added successfully with ID: " + addedHw.getId());
+                            registrationProducer.enqueue(hw);
+                            System.out.println("Health worker registration request queued successfully for document: "
+                                    + hw.getDocument());
                         } catch (Exception ex) {
-                            System.out.println("Failed to add health worker: " + ex.getMessage());
+                            System.out.println("Failed to queue health worker registration: " + ex.getMessage());
                             System.out.println("Please check your input and try again.");
                         }
                         break;
                     case "2":
                         try {
-                            List<HealthWorkerDTO> workers = hwService.getAllHealthWorkers();
+                            List<HealthWorkerDTO> workers = hwService.findAll();
                             if (workers.isEmpty()) {
                                 System.out.println("No health workers found.");
                             } else {
@@ -405,7 +430,7 @@ public class Main {
                         System.out.print("Query: ");
                         String q = in.nextLine();
                         try {
-                            List<HealthWorkerDTO> searchResults = hwService.findHealthWorkersByName(q);
+                            List<HealthWorkerDTO> searchResults = hwService.findByName(q);
                             if (searchResults.isEmpty()) {
                                 System.out.println("No health workers found matching: " + q);
                             } else {

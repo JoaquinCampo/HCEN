@@ -106,6 +106,23 @@
 
           <div class="col-sm-6">
             <h:outputLabel
+              for="dob"
+              value="Date of Birth"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="dob"
+              value="#{healthWorkerBean.newWorker.dateOfBirth}"
+              required="true"
+              styleClass="form-control"
+              placeholder="yyyy-MM-dd"
+            >
+              <f:convertDateTime type="localDate" pattern="yyyy-MM-dd" />
+            </h:inputText>
+            <h:message for="dob" styleClass="form-text text-danger" />
+          </div>
+          <div class="col-sm-6">
+            <h:outputLabel
               for="gender"
               value="Gender"
               styleClass="form-label"
@@ -129,6 +146,52 @@
               />
             </h:selectOneMenu>
             <h:message for="gender" styleClass="form-text text-danger" />
+          </div>
+
+          <div class="col-sm-6">
+            <h:outputLabel for="email" value="Email" styleClass="form-label" />
+            <h:inputText
+              id="email"
+              value="#{healthWorkerBean.newWorker.email}"
+              styleClass="form-control"
+            />
+          </div>
+          <div class="col-sm-6">
+            <h:outputLabel for="phone" value="Phone" styleClass="form-label" />
+            <h:inputText
+              id="phone"
+              value="#{healthWorkerBean.newWorker.phone}"
+              styleClass="form-control"
+            />
+          </div>
+
+          <div class="col-12">
+            <h:outputLabel
+              for="address"
+              value="Address"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="address"
+              value="#{healthWorkerBean.newWorker.address}"
+              styleClass="form-control"
+            />
+          </div>
+
+          <div class="col-sm-6">
+            <h:outputLabel
+              for="password"
+              value="Password"
+              styleClass="form-label"
+            />
+            <h:inputSecret
+              id="password"
+              value="#{healthWorkerBean.newWorker.password}"
+              required="true"
+              redisplay="false"
+              styleClass="form-control"
+            />
+            <h:message for="password" styleClass="form-text text-danger" />
           </div>
           <div class="col-sm-6">
             <h:outputLabel
