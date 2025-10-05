@@ -1,4 +1,4 @@
-package grupo12.practico.messaging;
+package grupo12.practico.messaging.HealthUser;
 
 import java.time.LocalDate;
 import java.util.Objects;

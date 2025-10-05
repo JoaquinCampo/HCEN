@@ -1,4 +1,4 @@
-package grupo12.practico.messaging;
+package grupo12.practico.messaging.HealthUser;
 
 /**
  * Centralizes JMS configuration details for the health user registration flow.

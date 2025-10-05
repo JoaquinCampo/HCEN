@@ -3,8 +3,8 @@ package grupo12.practico.console;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import grupo12.practico.messaging.HealthUserRegistrationProducerRemote;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceRemote;
+import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerRemote;
 import grupo12.practico.services.Clinic.ClinicServiceRemote;
 import grupo12.practico.services.HealthUser.HealthUserServiceRemote;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceRemote;

@@ -2,7 +2,7 @@ package grupo12.practico.web.jsf;
 
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
-import grupo12.practico.messaging.HealthUserRegistrationProducerLocal;
+import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerLocal;
 import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
