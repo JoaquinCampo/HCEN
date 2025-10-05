@@ -6,8 +6,8 @@ services:
     container_name: practico-postgres
     environment:
       POSTGRES_DB: practico_db
-      POSTGRES_USER: practico_user
-      POSTGRES_PASSWORD: practico_password
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -15,7 +15,7 @@ services:
     networks:
       - practico-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U practico_user -d practico_db"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,5 +27,3 @@ volumes:
 networks:
   practico-network:
     driver: bridge
-
-

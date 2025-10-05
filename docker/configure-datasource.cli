@@ -1,0 +1,37 @@
+# Ensure the PostgreSQL driver is registered
+if (outcome == success) of /subsystem=datasources/jdbc-driver=postgresql:read-resource
+    echo "PostgreSQL driver already present"
+else
+    /subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql, driver-module-name=org.postgresql, driver-class-name=org.postgresql.Driver)
+    echo "PostgreSQL driver registered"
+end-if
+
+# Recreate the datasource each boot to pick up env changes
+if (outcome == success) of /subsystem=datasources/data-source=PracticoDS:read-resource
+    /subsystem=datasources/data-source=PracticoDS:remove
+    echo "Existing PracticoDS datasource removed"
+end-if
+
+data-source add \
+    --name=PracticoDS \
+    --jndi-name=${env.DB_JNDI:java:/PostgresDS} \
+    --driver-name=postgresql \
+    --connection-url=jdbc:postgresql://${env.DB_HOST:postgres}:${env.DB_PORT:5432}/${env.DB_NAME:practico_db} \
+    --user-name=${env.DB_USER} \
+    --password=${env.DB_PASSWORD} \
+    --use-ccm=true \
+    --jta=true \
+    --use-java-context=true \
+    --enabled=true \
+    --min-pool-size=5 \
+    --max-pool-size=20 \
+    --blocking-timeout-wait-millis=5000 \
+    --idle-timeout-minutes=5 \
+    --validate-on-match=true \
+    --background-validation=false \
+    --check-valid-connection-sql="SELECT 1" \
+    --statistics-enabled=true
+
+echo "PracticoDS datasource configured"
+
+:reload
