@@ -21,21 +21,25 @@
         https://jakarta.ee/xml/ns/persistence
         https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
    <persistence-unit name="practicoPersistenceUnit">
-      <!-- If you are running in a production environment, add a managed
-         data source, this configuration uses the JakartaEE default data source is just for development and testing! -->
-      <jta-data-source>java:comp/DefaultDataSource</jta-data-source>
+      <!-- PostgreSQL datasource configured in WildFly -->
+      <jta-data-source>java:/PostgresDS</jta-data-source>
       <properties>
-         <!--The database schema is auto created on deployment and dropped before redeploy.
-             Note: the following configuration does not drop the tables on undeploy. If you prefer this, use this
-             Hibernate property instead:
-             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-         -->
+         <!-- Hibernate schema generation settings -->
+         <!-- For development: drop-and-create creates tables on each deployment -->
+         <!-- For production: use 'validate' or 'update' instead -->
          <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
          <property name="jakarta.persistence.schema-generation.create-source" value="metadata"/>
          <property name="jakarta.persistence.schema-generation.drop-source" value="metadata"/>
 
-         <!-- Properties for Hibernate -->
-         <property name="hibernate.show_sql" value="false" />
+         <!-- Hibernate properties -->
+         <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+         <property name="hibernate.show_sql" value="true" />
+         <property name="hibernate.format_sql" value="true" />
+         
+         <!-- Connection pool settings -->
+         <property name="hibernate.jdbc.batch_size" value="20"/>
+         <property name="hibernate.order_inserts" value="true"/>
+         <property name="hibernate.order_updates" value="true"/>
       </properties>
    </persistence-unit>
 </persistence>

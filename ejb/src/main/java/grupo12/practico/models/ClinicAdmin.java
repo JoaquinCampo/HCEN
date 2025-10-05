@@ -6,8 +6,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.ClinicAdmin.ClinicAdminDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "clinic_admins")
 public class ClinicAdmin extends User {
+    @ManyToMany
+    @JoinTable(name = "clinic_admin_clinic", joinColumns = @JoinColumn(name = "clinic_admin_id"), inverseJoinColumns = @JoinColumn(name = "clinic_id"))
     private Set<Clinic> clinics;
 
     public ClinicAdmin() {

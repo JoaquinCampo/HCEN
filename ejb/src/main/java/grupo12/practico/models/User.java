@@ -5,28 +5,77 @@ import java.util.Objects;
 import java.util.UUID;
 
 import grupo12.practico.dtos.User.UserDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
+    @Id
+    @Column(name = "id", nullable = false)
     private String id;
+
+    @Column(name = "document")
     private String document;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "document_type")
     private DocumentType documentType;
+
+    @Column(name = "first_name")
     private String firstName;
+
+    @Column(name = "last_name")
     private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
     private Gender gender;
+
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+
+    @Column(name = "password_hash")
     private String passwordHash;
+
+    @Column(name = "password_salt")
     private String passwordSalt;
+
+    @Column(name = "password_updated_at")
     private LocalDate passwordUpdatedAt;
+
+    @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "address")
     private String address;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDate updatedAt;
 
     public User() {
-        this.id = UUID.randomUUID().toString();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
         this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDate.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
         this.updatedAt = LocalDate.now();
     }
 

@@ -5,9 +5,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "health_users")
 public class HealthUser extends User {
+    @OneToOne(mappedBy = "healthUser", cascade = CascadeType.ALL)
     private ClinicalHistory clinicalHistory;
+
+    @ManyToMany
+    @JoinTable(name = "health_user_clinic", joinColumns = @JoinColumn(name = "health_user_id"), inverseJoinColumns = @JoinColumn(name = "clinic_id"))
     private Set<Clinic> clinics;
 
     public HealthUser() {

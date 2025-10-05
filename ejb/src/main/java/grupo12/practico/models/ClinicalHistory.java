@@ -8,20 +8,53 @@ import java.util.stream.Collectors;
 import java.util.Set;
 
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "clinical_histories")
 public class ClinicalHistory {
+    @Id
+    @Column(name = "id", length = 36, nullable = false)
     private String id;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDate updatedAt;
 
+    @OneToOne
+    @JoinColumn(name = "health_user_id", unique = true)
     private HealthUser healthUser;
-    private java.util.Set<ClinicalDocument> clinicalDocuments;
+
+    @OneToMany(mappedBy = "clinicalHistory", cascade = CascadeType.ALL)
+    private Set<ClinicalDocument> clinicalDocuments;
+
+    @ManyToOne
+    @JoinColumn(name = "clinic_id")
+    private Clinic clinic;
+
+    @ManyToMany
+    @JoinTable(name = "clinical_history_health_worker", joinColumns = @JoinColumn(name = "clinical_history_id"), inverseJoinColumns = @JoinColumn(name = "health_worker_id"))
+    private Set<HealthWorker> healthWorkers;
 
     public ClinicalHistory() {
-        this.id = UUID.randomUUID().toString();
+        this.clinicalDocuments = new HashSet<>();
+        this.healthWorkers = new HashSet<>();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
-        this.clinicalDocuments = new HashSet<>();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDate.now();
     }
 
     public String getId() {
@@ -62,6 +95,22 @@ public class ClinicalHistory {
 
     public void setClinicalDocuments(Set<ClinicalDocument> clinicalDocuments) {
         this.clinicalDocuments = clinicalDocuments;
+    }
+
+    public Clinic getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(Clinic clinic) {
+        this.clinic = clinic;
+    }
+
+    public Set<HealthWorker> getHealthWorkers() {
+        return healthWorkers;
+    }
+
+    public void setHealthWorkers(Set<HealthWorker> healthWorkers) {
+        this.healthWorkers = healthWorkers;
     }
 
     @Override

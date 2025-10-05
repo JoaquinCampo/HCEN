@@ -2,37 +2,36 @@ package grupo12.practico.repositories.Clinic;
 
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
-import jakarta.ejb.Singleton;
-import jakarta.ejb.Startup;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import grupo12.practico.models.Clinic;
 
-@Singleton
-@Startup
+@Stateless
 @Local(ClinicRepositoryLocal.class)
 @Remote(ClinicRepositoryRemote.class)
 public class ClinicRepositoryBean implements ClinicRepositoryRemote {
 
-    private final Map<String, Clinic> idToClinic = new HashMap<>();
+    @PersistenceContext(unitName = "practicoPersistenceUnit")
+    private EntityManager em;
 
     @Override
     public Clinic add(Clinic clinic) {
-        if (clinic == null || clinic.getId() == null)
-            return clinic;
-        idToClinic.put(clinic.getId(), clinic);
+        if (clinic == null) {
+            return null;
+        }
+        em.persist(clinic);
         return clinic;
     }
 
     @Override
     public List<Clinic> findAll() {
-        return new ArrayList<>(idToClinic.values());
+        TypedQuery<Clinic> query = em.createQuery("SELECT c FROM Clinic c", Clinic.class);
+        return query.getResultList();
     }
 
     @Override
@@ -40,7 +39,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
         if (id == null || id.trim().isEmpty()) {
             return null;
         }
-        return idToClinic.get(id);
+        return em.find(Clinic.class, id);
     }
 
     @Override
@@ -48,10 +47,11 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
         if (name == null || name.trim().isEmpty()) {
             return findAll();
         }
-        String normalized = name.trim().toLowerCase(Locale.ROOT);
-        return idToClinic.values().stream()
-                .filter(clinic -> (clinic.getName() != null && clinic.getName().toLowerCase(Locale.ROOT).contains(normalized)))
-                .collect(Collectors.toList());
+        TypedQuery<Clinic> query = em.createQuery(
+                "SELECT c FROM Clinic c WHERE LOWER(c.name) LIKE LOWER(:name)",
+                Clinic.class);
+        query.setParameter("name", "%" + name.trim() + "%");
+        return query.getResultList();
     }
 
 }

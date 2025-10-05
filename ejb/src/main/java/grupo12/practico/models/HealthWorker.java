@@ -5,13 +5,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "health_workers")
 public class HealthWorker extends User {
+    @ManyToMany
+    @JoinTable(name = "health_worker_clinic", joinColumns = @JoinColumn(name = "health_worker_id"), inverseJoinColumns = @JoinColumn(name = "clinic_id"))
     private Set<Clinic> clinics;
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(name = "health_worker_specialty", joinColumns = @JoinColumn(name = "health_worker_id"), inverseJoinColumns = @JoinColumn(name = "specialty_id"))
     private Set<Specialty> specialties;
+
+    @ManyToMany(mappedBy = "healthWorkers")
     private Set<ClinicalHistory> clinicalHistories;
+
+    @ManyToMany(mappedBy = "healthWorkers")
     private Set<ClinicalDocument> clinicalDocuments;
 
+    @Column(name = "license_number", length = 100)
     private String licenseNumber;
 
     public HealthWorker() {
