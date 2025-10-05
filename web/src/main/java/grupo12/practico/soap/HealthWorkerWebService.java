@@ -13,26 +13,26 @@ import java.util.List;
 public class HealthWorkerWebService {
 
     @EJB
-    private grupo12.practico.soap.HealthWorkerSoapService healthWorkerSoapService;
+    private grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal healthWorkerService;
 
-    @WebMethod(operationName = "getAllHealthWorkers")
-    public List<HealthWorkerDTO> getAllHealthWorkers() {
-        return healthWorkerSoapService.getAllHealthWorkers();
+    @WebMethod(operationName = "findAll")
+    public List<HealthWorkerDTO> findAll() {
+        return healthWorkerService.getAllHealthWorkers();
     }
 
-    @WebMethod(operationName = "getHealthWorkerById")
-    public HealthWorkerDTO getHealthWorkerById(@WebParam(name = "id") String id) {
-        return healthWorkerSoapService.getHealthWorkerById(id);
+    @WebMethod(operationName = "findById")
+    public HealthWorkerDTO findById(@WebParam(name = "id") String id) {
+        return healthWorkerService.findById(id);
     }
 
-    @WebMethod(operationName = "searchHealthWorkersByName")
-    public List<HealthWorkerDTO> searchHealthWorkersByName(@WebParam(name = "name") String name) {
-        return healthWorkerSoapService.searchHealthWorkersByName(name);
+    @WebMethod(operationName = "findByName")
+    public List<HealthWorkerDTO> findByName(@WebParam(name = "name") String name) {
+        return healthWorkerService.findHealthWorkersByName(name);
     }
 
-    @WebMethod(operationName = "createHealthWorker")
-    public HealthWorkerDTO createHealthWorker(
+    @WebMethod(operationName = "add")
+    public HealthWorkerDTO add(
             @WebParam(name = "healthWorkerData") AddHealthWorkerDTO healthWorkerData) {
-        return healthWorkerSoapService.createHealthWorker(healthWorkerData);
+        return healthWorkerService.addHealthWorker(healthWorkerData);
     }
 }

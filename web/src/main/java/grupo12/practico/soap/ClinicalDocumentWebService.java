@@ -13,26 +13,26 @@ import java.util.List;
 public class ClinicalDocumentWebService {
 
     @EJB
-    private grupo12.practico.soap.ClinicalDocumentSoapService clinicalDocumentSoapService;
+    private grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal clinicalDocumentService;
 
-    @WebMethod(operationName = "getAllClinicalDocuments")
-    public List<ClinicalDocumentDTO> getAllClinicalDocuments() {
-        return clinicalDocumentSoapService.getAllClinicalDocuments();
+    @WebMethod(operationName = "findAll")
+    public List<ClinicalDocumentDTO> findAll() {
+        return clinicalDocumentService.findAll();
     }
 
-    @WebMethod(operationName = "getClinicalDocumentById")
-    public ClinicalDocumentDTO getClinicalDocumentById(@WebParam(name = "id") String id) {
-        return clinicalDocumentSoapService.getClinicalDocumentById(id);
+    @WebMethod(operationName = "findById")
+    public ClinicalDocumentDTO findById(@WebParam(name = "id") String id) {
+        return clinicalDocumentService.findById(id);
     }
 
-    @WebMethod(operationName = "searchClinicalDocumentsByTitle")
-    public List<ClinicalDocumentDTO> searchClinicalDocumentsByTitle(@WebParam(name = "title") String title) {
-        return clinicalDocumentSoapService.searchClinicalDocumentsByTitle(title);
+    @WebMethod(operationName = "findByTitle")
+    public List<ClinicalDocumentDTO> findByTitle(@WebParam(name = "title") String title) {
+        return clinicalDocumentService.findByTitle(title);
     }
 
-    @WebMethod(operationName = "createClinicalDocument")
-    public ClinicalDocumentDTO createClinicalDocument(
+    @WebMethod(operationName = "add")
+    public ClinicalDocumentDTO add(
             @WebParam(name = "clinicalDocumentData") AddClinicalDocumentDTO clinicalDocumentData) {
-        return clinicalDocumentSoapService.createClinicalDocument(clinicalDocumentData);
+        return clinicalDocumentService.add(clinicalDocumentData);
     }
 }
