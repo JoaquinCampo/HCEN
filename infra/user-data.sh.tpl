@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-# Update & install Docker + Compose on Ubuntu
-export DEBIAN_FRONTEND=noninteractive
-sudo apt-get update -y
-sudo apt-get install -y docker.io docker-compose-plugin
+# Update & install Docker + Compose on Amazon Linux 2023
+sudo dnf update -y
+sudo dnf install -y docker
 sudo systemctl enable --now docker
-sudo usermod -aG docker ubuntu || true
+sudo usermod -aG docker ec2-user || true
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
 # App directory
 sudo mkdir -p /opt/practico
-sudo chown ubuntu:ubuntu /opt/practico
+sudo chown ec2-user:ec2-user /opt/practico
 
 # Compose file pointing to the application image hosted in Amazon ECR
 cat >/opt/practico/docker-compose.yml <<'YAML'

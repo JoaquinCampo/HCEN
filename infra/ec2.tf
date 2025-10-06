@@ -1,11 +1,26 @@
-# Ubuntu 24.04 LTS (Noble) x86_64
-data "aws_ami" "ubuntu" {
-  owners      = ["099720109477"]
+# Amazon Linux 2023 with Docker pre-installed
+data "aws_ami" "amazon_linux_2023" {
+  owners      = ["amazon"]
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-noble-24.04-amd64-server-*"]
+    values = ["al2023-ami-*-x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
   }
 }
 
@@ -15,7 +30,7 @@ resource "aws_key_pair" "demo" {
 }
 
 resource "aws_instance" "app" {
-  ami                         = data.aws_ami.ubuntu.id
+  ami                         = data.aws_ami.amazon_linux_2023.id
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.public_a.id
   vpc_security_group_ids      = [aws_security_group.web.id]
