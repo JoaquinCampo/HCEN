@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-# Update & install Docker + Compose on Amazon Linux 2023
+# Update & install Docker + Compose + Cron on Amazon Linux 2023
 sudo dnf update -y
-sudo dnf install -y docker
+sudo dnf install -y docker cronie
 sudo systemctl enable --now docker
+sudo systemctl enable --now crond
 sudo usermod -aG docker ec2-user || true
 
 # Install Docker Compose
@@ -56,3 +57,38 @@ SEED=true
 WF_ADMIN_USER="${wf_admin_user}"
 WF_ADMIN_PASSWORD="${wf_admin_password}"
 ENV
+
+# Create auto-update script that pulls latest image from ECR
+cat >/opt/practico/update.sh <<'SCRIPT'
+#!/bin/bash
+set -e
+cd /opt/practico
+
+# Log to file
+exec >> /var/log/docker-update.log 2>&1
+echo "=== $(date) - Checking for updates ==="
+
+# Login to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${app_image_uri%%/*}
+
+# Pull latest image
+docker-compose pull app
+
+# Check if image changed
+if docker-compose up -d app 2>&1 | grep -q "Recreating\|Starting"; then
+  echo "Updated to new image"
+  docker image prune -f
+else
+  echo "Already up to date"
+fi
+SCRIPT
+
+chmod +x /opt/practico/update.sh
+chown ec2-user:ec2-user /opt/practico/update.sh
+
+# Add cron job to check for updates every 5 minutes
+(crontab -u ec2-user -l 2>/dev/null || true; echo "*/5 * * * * /opt/practico/update.sh") | crontab -u ec2-user -
+
+# Create log file with proper permissions
+touch /var/log/docker-update.log
+chown ec2-user:ec2-user /var/log/docker-update.log

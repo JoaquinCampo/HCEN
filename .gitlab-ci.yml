@@ -1,6 +1,6 @@
 stages:
   - build
-  - deploy
+  # - deploy  # Disabled due to network restrictions
 
 variables:
   AWS_REGION: "us-east-1"
@@ -31,36 +31,39 @@ build-image:
         --custom-platform=linux/amd64
   only:
     - main
+# Deploy stage disabled - GitLab runner cannot reach EC2 from university network
+# To deploy manually after build: ssh to EC2 and run:
+#   cd /opt/practico && docker-compose pull && docker-compose up -d
 
-deploy:
-  stage: deploy
-  image: alpine:3.19
-  variables:
-    AWS_REGION: "us-east-1"
-    AWS_DEFAULT_REGION: "us-east-1"
-  before_script:
-    - apk add --no-cache openssh-client
-    - mkdir -p ~/.ssh
-    - echo "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - |
-      cat >> ~/.ssh/config <<EOF
-      Host *
-        StrictHostKeyChecking no
-        UserKnownHostsFile=/dev/null
-      EOF
-  script:
-    - |
-      ssh ec2-user@"$EC2_HOST" <<'EOF'
-      set -e
-      cd /opt/practico
-      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $CI_AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
-      docker-compose pull
-      docker-compose up -d
-      EOF
-  needs:
-    - build-image
-  environment:
-    name: production
-  only:
-    - main
+# deploy:
+#   stage: deploy
+#   image: alpine:3.19
+#   variables:
+#     AWS_REGION: "us-east-1"
+#     AWS_DEFAULT_REGION: "us-east-1"
+#   before_script:
+#     - apk add --no-cache openssh-client
+#     - mkdir -p ~/.ssh
+#     - echo "$EC2_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+#     - chmod 600 ~/.ssh/id_rsa
+#     - |
+#       cat >> ~/.ssh/config <<EOF
+#       Host *
+#         StrictHostKeyChecking no
+#         UserKnownHostsFile=/dev/null
+#       EOF
+#   script:
+#     - |
+#       ssh ec2-user@"$EC2_HOST" <<'EOF'
+#       set -e
+#       cd /opt/practico
+#       aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $CI_AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+#       docker-compose pull
+#       docker-compose up -d
+#       EOF
+#   needs:
+#     - build-image
+#   environment:
+#     name: production
+#   only:
+#     - main
