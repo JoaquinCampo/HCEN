@@ -91,19 +91,21 @@
               <div class="fw-semibold">#{w.licenseNumber}</div>
             </h:column>
             <h:column>
-              <f:facet name="header">Clinic IDs</f:facet>
-              <h:panelGroup rendered="#{not empty w.clinicIds}">
-                <ui:repeat value="#{w.clinicIds}" var="clinicId">
-                  <span class="badge bg-light text-dark border me-1 mb-1"
-                    >#{clinicId}</span
-                  >
-                </ui:repeat>
-              </h:panelGroup>
-              <h:panelGroup
-                rendered="#{empty w.clinicIds}"
-                styleClass="text-muted"
-                >—</h:panelGroup
-              >
+              <f:facet name="header">Clinics</f:facet>
+              <div class="fw-semibold">
+                <h:panelGroup rendered="#{not empty w.clinicIds}">
+                  <ui:repeat value="#{w.clinicIds}" var="clinicId">
+                    <span class="badge bg-light text-dark border me-1 mb-1"
+                      >#{healthWorkerBean.clinicName(clinicId)}</span
+                    >
+                  </ui:repeat>
+                </h:panelGroup>
+                <h:panelGroup
+                  rendered="#{empty w.clinicIds}"
+                  styleClass="text-muted"
+                  >—</h:panelGroup
+                >
+              </div>
             </h:column>
           </h:dataTable>
 

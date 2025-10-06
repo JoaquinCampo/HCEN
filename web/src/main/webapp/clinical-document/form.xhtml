@@ -86,15 +86,15 @@
 
           <div class="col-12">
             <h:outputLabel
-              for="patient"
+              for="healthUser"
               value="Health User"
               styleClass="form-label"
             />
             <h:selectOneMenu
-              id="patient"
-              value="#{clinicalDocumentBean.selectedPatientId}"
+              id="healthUser"
+              value="#{clinicalDocumentBean.selectedHealthUserId}"
               required="true"
-              requiredMessage="Select a patient"
+              requiredMessage="Select a health user"
               styleClass="form-select"
             >
               <f:selectItem
@@ -106,17 +106,17 @@
                 value="#{clinicalDocumentBean.users}"
                 var="patient"
                 itemValue="#{patient.clinicalHistoryId}"
-                itemLabel="#{patient.lastName}, #{patient.firstName} (#{patient.document})"
+                itemLabel="#{clinicalDocumentBean.healthUserName(patient.clinicalHistoryId)}"
               />
               <f:ajax
                 event="change"
-                render="patientMessage"
-                execute="patient"
+                render="healthUserMessage"
+                execute="healthUser"
               />
             </h:selectOneMenu>
             <h:message
-              id="patientMessage"
-              for="patient"
+              id="healthUserMessage"
+              for="healthUser"
               styleClass="form-text text-danger"
             />
           </div>
@@ -139,7 +139,7 @@
                 value="#{clinicalDocumentBean.workers}"
                 var="worker"
                 itemValue="#{worker.id}"
-                itemLabel="#{worker.lastName}, #{worker.firstName} (#{worker.licenseNumber})"
+                itemLabel="#{clinicalDocumentBean.healthWorkerName(worker.id)}"
               />
               <f:ajax
                 event="change"

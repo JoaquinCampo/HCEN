@@ -79,15 +79,17 @@
               <small class="text-muted">Issued #{doc.issuedAt}</small>
             </h:column>
             <h:column>
-              <f:facet name="header">Patient ID</f:facet>
-              <span class="text-muted">#{doc.clinicalHistoryId}</span>
+              <f:facet name="header">Health User</f:facet>
+              <span class="text-muted"
+                >#{clinicalDocumentBean.healthUserName(doc.clinicalHistoryId)}</span
+              >
             </h:column>
             <h:column>
-              <f:facet name="header">Health Worker IDs</f:facet>
+              <f:facet name="header">Health Workers</f:facet>
               <span class="text-muted">
                 <ui:repeat value="#{doc.healthWorkerIds}" var="workerId">
                   <span class="badge bg-light text-dark border me-1"
-                    >#{workerId}</span
+                    >#{clinicalDocumentBean.healthWorkerName(workerId)}</span
                   >
                 </ui:repeat>
               </span>

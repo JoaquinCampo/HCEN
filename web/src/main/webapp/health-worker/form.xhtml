@@ -218,6 +218,27 @@
             />
           </div>
 
+          <div class="col-12">
+            <h:outputLabel
+              for="clinics"
+              value="Clinics"
+              styleClass="form-label"
+            />
+            <h:selectManyListbox
+              id="clinics"
+              value="#{healthWorkerBean.selectedClinicIds}"
+              styleClass="form-select"
+              size="5"
+            >
+              <f:selectItems
+                value="#{healthWorkerBean.clinics}"
+                var="clinic"
+                itemValue="#{clinic.id}"
+                itemLabel="#{clinic.name}"
+              />
+            </h:selectManyListbox>
+          </div>
+
           <div class="col-sm-6">
             <h:outputLabel for="email" value="Email" styleClass="form-label" />
             <h:inputText

@@ -98,6 +98,21 @@
               <f:facet name="header">Created</f:facet>
               <span class="text-muted">#{u.createdAt}</span>
             </h:column>
+            <h:column>
+              <f:facet name="header">Clinics</f:facet>
+              <h:panelGroup rendered="#{not empty u.clinicIds}">
+                <ui:repeat value="#{u.clinicIds}" var="clinicId">
+                  <span class="badge bg-light text-dark border me-1 mb-1"
+                    >#{healthUserBean.clinicName(clinicId)}</span
+                  >
+                </ui:repeat>
+              </h:panelGroup>
+              <h:panelGroup
+                rendered="#{empty u.clinicIds}"
+                styleClass="text-muted"
+                >—</h:panelGroup
+              >
+            </h:column>
           </h:dataTable>
 
           <h:panelGroup
