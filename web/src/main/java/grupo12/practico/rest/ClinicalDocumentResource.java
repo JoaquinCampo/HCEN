@@ -3,12 +3,12 @@ package grupo12.practico.rest;
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
+import grupo12.practico.messaging.ClinicalDocument.ClinicalDocumentRegistrationProducerLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.net.URI;
 import java.util.List;
 
 @Path("/clinical-documents")
@@ -18,6 +18,9 @@ public class ClinicalDocumentResource {
 
     @EJB
     private ClinicalDocumentServiceLocal clinicalDocumentService;
+
+    @EJB
+    private ClinicalDocumentRegistrationProducerLocal clinicalDocumentRegistrationProducer;
 
     @GET
     public List<ClinicalDocumentDTO> findAll() {
@@ -44,8 +47,10 @@ public class ClinicalDocumentResource {
 
     @POST
     public Response add(AddClinicalDocumentDTO addClinicalDocumentDTO) {
-        ClinicalDocumentDTO created = clinicalDocumentService.add(addClinicalDocumentDTO);
-        URI location = URI.create("/clinical-documents/" + created.getId());
-        return Response.created(location).entity(created).build();
+        clinicalDocumentRegistrationProducer.enqueue(addClinicalDocumentDTO);
+        return Response.accepted()
+                .entity("{\"message\":\"Clinical document creation request queued successfully with title: "
+                        + addClinicalDocumentDTO.getTitle() + "\"}")
+                .build();
     }
 }
