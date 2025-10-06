@@ -34,18 +34,16 @@ RUN curl -fsSL "https://jdbc.postgresql.org/download/postgresql-${POSTGRESQL_JDB
     && mkdir -p "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main" \
     && mv /tmp/postgresql.jar "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/postgresql.jar"
 
-RUN cat <<'MODULE' > "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml"
-<?xml version="1.0" encoding="UTF-8"?>
-<module xmlns="urn:jboss:module:1.9" name="org.postgresql">
-    <resources>
-        <resource-root path="postgresql.jar"/>
-    </resources>
-    <dependencies>
-        <module name="javax.api"/>
-        <module name="javax.transaction.api"/>
-    </dependencies>
-</module>
-MODULE
+RUN echo '<?xml version="1.0" encoding="UTF-8"?>' > "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '<module xmlns="urn:jboss:module:1.9" name="org.postgresql">' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '    <resources>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '        <resource-root path="postgresql.jar"/>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '    </resources>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '    <dependencies>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '        <module name="javax.api"/>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '        <module name="javax.transaction.api"/>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '    </dependencies>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml" \
+    && echo '</module>' >> "$JBOSS_HOME/modules/system/layers/base/org/postgresql/main/module.xml"
 
 # Prepare helper scripts
 RUN mkdir -p /opt/app

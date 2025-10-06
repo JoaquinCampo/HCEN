@@ -35,7 +35,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${db_username} -d practico_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -74,10 +74,10 @@ echo "=== $(date) - Checking for updates ==="
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${app_image_uri%%/*}
 
 # Pull latest image
-docker-compose pull app
+/usr/local/bin/docker-compose pull app
 
 # Check if image changed
-if docker-compose up -d app 2>&1 | grep -q "Recreating\|Starting"; then
+if /usr/local/bin/docker-compose up -d app 2>&1 | grep -q "Recreating\|Starting"; then
   echo "Updated to new image"
   docker image prune -f
 else
