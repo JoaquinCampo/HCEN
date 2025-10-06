@@ -15,6 +15,7 @@ import jakarta.inject.Named;
 import jakarta.validation.ValidationException;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +33,13 @@ public class HealthUserBean implements Serializable {
     private List<HealthUserDTO> users;
     private AddHealthUserDTO newUser;
     private String searchQuery;
+    private LocalDate maxAdultBirthDate;
 
     @PostConstruct
     public void init() {
         newUser = new AddHealthUserDTO();
         users = new ArrayList<>();
+        maxAdultBirthDate = LocalDate.now().minusYears(18);
         loadAll();
     }
 
@@ -81,7 +84,6 @@ public class HealthUserBean implements Serializable {
         return DocumentType.values();
     }
 
-    // Getters and setters
     public List<HealthUserDTO> getUsers() {
         return users;
     }
@@ -100,5 +102,9 @@ public class HealthUserBean implements Serializable {
 
     public void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
+    }
+
+    public LocalDate getMaxAdultBirthDate() {
+        return maxAdultBirthDate;
     }
 }

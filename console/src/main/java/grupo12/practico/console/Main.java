@@ -90,26 +90,46 @@ public class Main {
                 switch (c) {
                     case "1":
                         AddHealthUserDTO u = new AddHealthUserDTO();
-                        System.out.print("First name: ");
+                        System.out.print("First name (e.g. Jane): ");
                         String firstName = in.nextLine().trim();
                         if (firstName.isEmpty()) {
                             System.out.println("Error: First name is required");
                             continue;
                         }
+                        if (firstName.length() < 2) {
+                            System.out.println("Error: First name must contain at least 2 characters");
+                            continue;
+                        }
+                        if (!firstName.matches("[A-Za-z'\\- ]+")) {
+                            System.out.println("Error: Only letters, spaces, apostrophes, and hyphens are allowed");
+                            continue;
+                        }
                         u.setFirstName(firstName);
 
-                        System.out.print("Last name: ");
+                        System.out.print("Last name (e.g. Doe): ");
                         String lastName = in.nextLine().trim();
                         if (lastName.isEmpty()) {
                             System.out.println("Error: Last name is required");
                             continue;
                         }
+                        if (lastName.length() < 2) {
+                            System.out.println("Error: Last name must contain at least 2 characters");
+                            continue;
+                        }
+                        if (!lastName.matches("[A-Za-z'\\- ]+")) {
+                            System.out.println("Error: Only letters, spaces, apostrophes, and hyphens are allowed");
+                            continue;
+                        }
                         u.setLastName(lastName);
 
-                        System.out.print("DNI: ");
+                        System.out.print("DNI / Document (5-30 alphanumeric chars): ");
                         String dni = in.nextLine().trim();
                         if (dni.isEmpty()) {
                             System.out.println("Error: DNI is required");
+                            continue;
+                        }
+                        if (!dni.matches("[0-9A-Za-z]{5,30}")) {
+                            System.out.println("Error: Document must be 5-30 alphanumeric characters");
                             continue;
                         }
                         u.setDocument(dni);
@@ -128,35 +148,50 @@ public class Main {
                             }
                         }
 
-                        System.out.print("Email: ");
-                        u.setEmail(in.nextLine());
+                        System.out.print("Email (leave blank if none): ");
+                        String email = in.nextLine().trim();
+                        if (!email.isEmpty() && !email.matches("^[^@\n]+@[^@\n]+\\.[^@\n]+$")) {
+                            System.out.println("Error: Invalid email format");
+                            continue;
+                        }
+                        u.setEmail(email.isEmpty() ? null : email);
 
-                        System.out.print("Password: ");
+                        System.out.print("Password (min 8 chars, mix letters/numbers recommended): ");
                         String password = in.nextLine().trim();
                         if (password.isEmpty()) {
                             System.out.println("Error: Password is required");
                             continue;
                         }
+                        if (password.length() < 8) {
+                            System.out.println("Error: Password must be at least 8 characters");
+                            continue;
+                        }
                         u.setPassword(password);
 
-                        System.out.print("Phone: ");
-                        u.setPhone(in.nextLine());
-                        System.out.print("Address: ");
-                        u.setAddress(in.nextLine());
+                        System.out.print("Phone (e.g. +598123456, leave blank if none): ");
+                        String phone = in.nextLine().trim();
+                        if (!phone.isEmpty() && !phone.matches("[+0-9 ()-]{7,20}")) {
+                            System.out.println("Error: Invalid phone format");
+                            continue;
+                        }
+                        u.setPhone(phone.isEmpty() ? null : phone);
+                        System.out.print("Address (street and number, leave blank if none): ");
+                        String address = in.nextLine().trim();
+                        u.setAddress(address.isEmpty() ? null : address);
                         System.out.print("Gender (MALE/FEMALE/OTHER) or empty: ");
                         String g = in.nextLine();
                         if (!g.isBlank()) {
                             try {
                                 u.setGender(Gender.valueOf(g.trim().toUpperCase()));
                             } catch (Exception ignore) {
+                                System.out.println("Warning: Unknown gender, ignoring input");
                             }
                         }
-                        System.out.print("Date of birth (YYYY-MM-DD): ");
+                        System.out.print("Date of birth (YYYY-MM-DD, must be 18+): ");
                         String dob = in.nextLine();
                         if (!dob.isBlank()) {
                             try {
                                 LocalDate dateOfBirth = LocalDate.parse(dob.trim());
-                                // Validate age requirement
                                 if (java.time.Period.between(dateOfBirth, LocalDate.now()).getYears() < 18) {
                                     System.out.println("Error: User must be at least 18 years old");
                                     continue;
@@ -172,7 +207,7 @@ public class Main {
                         }
 
                         // Note: Clinic associations are now handled via clinicIds in the DTO
-                        System.out.print("Add clinic ID (empty to skip): ");
+                        System.out.print("Add clinic ID (optional, press Enter to skip): ");
                         String clinicId = in.nextLine();
                         if (!clinicId.isBlank()) {
                             u.setClinicIds(java.util.Set.of(clinicId.trim()));
@@ -300,26 +335,46 @@ public class Main {
                 switch (c) {
                     case "1":
                         AddHealthWorkerDTO hw = new AddHealthWorkerDTO();
-                        System.out.print("First name: ");
+                        System.out.print("First name (e.g. Jane): ");
                         String hwFirstName = in.nextLine().trim();
                         if (hwFirstName.isEmpty()) {
                             System.out.println("Error: First name is required");
                             continue;
                         }
+                        if (hwFirstName.length() < 2) {
+                            System.out.println("Error: First name must contain at least 2 characters");
+                            continue;
+                        }
+                        if (!hwFirstName.matches("[A-Za-z'\\- ]+")) {
+                            System.out.println("Error: Only letters, spaces, apostrophes, and hyphens are allowed");
+                            continue;
+                        }
                         hw.setFirstName(hwFirstName);
 
-                        System.out.print("Last name: ");
+                        System.out.print("Last name (e.g. Doe): ");
                         String hwLastName = in.nextLine().trim();
                         if (hwLastName.isEmpty()) {
                             System.out.println("Error: Last name is required");
                             continue;
                         }
+                        if (hwLastName.length() < 2) {
+                            System.out.println("Error: Last name must contain at least 2 characters");
+                            continue;
+                        }
+                        if (!hwLastName.matches("[A-Za-z'\\- ]+")) {
+                            System.out.println("Error: Only letters, spaces, apostrophes, and hyphens are allowed");
+                            continue;
+                        }
                         hw.setLastName(hwLastName);
 
-                        System.out.print("DNI: ");
+                        System.out.print("DNI / Document (5-30 alphanumeric chars): ");
                         String dni = in.nextLine().trim();
                         if (dni.isEmpty()) {
                             System.out.println("Error: DNI is required");
+                            continue;
+                        }
+                        if (!dni.matches("[0-9A-Za-z]{5,30}")) {
+                            System.out.println("Error: Document must be 5-30 alphanumeric characters");
                             continue;
                         }
                         hw.setDocument(dni);
@@ -338,31 +393,51 @@ public class Main {
                             }
                         }
 
-                        System.out.print("Password: ");
+                        System.out.print("Password (min 8 chars, mix letters/numbers recommended): ");
                         String password = in.nextLine().trim();
                         if (password.isEmpty()) {
                             System.out.println("Error: Password is required");
                             continue;
                         }
+                        if (password.length() < 8) {
+                            System.out.println("Error: Password must be at least 8 characters");
+                            continue;
+                        }
                         hw.setPassword(password);
 
-                        System.out.print("Email: ");
-                        hw.setEmail(in.nextLine());
+                        System.out.print("Email (leave blank if none): ");
+                        String email = in.nextLine().trim();
+                        if (!email.isEmpty() && !email.matches("^[^@\n]+@[^@\n]+\\.[^@\n]+$")) {
+                            System.out.println("Error: Invalid email format");
+                            continue;
+                        }
+                        hw.setEmail(email.isEmpty() ? null : email);
 
-                        System.out.print("Phone: ");
-                        hw.setPhone(in.nextLine());
+                        System.out.print("Phone (e.g. +598123456, leave blank if none): ");
+                        String phone = in.nextLine().trim();
+                        if (!phone.isEmpty() && !phone.matches("[+0-9 ()-]{7,20}")) {
+                            System.out.println("Error: Invalid phone format");
+                            continue;
+                        }
+                        hw.setPhone(phone.isEmpty() ? null : phone);
 
-                        System.out.print("Address: ");
-                        hw.setAddress(in.nextLine());
+                        System.out.print("Address (street and number, leave blank if none): ");
+                        String address = in.nextLine().trim();
+                        hw.setAddress(address.isEmpty() ? null : address);
 
-                        System.out.print("Date of birth (YYYY-MM-DD): ");
+                        System.out.print("Date of birth (YYYY-MM-DD, must be 18+): ");
                         String dobStr = in.nextLine().trim();
                         if (dobStr.isEmpty()) {
                             System.out.println("Error: Date of birth is required");
                             continue;
                         }
                         try {
-                            hw.setDateOfBirth(java.time.LocalDate.parse(dobStr));
+                            LocalDate parsedDob = java.time.LocalDate.parse(dobStr);
+                            if (java.time.Period.between(parsedDob, LocalDate.now()).getYears() < 18) {
+                                System.out.println("Error: Health worker must be at least 18 years old");
+                                continue;
+                            }
+                            hw.setDateOfBirth(parsedDob);
                         } catch (Exception e) {
                             System.out.println("Error: Invalid date format. Please use YYYY-MM-DD");
                             continue;
@@ -374,17 +449,22 @@ public class Main {
                             try {
                                 hw.setGender(Gender.valueOf(g.trim().toUpperCase()));
                             } catch (Exception ignore) {
+                                System.out.println("Warning: Unknown gender, ignoring input");
                             }
                         }
-                        System.out.print("License number: ");
+                        System.out.print("License number (4-30 alphanumeric): ");
                         String licenseNumber = in.nextLine().trim();
                         if (licenseNumber.isEmpty()) {
                             System.out.println("Error: License number is required");
                             continue;
                         }
+                        if (!licenseNumber.matches("[0-9A-Za-z-]{4,30}")) {
+                            System.out.println("Error: License must be 4-30 letters, digits or hyphen");
+                            continue;
+                        }
                         hw.setLicenseNumber(licenseNumber);
 
-                        System.out.print("Add clinic ID (empty to skip): ");
+                        System.out.print("Add clinic ID (optional, press Enter to skip): ");
                         String clinicId = in.nextLine();
                         if (!clinicId.isBlank()) {
                             hw.setClinicIds(java.util.Set.of(clinicId.trim()));
@@ -508,29 +588,48 @@ public class Main {
                 switch (c) {
                     case "1":
                         AddClinicDTO hp = new AddClinicDTO();
-                        System.out.print("Name: ");
+                        System.out.print("Name (e.g. Central Hospital): ");
                         String hpName = in.nextLine().trim();
                         if (hpName.isEmpty()) {
                             System.out.println("Error: Name is required");
                             continue;
                         }
+                        if (hpName.length() < 3) {
+                            System.out.println("Error: Name must be at least 3 characters");
+                            continue;
+                        }
                         hp.setName(hpName);
 
-                        System.out.print("Address: ");
+                        System.out.print("Address (street and number): ");
                         String hpAddress = in.nextLine().trim();
                         if (hpAddress.isEmpty()) {
                             System.out.println("Error: Address is required");
                             continue;
                         }
                         hp.setAddress(hpAddress);
-                        System.out.print("Phone: ");
-                        hp.setPhone(in.nextLine());
-                        System.out.print("Email: ");
-                        hp.setEmail(in.nextLine());
-                        System.out.print("Domain: ");
-                        hp.setDomain(in.nextLine());
+                        System.out.print("Phone (e.g. +598123456, optional): ");
+                        String phone = in.nextLine().trim();
+                        if (!phone.isEmpty() && !phone.matches("[+0-9 ()-]{7,20}")) {
+                            System.out.println("Error: Invalid phone format");
+                            continue;
+                        }
+                        hp.setPhone(phone.isEmpty() ? null : phone);
+                        System.out.print("Email (optional): ");
+                        String email = in.nextLine().trim();
+                        if (!email.isEmpty() && !email.matches("^[^@\n]+@[^@\n]+\\.[^@\n]+$")) {
+                            System.out.println("Error: Invalid email format");
+                            continue;
+                        }
+                        hp.setEmail(email.isEmpty() ? null : email);
+                        System.out.print("Domain (optional, e.g. clinic.example.com): ");
+                        String domain = in.nextLine().trim();
+                        if (!domain.isEmpty() && !domain.matches("^(https?://)?[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                            System.out.println("Error: Invalid domain format");
+                            continue;
+                        }
+                        hp.setDomain(domain.isEmpty() ? null : domain);
                         System.out.print(
-                                "Clinic type (HOSPITAL/POLYCLINIC/PRIVATE_PRACTICE/LABORATORY/DIAGNOSTIC_CENTER/SPECIALTY_CLINIC/EMERGENCY_ROOM/REHABILITATION_CENTER/NURSING_HOME/PHARMACY): ");
+                                "Clinic type (HOSPITAL/POLYCLINIC/PRIVATE_PRACTICE/LABORATORY/DIAGNOSTIC_CENTER/SPECIALTY_CLINIC/EMERGENCY_ROOM/REHABILITATION_CENTER/NURSING_HOME/PHARMACY) [HOSPITAL]: ");
                         String typeStr = in.nextLine().trim().toUpperCase();
                         if (!typeStr.isEmpty()) {
                             try {
@@ -604,7 +703,7 @@ public class Main {
                         }
                         break;
                     case "4":
-                        System.out.print("Clinic ID: ");
+                        System.out.print("Clinic ID (copy from list): ");
                         String clinicId = in.nextLine().trim();
                         if (clinicId.isEmpty()) {
                             System.out.println("Error: Clinic ID is required");
@@ -666,23 +765,31 @@ public class Main {
                 switch (c) {
                     case "1":
                         AddClinicalDocumentDTO doc = new AddClinicalDocumentDTO();
-                        System.out.print("Title: ");
+                        System.out.print("Title (e.g. Annual Checkup Report): ");
                         String title = in.nextLine().trim();
                         if (title.isEmpty()) {
                             System.out.println("Error: Title is required");
                             continue;
                         }
+                        if (title.length() < 5) {
+                            System.out.println("Error: Title must be at least 5 characters");
+                            continue;
+                        }
                         doc.setTitle(title);
 
-                        System.out.print("Content URL (S3 URL): ");
+                        System.out.print("Content URL (https://...): ");
                         String contentUrl = in.nextLine().trim();
                         if (contentUrl.isEmpty()) {
                             System.out.println("Error: Content URL is required");
                             continue;
                         }
+                        if (!contentUrl.matches("^(https?://).+$")) {
+                            System.out.println("Error: Content URL must start with http:// or https://");
+                            continue;
+                        }
                         doc.setContentUrl(contentUrl);
 
-                        System.out.print("Patient ID: ");
+                        System.out.print("Patient ID (clinical history ID): ");
                         String userId = in.nextLine().trim();
                         if (userId.isEmpty()) {
                             System.out.println("Error: Patient ID is required");
@@ -778,7 +885,7 @@ public class Main {
                         }
                         break;
                     case "3":
-                        System.out.print("Search by title: ");
+                        System.out.print("Search (title fragment or patient ID): ");
                         String titleQuery = in.nextLine().trim();
                         if (titleQuery.isEmpty()) {
                             System.out.println("Error: Search query is required");

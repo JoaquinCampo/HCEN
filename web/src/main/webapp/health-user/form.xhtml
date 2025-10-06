@@ -2,6 +2,7 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
@@ -44,9 +45,24 @@
               id="document"
               value="#{healthUserBean.newUser.document}"
               required="true"
+              requiredMessage="Document number is required"
+              validatorMessage="Document must contain 5-30 letters or digits"
               styleClass="form-control"
+              p:placeholder="Enter national ID"
+              p:autocomplete="off"
+            >
+              <f:ajax
+                event="blur"
+                render="documentMessage"
+                execute="document"
+              />
+              <f:validateRegex pattern="^[0-9A-Za-z]{5,30}$" />
+            </h:inputText>
+            <h:message
+              id="documentMessage"
+              for="document"
+              styleClass="form-text text-danger"
             />
-            <h:message for="document" styleClass="form-text text-danger" />
           </div>
           <div class="col-md-6">
             <h:outputLabel
@@ -58,6 +74,7 @@
               id="documentType"
               value="#{healthUserBean.newUser.documentType}"
               required="true"
+              requiredMessage="Select a document type"
               styleClass="form-select"
             >
               <f:selectItem
@@ -71,8 +88,17 @@
                 itemValue="#{type}"
                 itemLabel="#{type}"
               />
+              <f:ajax
+                event="change"
+                render="documentTypeMessage"
+                execute="documentType"
+              />
             </h:selectOneMenu>
-            <h:message for="documentType" styleClass="form-text text-danger" />
+            <h:message
+              id="documentTypeMessage"
+              for="documentType"
+              styleClass="form-text text-danger"
+            />
           </div>
 
           <div class="col-sm-6">
@@ -85,9 +111,24 @@
               id="firstName"
               value="#{healthUserBean.newUser.firstName}"
               required="true"
+              requiredMessage="First name is required"
               styleClass="form-control"
+              p:placeholder="Enter given name"
+              p:autocomplete="given-name"
+              p:minlength="2"
+              p:maxlength="60"
+            >
+              <f:ajax
+                event="blur"
+                render="firstNameMessage"
+                execute="firstName"
+              />
+            </h:inputText>
+            <h:message
+              id="firstNameMessage"
+              for="firstName"
+              styleClass="form-text text-danger"
             />
-            <h:message for="firstName" styleClass="form-text text-danger" />
           </div>
           <div class="col-sm-6">
             <h:outputLabel
@@ -99,9 +140,24 @@
               id="lastName"
               value="#{healthUserBean.newUser.lastName}"
               required="true"
+              requiredMessage="Last name is required"
               styleClass="form-control"
+              p:placeholder="Enter family name"
+              p:autocomplete="family-name"
+              p:minlength="2"
+              p:maxlength="60"
+            >
+              <f:ajax
+                event="blur"
+                render="lastNameMessage"
+                execute="lastName"
+              />
+            </h:inputText>
+            <h:message
+              id="lastNameMessage"
+              for="lastName"
+              styleClass="form-text text-danger"
             />
-            <h:message for="lastName" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-sm-6">
@@ -114,12 +170,20 @@
               id="dob"
               value="#{healthUserBean.newUser.dateOfBirth}"
               required="true"
+              requiredMessage="Date of birth is required"
               styleClass="form-control"
-              placeholder="yyyy-MM-dd"
+              p:placeholder="YYYY-MM-DD"
+              p:type="date"
+              p:max="#{healthUserBean.maxAdultBirthDate}"
             >
               <f:convertDateTime type="localDate" pattern="yyyy-MM-dd" />
+              <f:ajax event="change" render="dobMessage" execute="dob" />
             </h:inputText>
-            <h:message for="dob" styleClass="form-text text-danger" />
+            <h:message
+              id="dobMessage"
+              for="dob"
+              styleClass="form-text text-danger"
+            />
           </div>
           <div class="col-sm-6">
             <h:outputLabel
@@ -131,6 +195,7 @@
               id="gender"
               value="#{healthUserBean.newUser.gender}"
               required="true"
+              requiredMessage="Select a gender"
               styleClass="form-select"
             >
               <f:selectItem
@@ -144,8 +209,13 @@
                 itemValue="#{gender}"
                 itemLabel="#{gender}"
               />
+              <f:ajax event="change" render="genderMessage" execute="gender" />
             </h:selectOneMenu>
-            <h:message for="gender" styleClass="form-text text-danger" />
+            <h:message
+              id="genderMessage"
+              for="gender"
+              styleClass="form-text text-danger"
+            />
           </div>
 
           <div class="col-sm-6">
@@ -154,6 +224,16 @@
               id="email"
               value="#{healthUserBean.newUser.email}"
               styleClass="form-control"
+              p:type="email"
+              p:placeholder="name@example.com"
+              p:autocomplete="email"
+            >
+              <f:ajax event="blur" render="emailMessage" execute="email" />
+            </h:inputText>
+            <h:message
+              id="emailMessage"
+              for="email"
+              styleClass="form-text text-danger"
             />
           </div>
           <div class="col-sm-6">
@@ -162,6 +242,17 @@
               id="phone"
               value="#{healthUserBean.newUser.phone}"
               styleClass="form-control"
+              p:type="tel"
+              p:inputmode="tel"
+              p:placeholder="e.g. +598123456"
+              p:pattern="^[+0-9 ()-]{7,20}$"
+            >
+              <f:ajax event="blur" render="phoneMessage" execute="phone" />
+            </h:inputText>
+            <h:message
+              id="phoneMessage"
+              for="phone"
+              styleClass="form-text text-danger"
             />
           </div>
 
@@ -175,6 +266,15 @@
               id="address"
               value="#{healthUserBean.newUser.address}"
               styleClass="form-control"
+              p:placeholder="Street, number, city"
+              p:autocomplete="street-address"
+            >
+              <f:ajax event="blur" render="addressMessage" execute="address" />
+            </h:inputText>
+            <h:message
+              id="addressMessage"
+              for="address"
+              styleClass="form-text text-danger"
             />
           </div>
 
@@ -188,10 +288,24 @@
               id="password"
               value="#{healthUserBean.newUser.password}"
               required="true"
+              requiredMessage="Password is required"
               redisplay="false"
               styleClass="form-control"
+              p:placeholder="Minimum 8 characters"
+              p:autocomplete="new-password"
+            >
+              <f:ajax
+                event="blur"
+                render="passwordMessage"
+                execute="password"
+              />
+              <f:validateLength minimum="8" />
+            </h:inputSecret>
+            <h:message
+              id="passwordMessage"
+              for="password"
+              styleClass="form-text text-danger"
             />
-            <h:message for="password" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-12 d-flex gap-2 mt-3">

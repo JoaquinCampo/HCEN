@@ -2,6 +2,7 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
@@ -40,9 +41,19 @@
               id="title"
               value="#{clinicalDocumentBean.newDocument.title}"
               required="true"
+              requiredMessage="Title is required"
               styleClass="form-control"
+              p:placeholder="Summarize the document"
+              p:minlength="5"
+              p:maxlength="140"
+            >
+              <f:ajax event="blur" render="titleMessage" execute="title" />
+            </h:inputText>
+            <h:message
+              id="titleMessage"
+              for="title"
+              styleClass="form-text text-danger"
             />
-            <h:message for="title" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-12">
@@ -55,10 +66,22 @@
               id="contentUrl"
               value="#{clinicalDocumentBean.newDocument.contentUrl}"
               required="true"
+              requiredMessage="Document URL is required"
               styleClass="form-control"
-              placeholder="https://s3.amazonaws.com/bucket/document.pdf"
+              p:placeholder="https://s3.amazonaws.com/bucket/document.pdf"
+            >
+              <f:validateRegex pattern="^(https?://).+$" />
+              <f:ajax
+                event="blur"
+                render="contentUrlMessage"
+                execute="contentUrl"
+              />
+            </h:inputText>
+            <h:message
+              id="contentUrlMessage"
+              for="contentUrl"
+              styleClass="form-text text-danger"
             />
-            <h:message for="contentUrl" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-12">
@@ -71,6 +94,7 @@
               id="patient"
               value="#{clinicalDocumentBean.selectedPatientId}"
               required="true"
+              requiredMessage="Select a patient"
               styleClass="form-select"
             >
               <f:selectItem
@@ -84,8 +108,17 @@
                 itemValue="#{patient.clinicalHistoryId}"
                 itemLabel="#{patient.lastName}, #{patient.firstName} (#{patient.document})"
               />
+              <f:ajax
+                event="change"
+                render="patientMessage"
+                execute="patient"
+              />
             </h:selectOneMenu>
-            <h:message for="patient" styleClass="form-text text-danger" />
+            <h:message
+              id="patientMessage"
+              for="patient"
+              styleClass="form-text text-danger"
+            />
           </div>
 
           <div class="col-12">
@@ -98,6 +131,7 @@
               id="healthWorkers"
               value="#{clinicalDocumentBean.selectedHealthWorkerIds}"
               required="true"
+              requiredMessage="Select at least one health worker"
               styleClass="form-select"
               size="5"
             >
@@ -107,8 +141,17 @@
                 itemValue="#{worker.id}"
                 itemLabel="#{worker.lastName}, #{worker.firstName} (#{worker.licenseNumber})"
               />
+              <f:ajax
+                event="change"
+                render="healthWorkersMessage"
+                execute="healthWorkers"
+              />
             </h:selectManyListbox>
-            <h:message for="healthWorkers" styleClass="form-text text-danger" />
+            <h:message
+              id="healthWorkersMessage"
+              for="healthWorkers"
+              styleClass="form-text text-danger"
+            />
             <small class="form-text text-muted"
               >Hold Ctrl (Cmd on Mac) to select multiple health workers.</small
             >
