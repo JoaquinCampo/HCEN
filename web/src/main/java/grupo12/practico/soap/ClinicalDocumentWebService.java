@@ -3,6 +3,7 @@ package grupo12.practico.soap;
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import jakarta.ejb.EJB;
+import grupo12.practico.messaging.ClinicalDocument.ClinicalDocumentRegistrationProducerLocal;
 import jakarta.jws.WebService;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebParam;
@@ -14,6 +15,9 @@ public class ClinicalDocumentWebService {
 
     @EJB
     private grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal clinicalDocumentService;
+
+    @EJB
+    private ClinicalDocumentRegistrationProducerLocal clinicalDocumentRegistrationProducer;
 
     @WebMethod(operationName = "findAll")
     public List<ClinicalDocumentDTO> findAll() {
@@ -31,8 +35,9 @@ public class ClinicalDocumentWebService {
     }
 
     @WebMethod(operationName = "add")
-    public ClinicalDocumentDTO add(
+    public String add(
             @WebParam(name = "clinicalDocumentData") AddClinicalDocumentDTO clinicalDocumentData) {
-        return clinicalDocumentService.add(clinicalDocumentData);
+        clinicalDocumentRegistrationProducer.enqueue(clinicalDocumentData);
+        return "Clinical document creation request queued successfully with title: " + clinicalDocumentData.getTitle();
     }
 }

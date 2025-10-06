@@ -5,6 +5,7 @@ import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
+import grupo12.practico.messaging.ClinicalDocument.ClinicalDocumentRegistrationProducerLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import jakarta.annotation.PostConstruct;
@@ -25,6 +26,8 @@ public class ClinicalDocumentBean implements Serializable {
 
     @EJB
     private ClinicalDocumentServiceLocal docService;
+    @EJB
+    private ClinicalDocumentRegistrationProducerLocal registrationProducer;
     @EJB
     private HealthUserServiceLocal userService;
     @EJB
@@ -78,9 +81,10 @@ public class ClinicalDocumentBean implements Serializable {
             newDocument.setClinicalHistoryId(selectedPatientId);
             newDocument.setHealthWorkerIds(java.util.Set.of(selectedHealthWorkerIds));
 
-            docService.add(newDocument);
+            registrationProducer.enqueue(newDocument);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Clinical document created", null));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Request accepted; the clinical document will be created shortly", null));
 
             newDocument = new AddClinicalDocumentDTO();
             selectedPatientId = null;

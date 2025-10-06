@@ -645,6 +645,8 @@ public class Main {
     private static void documentsMenu(Scanner in, ServiceLocator locator) {
         try {
             ClinicalDocumentServiceRemote docService = locator.clinicalDocumentService();
+            grupo12.practico.messaging.ClinicalDocument.ClinicalDocumentRegistrationProducerRemote registrationProducer = locator
+                    .clinicalDocumentRegistrationProducer();
             HealthUserServiceRemote userService = locator.userService();
             HealthWorkerServiceRemote hwService = locator.healthWorkerService();
             while (true) {
@@ -735,8 +737,9 @@ public class Main {
                         }
 
                         try {
-                            ClinicalDocumentDTO addedDoc = docService.add(doc);
-                            System.out.println("Clinical document added successfully with ID: " + addedDoc.getId());
+                            registrationProducer.enqueue(doc);
+                            System.out.println(
+                                    "Request accepted; the clinical document will be created asynchronously.");
                         } catch (Exception ex) {
                             System.out.println("Failed to add clinical document: " + ex.getMessage());
                             System.out.println("Please check your input and try again.");
