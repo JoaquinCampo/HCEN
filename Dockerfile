@@ -21,9 +21,9 @@ COPY . .
 RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -DskipTests clean package
 
 ## ------------------------------------------------------------
-## Runtime stage: WildFly 37 (JDK 21)
+## Runtime stage: WildFly 31 (JDK 17)
 ## ------------------------------------------------------------
-FROM quay.io/wildfly/wildfly:37.0.1.Final-jdk21 AS runtime
+FROM quay.io/wildfly/wildfly:31.0.1.Final-jdk17 AS runtime
 
 USER root
 
