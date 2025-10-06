@@ -36,3 +36,14 @@ variable "wf_admin_password" {
   type      = string
   sensitive = true
 }
+
+variable "app_user" {
+  type    = string
+  default = "admin"
+}
+
+variable "app_password" {
+  type      = string
+  default = "admin"
+  sensitive = true
+}

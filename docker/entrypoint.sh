@@ -9,7 +9,9 @@
 #   DB_USER (required)                      - PostgreSQL username
 #   DB_PASSWORD (required)                  - PostgreSQL password
 #   WF_ADMIN_USER (default admin)           - WildFly management user used by the CLI
-#   WF_ADMIN_PASSWORD (required)               - WildFly management password
+#   WF_ADMIN_PASSWORD (required)            - WildFly management password
+#   APP_USER (default admin)                - Application user for HTTP Basic Auth
+#   APP_PASSWORD (default admin)            - Application password for HTTP Basic Auth
 #   WILDFLY_CONFIG (default standalone-full.xml) - Server configuration file
 #   JPA_DDL / SEED - forwarded to the application as-is (no special handling here)
 
@@ -23,6 +25,8 @@ DB_USER=${DB_USER:?DB_USER is required}
 DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
 WF_ADMIN_USER=${WF_ADMIN_USER:-admin}
 WF_ADMIN_PASSWORD=${WF_ADMIN_PASSWORD:?WF_ADMIN_PASSWORD is required}
+APP_USER=${APP_USER:-admin}
+APP_PASSWORD=${APP_PASSWORD:-admin}
 WILDFLY_CONFIG=${WILDFLY_CONFIG:-standalone-full.xml}
 
 MGMT_USERS_FILE="$JBOSS_HOME/standalone/configuration/mgmt-users.properties"
@@ -33,6 +37,16 @@ ensure_mgmt_user() {
   fi
   echo "Creating WildFly management user '${WF_ADMIN_USER}'"
   "$JBOSS_HOME/bin/add-user.sh" --silent --user "$WF_ADMIN_USER" --password "$WF_ADMIN_PASSWORD"
+}
+
+ensure_app_user() {
+  local APP_USERS_FILE="$JBOSS_HOME/standalone/configuration/application-users.properties"
+  
+  if [[ -f "$APP_USERS_FILE" ]] && grep -q "^${APP_USER}=" "$APP_USERS_FILE"; then
+    return
+  fi
+  echo "Creating application user '${APP_USER}' with role 'admin'"
+  "$JBOSS_HOME/bin/add-user.sh" --silent -a --user "$APP_USER" --password "$APP_PASSWORD" --group admin
 }
 
 start_server() {
@@ -80,6 +94,7 @@ shutdown_server() {
 trap shutdown_server INT TERM
 
 ensure_mgmt_user
+ensure_app_user
 start_server "$@"
 wait_for_management
 configure_datasource

@@ -32,6 +32,8 @@ services:
       DB_PORT: "5432"
       DB_NAME: practico_db
       DB_JNDI: java:/PostgresDS
+      APP_USER: admin
+      APP_PASSWORD: admin
       JPA_DDL: drop-and-create
       SEED: "false"
     restart: unless-stopped

@@ -56,6 +56,8 @@ JPA_DDL=drop-and-create
 SEED=true
 WF_ADMIN_USER="${wf_admin_user}"
 WF_ADMIN_PASSWORD="${wf_admin_password}"
+APP_USER="${app_user}"
+APP_PASSWORD="${app_password}"
 ENV
 
 # Create auto-update script that pulls latest image from ECR

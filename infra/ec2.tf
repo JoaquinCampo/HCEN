@@ -42,6 +42,8 @@ resource "aws_instance" "app" {
     db_password       = var.db_password
     wf_admin_user     = var.wf_admin_user
     wf_admin_password = var.wf_admin_password
+    app_user          = var.app_user
+    app_password      = var.app_password
   })
 
   tags = { Name = "${var.project_name}-ec2" }
