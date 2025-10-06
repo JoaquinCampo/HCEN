@@ -3,7 +3,7 @@
 ## ------------------------------------------------------------
 ## Build stage: compile the multi-module Maven project (EAR)
 ## ------------------------------------------------------------
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /workspace
 
 # Copy POMs first to leverage layer caching of dependencies
@@ -71,6 +71,8 @@ ENV DB_JNDI=java:/PostgresDS \
     DB_PASSWORD= \
     WF_ADMIN_USER=admin \
     WF_ADMIN_PASSWORD= \
+    APP_USER=admin \
+    APP_PASSWORD=admin \
     WILDFLY_CONFIG=standalone-full.xml
 
 # Health check against the application HTTP endpoint
