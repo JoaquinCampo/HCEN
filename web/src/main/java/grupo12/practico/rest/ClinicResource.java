@@ -2,13 +2,13 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.messaging.Clinic.ClinicRegistrationProducerLocal;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.net.URI;
 import java.util.List;
 
 @Path("/clinics")
@@ -18,6 +18,9 @@ public class ClinicResource {
 
     @EJB
     private ClinicServiceLocal clinicService;
+
+    @EJB
+    private ClinicRegistrationProducerLocal registrationProducer;
 
     @GET
     public List<ClinicDTO> findAll() {
@@ -44,8 +47,17 @@ public class ClinicResource {
 
     @POST
     public Response add(AddClinicDTO addClinicDTO) {
-        ClinicDTO created = clinicService.addClinic(addClinicDTO);
-        URI location = URI.create("/clinics/" + created.getId());
-        return Response.created(location).entity(created).build();
+        try {
+            registrationProducer.enqueue(addClinicDTO);
+            return Response.accepted()
+                    .entity("{\"message\":\"Clinic registration request accepted; the clinic will be created shortly\"}")
+                    .build();
+        } catch (Exception ex) {
+            String message = ex.getMessage() != null ? ex.getMessage()
+                    : "Failed to enqueue clinic registration request";
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"" + message + "\"}")
+                    .build();
+        }
     }
 }

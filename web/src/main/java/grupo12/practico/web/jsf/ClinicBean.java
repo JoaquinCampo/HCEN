@@ -2,6 +2,7 @@ package grupo12.practico.web.jsf;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.messaging.Clinic.ClinicRegistrationProducerLocal;
 import grupo12.practico.models.ClinicType;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import jakarta.annotation.PostConstruct;
@@ -10,6 +11,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.validation.ValidationException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,6 +24,9 @@ public class ClinicBean implements Serializable {
 
     @EJB
     private ClinicServiceLocal service;
+
+    @EJB
+    private ClinicRegistrationProducerLocal registrationProducer;
 
     private List<ClinicDTO> providers;
     private AddClinicDTO newProvider;
@@ -48,14 +53,21 @@ public class ClinicBean implements Serializable {
 
     public String save() {
         try {
-            service.addClinic(newProvider);
+            registrationProducer.enqueue(newProvider);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Clinic created", null));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Request accepted; the clinic will be created shortly", null));
             newProvider = new AddClinicDTO();
             return "list?faces-redirect=true";
-        } catch (RuntimeException ex) {
+        } catch (ValidationException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, ex.getMessage(), null));
+            return null;
+        } catch (RuntimeException ex) {
+            String message = ex.getMessage() != null ? ex.getMessage()
+                    : "Unexpected error while queueing the clinic creation request";
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
             return null;
         }
     }
