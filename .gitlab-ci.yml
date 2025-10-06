@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  AWS_REGION: "sa-east-1"
+  AWS_REGION: "us-east-1"
   ECR_REPOSITORY: "tse-lab-app"
 
 build-image:
@@ -11,6 +11,9 @@ build-image:
   image:
     name: gcr.io/kaniko-project/executor:v1.23.2-debug
     entrypoint: [""]
+  variables:
+    AWS_REGION: "us-east-1"
+    AWS_DEFAULT_REGION: "us-east-1"
   before_script:
     - mkdir -p /kaniko/.docker
     - |
@@ -24,13 +27,17 @@ build-image:
         --destination "${IMAGE_URI}:${CI_COMMIT_SHA}" \
         --destination "${IMAGE_URI}:latest" \
         --cache=true \
-        --cache-repo="${IMAGE_URI}/cache"
+        --cache-repo="${IMAGE_URI}/cache" \
+        --custom-platform=linux/amd64
   only:
     - main
 
 deploy:
   stage: deploy
   image: alpine:3.19
+  variables:
+    AWS_REGION: "us-east-1"
+    AWS_DEFAULT_REGION: "us-east-1"
   before_script:
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
@@ -39,11 +46,12 @@ deploy:
     - ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
   script:
     - |
-      ssh ubuntu@"$EC2_HOST" <<'EOF'
+      ssh ec2-user@"$EC2_HOST" <<'EOF'
       set -e
       cd /opt/practico
-      sudo docker compose pull
-      sudo docker compose up -d
+      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $CI_AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+      docker-compose pull
+      docker-compose up -d
       EOF
   needs:
     - build-image
