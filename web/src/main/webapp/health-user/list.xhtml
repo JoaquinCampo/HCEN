@@ -2,6 +2,7 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
@@ -32,7 +33,8 @@
               id="searchQuery"
               value="#{healthUserBean.searchQuery}"
               styleClass="form-control"
-              placeholder="e.g. Jane Doe"
+              p:placeholder="e.g. Jane Doe"
+              p:autocomplete="name"
             >
               <f:ajax
                 event="keyup"
@@ -95,6 +97,21 @@
             <h:column>
               <f:facet name="header">Created</f:facet>
               <span class="text-muted">#{u.createdAt}</span>
+            </h:column>
+            <h:column>
+              <f:facet name="header">Clinics</f:facet>
+              <h:panelGroup rendered="#{not empty u.clinicIds}">
+                <ui:repeat value="#{u.clinicIds}" var="clinicId">
+                  <span class="badge bg-light text-dark border me-1 mb-1"
+                    >#{healthUserBean.clinicName(clinicId)}</span
+                  >
+                </ui:repeat>
+              </h:panelGroup>
+              <h:panelGroup
+                rendered="#{empty u.clinicIds}"
+                styleClass="text-muted"
+                >—</h:panelGroup
+              >
             </h:column>
           </h:dataTable>
 

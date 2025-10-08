@@ -27,7 +27,8 @@ public final class HealthUserRegistrationMessaging {
             "phone",
             "address",
             "dateOfBirth",
-            "password"
+            "password",
+            "clinicIds"
     };
 
     /**

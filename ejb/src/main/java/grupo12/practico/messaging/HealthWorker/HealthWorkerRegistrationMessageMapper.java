@@ -1,7 +1,11 @@
 package grupo12.practico.messaging.HealthWorker;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
 import grupo12.practico.models.DocumentType;
@@ -29,7 +33,8 @@ public final class HealthWorkerRegistrationMessageMapper {
                 optionalNoPipe(dto.getAddress()),
                 toDateString(dto.getDateOfBirth()),
                 requireNoPipe(dto.getPassword(), "password"),
-                requireNoPipe(dto.getLicenseNumber(), "licenseNumber")
+                requireNoPipe(dto.getLicenseNumber(), "licenseNumber"),
+                setToString(dto.getClinicIds())
         };
 
         return String.join(HealthWorkerRegistrationMessaging.FIELD_SEPARATOR, fields);
@@ -57,6 +62,7 @@ public final class HealthWorkerRegistrationMessageMapper {
         dto.setDateOfBirth(parseDate(tokens[8]));
         dto.setPassword(requireNotBlank(tokens[9], "password"));
         dto.setLicenseNumber(requireNotBlank(tokens[10], "licenseNumber"));
+        dto.setClinicIds(parseStringSet(tokens[11]));
         return dto;
     }
 
@@ -137,5 +143,31 @@ public final class HealthWorkerRegistrationMessageMapper {
         } catch (Exception ex) {
             throw new ValidationException("Invalid gender: " + value);
         }
+    }
+
+    private static String setToString(Set<String> set) {
+        if (set == null || set.isEmpty()) {
+            return "";
+        }
+        return set.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.joining(","));
+    }
+
+    private static Set<String> parseStringSet(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return Collections.emptySet();
+        }
+        String[] items = token.split(",");
+        Set<String> result = new HashSet<>();
+        for (String item : items) {
+            String trimmed = item.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+        return result;
     }
 }

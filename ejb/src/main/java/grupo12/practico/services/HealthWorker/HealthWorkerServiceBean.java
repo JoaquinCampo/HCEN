@@ -1,17 +1,22 @@
 package grupo12.practico.services.HealthWorker;
 
-import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import grupo12.practico.models.Clinic;
 import grupo12.practico.models.HealthWorker;
+import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
+import grupo12.practico.services.PasswordUtil;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -23,17 +28,12 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
     private HealthWorkerRepositoryLocal repository;
 
     @EJB
-    private ClinicServiceLocal clinicService;
+    private ClinicRepositoryLocal clinicRepository;
 
     @Override
     public HealthWorkerDTO add(AddHealthWorkerDTO addHealthWorkerDTO) {
         validateHealthWorker(addHealthWorkerDTO);
-        HealthWorker healthWorker = new HealthWorker();
-        healthWorker.setFirstName(addHealthWorkerDTO.getFirstName());
-        healthWorker.setLastName(addHealthWorkerDTO.getLastName());
-        healthWorker.setDocument(addHealthWorkerDTO.getDocument());
-        healthWorker.setDocumentType(addHealthWorkerDTO.getDocumentType());
-        healthWorker.setLicenseNumber(addHealthWorkerDTO.getLicenseNumber());
+        HealthWorker healthWorker = createHealthWorkerFromDTO(addHealthWorkerDTO);
         return repository.add(healthWorker).toDto();
     }
 
@@ -72,6 +72,45 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
         if (isBlank(addHealthWorkerDTO.getLicenseNumber())) {
             throw new ValidationException("License number is required");
         }
+        if (isBlank(addHealthWorkerDTO.getPassword())) {
+            throw new ValidationException("HealthWorker password is required");
+        }
+    }
+
+    private HealthWorker createHealthWorkerFromDTO(AddHealthWorkerDTO dto) {
+        HealthWorker worker = new HealthWorker();
+
+        worker.setDocument(dto.getDocument());
+        worker.setDocumentType(dto.getDocumentType());
+        worker.setFirstName(dto.getFirstName());
+        worker.setLastName(dto.getLastName());
+        worker.setGender(dto.getGender());
+        worker.setEmail(dto.getEmail());
+        worker.setPhone(dto.getPhone());
+        worker.setImageUrl(dto.getImageUrl());
+        worker.setAddress(dto.getAddress());
+        worker.setDateOfBirth(dto.getDateOfBirth());
+        worker.setLicenseNumber(dto.getLicenseNumber());
+
+        String salt = PasswordUtil.generateSalt();
+        String hashedPassword = PasswordUtil.hashPassword(dto.getPassword(), salt);
+
+        worker.setPasswordSalt(salt);
+        worker.setPasswordHash(hashedPassword);
+        worker.setPasswordUpdatedAt(LocalDate.now());
+
+        if (dto.getClinicIds() != null && !dto.getClinicIds().isEmpty()) {
+            Set<Clinic> clinics = new HashSet<>();
+            for (String clinicId : dto.getClinicIds()) {
+                Clinic clinic = clinicRepository.findById(clinicId);
+                if (clinic != null) {
+                    clinics.add(clinic);
+                }
+            }
+            worker.setClinics(clinics);
+        }
+
+        return worker;
     }
 
     private boolean isBlank(String value) {

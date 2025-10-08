@@ -18,7 +18,8 @@ public final class HealthWorkerRegistrationMessaging {
             "address",
             "dateOfBirth",
             "password",
-            "licenseNumber"
+            "licenseNumber",
+            "clinicIds"
     };
 
     public static final String FIELD_SEPARATOR = "|";

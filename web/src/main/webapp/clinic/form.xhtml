@@ -2,6 +2,7 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
@@ -42,9 +43,19 @@
               id="name"
               value="#{clinicBean.newProvider.name}"
               required="true"
+              requiredMessage="Clinic name is required"
               styleClass="form-control"
+              p:placeholder="Enter clinic name"
+              p:autocomplete="organization"
+            >
+              <f:ajax event="blur" render="nameMessage" execute="name" />
+              <f:validateLength minimum="3" maximum="120" />
+            </h:inputText>
+            <h:message
+              id="nameMessage"
+              for="name"
+              styleClass="form-text text-danger"
             />
-            <h:message for="name" styleClass="form-text text-danger" />
           </div>
           <div class="col-sm-4">
             <h:outputLabel
@@ -56,6 +67,7 @@
               id="type"
               value="#{clinicBean.newProvider.type}"
               required="true"
+              requiredMessage="Select a clinic type"
               styleClass="form-select"
             >
               <f:selectItem
@@ -69,8 +81,13 @@
                 itemValue="#{type}"
                 itemLabel="#{type}"
               />
+              <f:ajax event="change" render="typeMessage" execute="type" />
             </h:selectOneMenu>
-            <h:message for="type" styleClass="form-text text-danger" />
+            <h:message
+              id="typeMessage"
+              for="type"
+              styleClass="form-text text-danger"
+            />
           </div>
 
           <div class="col-12">
@@ -83,9 +100,18 @@
               id="address"
               value="#{clinicBean.newProvider.address}"
               required="true"
+              requiredMessage="Address is required"
               styleClass="form-control"
+              p:placeholder="Street, number, city"
+              p:autocomplete="street-address"
+            >
+              <f:ajax event="blur" render="addressMessage" execute="address" />
+            </h:inputText>
+            <h:message
+              id="addressMessage"
+              for="address"
+              styleClass="form-text text-danger"
             />
-            <h:message for="address" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-md-6">
@@ -94,6 +120,17 @@
               id="phone"
               value="#{clinicBean.newProvider.phone}"
               styleClass="form-control"
+              p:type="tel"
+              p:inputmode="tel"
+              p:placeholder="e.g. +598123456"
+              p:pattern="^[+0-9 ()-]{7,20}$"
+            >
+              <f:ajax event="blur" render="phoneMessage" execute="phone" />
+            </h:inputText>
+            <h:message
+              id="phoneMessage"
+              for="phone"
+              styleClass="form-text text-danger"
             />
           </div>
           <div class="col-md-6">
@@ -102,6 +139,16 @@
               id="email"
               value="#{clinicBean.newProvider.email}"
               styleClass="form-control"
+              p:type="email"
+              p:placeholder="contact@example.com"
+              p:autocomplete="email"
+            >
+              <f:ajax event="blur" render="emailMessage" execute="email" />
+            </h:inputText>
+            <h:message
+              id="emailMessage"
+              for="email"
+              styleClass="form-text text-danger"
             />
           </div>
 
@@ -115,8 +162,18 @@
               id="domain"
               value="#{clinicBean.newProvider.domain}"
               styleClass="form-control"
+              p:placeholder="https://clinic.example.com"
+            >
+              <f:ajax event="blur" render="domainMessage" execute="domain" />
+              <f:validateRegex
+                pattern="^(https?://)?[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+              />
+            </h:inputText>
+            <h:message
+              id="domainMessage"
+              for="domain"
+              styleClass="form-text text-danger"
             />
-            <h:message for="domain" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-12 d-flex gap-2 mt-3">
