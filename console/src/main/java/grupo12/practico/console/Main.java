@@ -9,6 +9,7 @@ import javax.naming.Context;
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
@@ -624,20 +625,49 @@ public class Main {
                             continue;
                         }
                         hp.setAddress(hpAddress);
-                        System.out.print("Phone (e.g. +598123456, optional): ");
+                        System.out.print("Phone (e.g. +598123456): ");
                         String phone = in.nextLine().trim();
-                        if (!phone.isEmpty() && !phone.matches("[+0-9 ()-]{7,20}")) {
+                        if (phone.isEmpty()) {
+                            System.out.println("Error: Phone is required");
+                            continue;
+                        }
+                        if (!phone.matches("[+0-9 ()-]{7,20}")) {
                             System.out.println("Error: Invalid phone format");
                             continue;
                         }
-                        hp.setPhone(phone.isEmpty() ? null : phone);
-                        System.out.print("Email (optional): ");
+                        hp.setPhone(phone);
+                        System.out.print("Email: ");
                         String email = in.nextLine().trim();
-                        if (!email.isEmpty() && !email.matches("^[^@\n]+@[^@\n]+\\.[^@\n]+$")) {
+                        if (email.isEmpty() || !email.matches("^[^@\\n]+@[^@\\n]+\\.[^@\\n]+$")) {
                             System.out.println("Error: Invalid email format");
                             continue;
                         }
-                        hp.setEmail(email.isEmpty() ? null : email);
+                        hp.setEmail(email);
+
+                        ClinicAdminInfoDTO admin = hp.getClinicAdmin();
+                        System.out.print("Clinic admin name: ");
+                        String adminName = in.nextLine().trim();
+                        if (adminName.isEmpty()) {
+                            System.out.println("Error: Clinic admin name is required");
+                            continue;
+                        }
+                        admin.setName(adminName);
+
+                        System.out.print("Clinic admin email: ");
+                        String adminEmail = in.nextLine().trim();
+                        if (adminEmail.isEmpty() || !adminEmail.matches("^[^@\\n]+@[^@\\n]+\\.[^@\\n]+$")) {
+                            System.out.println("Error: Valid clinic admin email is required");
+                            continue;
+                        }
+                        admin.setEmail(adminEmail);
+
+                        System.out.print("Clinic admin phone (optional): ");
+                        String adminPhone = in.nextLine().trim();
+                        if (!adminPhone.isEmpty() && !adminPhone.matches("[+0-9 ()-]{7,20}")) {
+                            System.out.println("Error: Invalid clinic admin phone format");
+                            continue;
+                        }
+                        admin.setPhone(adminPhone.isEmpty() ? null : adminPhone);
 
                         try {
                             registrationProducer.enqueue(hp);

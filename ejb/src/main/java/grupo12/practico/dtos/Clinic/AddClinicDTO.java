@@ -5,6 +5,7 @@ public class AddClinicDTO {
     private String email;
     private String phone;
     private String address;
+    private ClinicAdminInfoDTO clinicAdmin = new ClinicAdminInfoDTO();
 
     public String getName() {
         return name;
@@ -36,5 +37,13 @@ public class AddClinicDTO {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public ClinicAdminInfoDTO getClinicAdmin() {
+        return clinicAdmin;
+    }
+
+    public void setClinicAdmin(ClinicAdminInfoDTO clinicAdmin) {
+        this.clinicAdmin = clinicAdmin != null ? clinicAdmin : new ClinicAdminInfoDTO();
     }
 }

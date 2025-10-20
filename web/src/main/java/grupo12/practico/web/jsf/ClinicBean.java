@@ -1,9 +1,9 @@
 package grupo12.practico.web.jsf;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.messaging.Clinic.ClinicRegistrationProducerLocal;
-import grupo12.practico.models.ClinicType;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -35,6 +35,7 @@ public class ClinicBean implements Serializable {
     @PostConstruct
     public void init() {
         newProvider = new AddClinicDTO();
+        newProvider.setClinicAdmin(new ClinicAdminInfoDTO());
         providers = new ArrayList<>();
         loadAll();
     }
@@ -58,6 +59,7 @@ public class ClinicBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Request accepted; the clinic will be created shortly", null));
             newProvider = new AddClinicDTO();
+            newProvider.setClinicAdmin(new ClinicAdminInfoDTO());
             return "list?faces-redirect=true";
         } catch (ValidationException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -82,6 +84,9 @@ public class ClinicBean implements Serializable {
 
     public void setNewProvider(AddClinicDTO hp) {
         this.newProvider = hp;
+        if (this.newProvider != null && this.newProvider.getClinicAdmin() == null) {
+            this.newProvider.setClinicAdmin(new ClinicAdminInfoDTO());
+        }
     }
 
     public String getSearchQuery() {
@@ -90,9 +95,5 @@ public class ClinicBean implements Serializable {
 
     public void setSearchQuery(String q) {
         this.searchQuery = q;
-    }
-
-    public ClinicType[] getClinicTypes() {
-        return ClinicType.values();
     }
 }
