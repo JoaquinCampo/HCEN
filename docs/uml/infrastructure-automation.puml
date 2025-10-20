@@ -1,0 +1,60 @@
+@startuml InfrastructureAutomation
+skinparam backgroundColor #ffffff
+skinparam activity {
+  ArrowColor #4b5d7a
+  FontName Helvetica
+  FontSize 12
+  StartColor #4b5d7a
+  EndColor #4b5d7a
+  BarColor #4b5d7a
+}
+skinparam wrapWidth 220
+skinparam maxMessageSize 280
+
+start
+
+partition "Infra Engineer" {
+  :Execute `terraform init`;
+  :Run `terraform plan` / `apply` in `infra/`;
+}
+
+partition "Terraform" {
+  :Load `providers.tf`, `variables.tf`, tfvars;
+  :Provision VPC, subnets, security groups (`vpc.tf`);
+  :Create Amazon ECR repo (`ecr.tf`);
+  :Launch Amazon Linux EC2 with user data (`ec2.tf`);
+}
+
+partition "AWS" {
+  :Resources created / updated;
+}
+
+partition "EC2 Bootstrap" {
+  :Cloud-init runs `user-data.sh.tpl` script;
+  :Install Docker & Docker Compose;
+  :Create `/opt/practico/docker-compose.yml` referencing `${app_image_uri}`;
+  :Generate `.env` secrets and cron-enabled `update.sh` script;
+  :Register cron job every 5 minutes;
+}
+
+partition "Continuous Refresh" {
+  :Cron executes `/opt/practico/update.sh`;
+  :Authenticate to Amazon ECR;
+  :`docker-compose pull app` to fetch latest tag;
+  if (Image changed?) then (yes)
+    :`docker-compose up -d app` rolls container;
+    :`docker image prune -f` cleans cache;
+  else (no)
+    :Log "Already up to date";
+  endif
+}
+
+partition "Container Startup" {
+  :WildFly launches via `docker/entrypoint.sh`;
+  :`configure-datasource.cli` wires datasources & JMS;
+  :Application modules (`practico-web`, `practico-ejb`) start;
+}
+
+stop
+
+@enduml

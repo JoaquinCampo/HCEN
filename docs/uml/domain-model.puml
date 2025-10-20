@@ -1,0 +1,116 @@
+@startuml DomainModel
+skinparam classAttributeIconSize 0
+skinparam wrapWidth 250
+skinparam maxMessageSize 200
+hide circle
+
+abstract class User {
+  id: String
+  document: String
+  documentType: DocumentType
+  firstName: String
+  lastName: String
+  gender: Gender
+  email: String
+  phone: String
+  dateOfBirth: LocalDate
+  passwordHash: String
+  passwordSalt: String
+  address: String
+  imageUrl: String
+  createdAt: LocalDate
+  updatedAt: LocalDate
+}
+
+class HealthUser {
+  clinics: Set<Clinic>
+  clinicalDocuments: Set<ClinicalDocument>
+}
+
+class HealthWorker {
+  licenseNumber: String
+  bloodType: String
+  clinics: Set<Clinic>
+  specialties: Set<Specialty>
+  clinicalDocuments: Set<ClinicalDocument>
+}
+
+class ClinicAdmin {
+  clinics: Set<Clinic>
+}
+
+class HcenAdmin
+
+class Clinic {
+  id: String
+  name: String
+  email: String
+  phone: String
+  address: String
+  domain: String
+  type: String <<ClinicType>>
+  createdAt: LocalDate
+  updatedAt: LocalDate
+  healthUsers: Set<HealthUser>
+  healthWorkers: Set<HealthWorker>
+  clinicAdmins: Set<ClinicAdmin>
+}
+
+class ClinicalDocument {
+  id: String
+  title: String
+  contentUrl: String
+  issuedAt: LocalDate
+  createdAt: LocalDate
+  updatedAt: LocalDate
+}
+
+class Specialty {
+  id: String
+  name: String
+  createdAt: LocalDate
+  updatedAt: LocalDate
+}
+
+enum DocumentType {
+  ID
+  PASSPORT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ClinicType {
+  HOSPITAL
+  POLYCLINIC
+  PRIVATE_PRACTICE
+  LABORATORY
+  DIAGNOSTIC_CENTER
+  SPECIALTY_CLINIC
+  EMERGENCY_ROOM
+  REHABILITATION_CENTER
+  NURSING_HOME
+  PHARMACY
+}
+
+User <|-- HealthUser
+User <|-- HealthWorker
+User <|-- ClinicAdmin
+User <|-- HcenAdmin
+
+HealthUser "1" -- "0..*" ClinicalDocument : owns
+
+HealthUser "0..*" -- "0..*" Clinic : registered at
+HealthWorker "0..*" -- "0..*" Clinic : assigned to
+ClinicAdmin "0..*" -- "0..*" Clinic : manages
+
+ClinicalDocument "0..*" -- "0..*" HealthWorker : authored by
+HealthWorker "0..*" -- "0..*" Specialty : has
+
+User --> DocumentType : documentType
+User --> Gender : gender
+
+@enduml

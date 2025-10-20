@@ -2,6 +2,8 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
+import grupo12.practico.dtos.AccessRequest.GrantAccessDecisionDTO;
+import grupo12.practico.dtos.AccessRequest.GrantAccessResultDTO;
 import grupo12.practico.services.AccessRequest.AccessRequestServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.Consumes;
@@ -37,5 +39,29 @@ public class AccessRequestResource {
                     .build();
         }
         return Response.ok(accessRequest).build();
+    }
+
+    @POST
+    @Path("/{id}/grant-by-health-worker")
+    public Response grantByHealthWorker(@PathParam("id") String accessRequestId, GrantAccessDecisionDTO dto) {
+        GrantAccessResultDTO result = accessRequestService.grantAccessByHealthWorker(accessRequestId, dto);
+        Response.Status status = result.isAccepted() ? Response.Status.CREATED : Response.Status.OK;
+        return Response.status(status).entity(result).build();
+    }
+
+    @POST
+    @Path("/{id}/grant-by-clinic")
+    public Response grantByClinic(@PathParam("id") String accessRequestId, GrantAccessDecisionDTO dto) {
+        GrantAccessResultDTO result = accessRequestService.grantAccessByClinic(accessRequestId, dto);
+        Response.Status status = result.isAccepted() ? Response.Status.CREATED : Response.Status.OK;
+        return Response.status(status).entity(result).build();
+    }
+
+    @POST
+    @Path("/{id}/grant-by-specialty")
+    public Response grantBySpecialty(@PathParam("id") String accessRequestId, GrantAccessDecisionDTO dto) {
+        GrantAccessResultDTO result = accessRequestService.grantAccessBySpecialty(accessRequestId, dto);
+        Response.Status status = result.isAccepted() ? Response.Status.CREATED : Response.Status.OK;
+        return Response.status(status).entity(result).build();
     }
 }
