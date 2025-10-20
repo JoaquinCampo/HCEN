@@ -29,8 +29,6 @@ public class ClinicServiceBean implements ClinicServiceRemote {
         clinic.setEmail(addclinicDTO.getEmail());
         clinic.setPhone(addclinicDTO.getPhone());
         clinic.setAddress(addclinicDTO.getAddress());
-        clinic.setDomain(addclinicDTO.getDomain());
-        clinic.setType(addclinicDTO.getType());
         return repository.add(clinic).toDto();
     }
 

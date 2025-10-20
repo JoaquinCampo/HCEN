@@ -19,7 +19,6 @@ import grupo12.practico.messaging.HealthWorker.HealthWorkerRegistrationProducerR
 import grupo12.practico.messaging.Clinic.ClinicRegistrationProducerRemote;
 import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
-import grupo12.practico.models.ClinicType;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceRemote;
 import grupo12.practico.services.Clinic.ClinicServiceRemote;
 import grupo12.practico.services.HealthUser.HealthUserServiceRemote;
@@ -298,9 +297,10 @@ public class Main {
                                 System.out.println(
                                         "Address: " + (user.getAddress() != null ? user.getAddress() : "Not provided"));
                                 System.out.println("Clinical Documents: "
-                                        + (user.getClinicalDocumentIds() != null && !user.getClinicalDocumentIds().isEmpty()
-                                                ? String.join(", ", user.getClinicalDocumentIds())
-                                                : "None"));
+                                        + (user.getClinicalDocumentIds() != null
+                                                && !user.getClinicalDocumentIds().isEmpty()
+                                                        ? String.join(", ", user.getClinicalDocumentIds())
+                                                        : "None"));
                                 System.out.println(
                                         "Created: " + (user.getCreatedAt() != null ? user.getCreatedAt() : "Unknown"));
                             }
@@ -564,7 +564,8 @@ public class Main {
                                         + (worker.getGender() != null ? worker.getGender() : "Not specified"));
                                 System.out.println("License Number: " + worker.getLicenseNumber());
                                 System.out.println(
-                                        "Blood Type: " + (worker.getBloodType() != null ? worker.getBloodType() : "Unknown"));
+                                        "Blood Type: "
+                                                + (worker.getBloodType() != null ? worker.getBloodType() : "Unknown"));
                                 System.out.println("Clinic IDs: "
                                         + (worker.getClinicIds() != null && !worker.getClinicIds().isEmpty()
                                                 ? String.join(", ", worker.getClinicIds())
@@ -637,26 +638,6 @@ public class Main {
                             continue;
                         }
                         hp.setEmail(email.isEmpty() ? null : email);
-                        System.out.print("Domain (optional, e.g. clinic.example.com): ");
-                        String domain = in.nextLine().trim();
-                        if (!domain.isEmpty() && !domain.matches("^(https?://)?[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-                            System.out.println("Error: Invalid domain format");
-                            continue;
-                        }
-                        hp.setDomain(domain.isEmpty() ? null : domain);
-                        System.out.print(
-                                "Clinic type (HOSPITAL/POLYCLINIC/PRIVATE_PRACTICE/LABORATORY/DIAGNOSTIC_CENTER/SPECIALTY_CLINIC/EMERGENCY_ROOM/REHABILITATION_CENTER/NURSING_HOME/PHARMACY) [HOSPITAL]: ");
-                        String typeStr = in.nextLine().trim().toUpperCase();
-                        if (!typeStr.isEmpty()) {
-                            try {
-                                hp.setType(ClinicType.valueOf(typeStr).toString());
-                            } catch (Exception e) {
-                                System.out.println("Invalid clinic type, setting to HOSPITAL as default");
-                                hp.setType(ClinicType.HOSPITAL.toString());
-                            }
-                        } else {
-                            hp.setType(ClinicType.HOSPITAL.toString());
-                        }
 
                         try {
                             registrationProducer.enqueue(hp);
@@ -676,16 +657,12 @@ public class Main {
                                 clinics.forEach(x -> {
                                     System.out.println("ID: " + x.getId());
                                     System.out.println("Name: " + x.getName());
-                                    System.out
-                                            .println("Type: " + (x.getType() != null ? x.getType() : "Not specified"));
                                     System.out.println(
                                             "Address: " + (x.getAddress() != null ? x.getAddress() : "Not provided"));
                                     System.out.println(
                                             "Phone: " + (x.getPhone() != null ? x.getPhone() : "Not provided"));
                                     System.out.println(
                                             "Email: " + (x.getEmail() != null ? x.getEmail() : "Not provided"));
-                                    System.out.println(
-                                            "Domain: " + (x.getDomain() != null ? x.getDomain() : "Not provided"));
                                     System.out.println(
                                             "Created: " + (x.getCreatedAt() != null ? x.getCreatedAt() : "Unknown"));
                                     System.out.println("---");
@@ -707,8 +684,6 @@ public class Main {
                                 searchResults.forEach(x -> {
                                     System.out.println("ID: " + x.getId());
                                     System.out.println("Name: " + x.getName());
-                                    System.out
-                                            .println("Type: " + (x.getType() != null ? x.getType() : "Not specified"));
                                     System.out.println(
                                             "Address: " + (x.getAddress() != null ? x.getAddress() : "Not provided"));
                                     System.out.println("---");
@@ -733,16 +708,12 @@ public class Main {
                                 System.out.println("\n--- Clinic Details ---");
                                 System.out.println("ID: " + clinic.getId());
                                 System.out.println("Name: " + clinic.getName());
-                                System.out.println(
-                                        "Type: " + (clinic.getType() != null ? clinic.getType() : "Not specified"));
                                 System.out.println("Address: "
                                         + (clinic.getAddress() != null ? clinic.getAddress() : "Not provided"));
                                 System.out.println(
                                         "Phone: " + (clinic.getPhone() != null ? clinic.getPhone() : "Not provided"));
                                 System.out.println(
                                         "Email: " + (clinic.getEmail() != null ? clinic.getEmail() : "Not provided"));
-                                System.out.println("Domain: "
-                                        + (clinic.getDomain() != null ? clinic.getDomain() : "Not provided"));
                                 System.out.println("Created: "
                                         + (clinic.getCreatedAt() != null ? clinic.getCreatedAt() : "Unknown"));
                             }

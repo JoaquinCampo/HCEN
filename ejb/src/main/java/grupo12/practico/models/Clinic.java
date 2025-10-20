@@ -28,12 +28,6 @@ public class Clinic {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "domain")
-    private String domain;
-
-    @Column(name = "type")
-    private String type;
-
     @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
 
@@ -109,22 +103,6 @@ public class Clinic {
         this.address = address;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public LocalDate getCreatedAt() {
         return createdAt;
     }
@@ -188,8 +166,6 @@ public class Clinic {
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +
-                ", domain='" + domain + '\'' +
-                ", type=" + type +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
@@ -202,8 +178,6 @@ public class Clinic {
         dto.setEmail(email);
         dto.setPhone(phone);
         dto.setAddress(address);
-        dto.setDomain(domain);
-        dto.setType(type);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
         return dto;

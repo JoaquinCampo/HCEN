@@ -11,8 +11,6 @@ public class ClinicDTO implements Serializable {
     private String email;
     private String phone;
     private String address;
-    private String domain;
-    private String type;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
@@ -54,22 +52,6 @@ public class ClinicDTO implements Serializable {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public LocalDate getCreatedAt() {

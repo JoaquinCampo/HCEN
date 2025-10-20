@@ -1,193 +1,74 @@
-<ui:composition
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:h="http://xmlns.jcp.org/jsf/html"
-  xmlns:f="http://xmlns.jcp.org/jsf/core"
-  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
-  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-  template="/WEB-INF/templates/layout.xhtml"
->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets" template="/WEB-INF/templates/layout.xhtml">
   <ui:define name="title">Create Clinic</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
-        <h:messages
-          id="formMessages"
-          globalOnly="true"
-          styleClass="alert alert-danger"
-          layout="list"
-          infoClass="alert alert-success"
-          warnClass="alert alert-warning"
-          errorClass="alert alert-danger"
-          fatalClass="alert alert-danger"
-        />
+        <h:messages id="formMessages" globalOnly="true" styleClass="alert alert-danger" layout="list"
+          infoClass="alert alert-success" warnClass="alert alert-warning" errorClass="alert alert-danger"
+          fatalClass="alert alert-danger" />
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h2 class="card-title h4 mb-0">Create Clinic</h2>
-            <small class="text-muted"
-              >Register a new healthcare organization.</small
-            >
+            <small class="text-muted">Register a new healthcare organization.</small>
           </div>
-          <h:link outcome="/clinic/list" styleClass="btn btn-outline-secondary"
-            >Back to list</h:link
-          >
+          <h:link outcome="/clinic/list" styleClass="btn btn-outline-secondary">Back to list</h:link>
         </div>
 
         <h:form styleClass="row g-3">
           <div class="col-sm-8">
-            <h:outputLabel
-              for="name"
-              value="Clinic Name"
-              styleClass="form-label"
-            />
-            <h:inputText
-              id="name"
-              value="#{clinicBean.newProvider.name}"
-              required="true"
-              requiredMessage="Clinic name is required"
-              styleClass="form-control"
-              p:placeholder="Enter clinic name"
-              p:autocomplete="organization"
-            >
+            <h:outputLabel for="name" value="Clinic Name" styleClass="form-label" />
+            <h:inputText id="name" value="#{clinicBean.newProvider.name}" required="true"
+              requiredMessage="Clinic name is required" styleClass="form-control" p:placeholder="Enter clinic name"
+              p:autocomplete="organization">
               <f:ajax event="blur" render="nameMessage" execute="name" />
               <f:validateLength minimum="3" maximum="120" />
             </h:inputText>
-            <h:message
-              id="nameMessage"
-              for="name"
-              styleClass="form-text text-danger"
-            />
+            <h:message id="nameMessage" for="name" styleClass="form-text text-danger" />
           </div>
           <div class="col-sm-4">
-            <h:outputLabel
-              for="type"
-              value="Clinic Type"
-              styleClass="form-label"
-            />
-            <h:selectOneMenu
-              id="type"
-              value="#{clinicBean.newProvider.type}"
-              required="true"
-              requiredMessage="Select a clinic type"
-              styleClass="form-select"
-            >
-              <f:selectItem
-                itemLabel="-- Select --"
-                itemValue=""
-                noSelectionOption="true"
-              />
-              <f:selectItems
-                value="#{clinicBean.clinicTypes}"
-                var="type"
-                itemValue="#{type}"
-                itemLabel="#{type}"
-              />
+            <h:outputLabel for="type" value="Clinic Type" styleClass="form-label" />
+            <h:selectOneMenu id="type" value="#{clinicBean.newProvider.type}" required="true"
+              requiredMessage="Select a clinic type" styleClass="form-select">
+              <f:selectItem itemLabel="-- Select --" itemValue="" noSelectionOption="true" />
+              <f:selectItems value="#{clinicBean.clinicTypes}" var="type" itemValue="#{type}" itemLabel="#{type}" />
               <f:ajax event="change" render="typeMessage" execute="type" />
             </h:selectOneMenu>
-            <h:message
-              id="typeMessage"
-              for="type"
-              styleClass="form-text text-danger"
-            />
+            <h:message id="typeMessage" for="type" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-12">
-            <h:outputLabel
-              for="address"
-              value="Address"
-              styleClass="form-label"
-            />
-            <h:inputText
-              id="address"
-              value="#{clinicBean.newProvider.address}"
-              required="true"
-              requiredMessage="Address is required"
-              styleClass="form-control"
-              p:placeholder="Street, number, city"
-              p:autocomplete="street-address"
-            >
+            <h:outputLabel for="address" value="Address" styleClass="form-label" />
+            <h:inputText id="address" value="#{clinicBean.newProvider.address}" required="true"
+              requiredMessage="Address is required" styleClass="form-control" p:placeholder="Street, number, city"
+              p:autocomplete="street-address">
               <f:ajax event="blur" render="addressMessage" execute="address" />
             </h:inputText>
-            <h:message
-              id="addressMessage"
-              for="address"
-              styleClass="form-text text-danger"
-            />
+            <h:message id="addressMessage" for="address" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-md-6">
             <h:outputLabel for="phone" value="Phone" styleClass="form-label" />
-            <h:inputText
-              id="phone"
-              value="#{clinicBean.newProvider.phone}"
-              styleClass="form-control"
-              p:type="tel"
-              p:inputmode="tel"
-              p:placeholder="e.g. +598123456"
-              p:pattern="^[+0-9 ()-]{7,20}$"
-            >
+            <h:inputText id="phone" value="#{clinicBean.newProvider.phone}" styleClass="form-control" p:type="tel"
+              p:inputmode="tel" p:placeholder="e.g. +598123456" p:pattern="^[+0-9 ()-]{7,20}$">
               <f:ajax event="blur" render="phoneMessage" execute="phone" />
             </h:inputText>
-            <h:message
-              id="phoneMessage"
-              for="phone"
-              styleClass="form-text text-danger"
-            />
+            <h:message id="phoneMessage" for="phone" styleClass="form-text text-danger" />
           </div>
           <div class="col-md-6">
             <h:outputLabel for="email" value="Email" styleClass="form-label" />
-            <h:inputText
-              id="email"
-              value="#{clinicBean.newProvider.email}"
-              styleClass="form-control"
-              p:type="email"
-              p:placeholder="contact@example.com"
-              p:autocomplete="email"
-            >
+            <h:inputText id="email" value="#{clinicBean.newProvider.email}" styleClass="form-control" p:type="email"
+              p:placeholder="contact@example.com" p:autocomplete="email">
               <f:ajax event="blur" render="emailMessage" execute="email" />
             </h:inputText>
-            <h:message
-              id="emailMessage"
-              for="email"
-              styleClass="form-text text-danger"
-            />
-          </div>
-
-          <div class="col-sm-6">
-            <h:outputLabel
-              for="domain"
-              value="Domain"
-              styleClass="form-label"
-            />
-            <h:inputText
-              id="domain"
-              value="#{clinicBean.newProvider.domain}"
-              styleClass="form-control"
-              p:placeholder="https://clinic.example.com"
-            >
-              <f:ajax event="blur" render="domainMessage" execute="domain" />
-              <f:validateRegex
-                pattern="^(https?://)?[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-              />
-            </h:inputText>
-            <h:message
-              id="domainMessage"
-              for="domain"
-              styleClass="form-text text-danger"
-            />
+            <h:message id="emailMessage" for="email" styleClass="form-text text-danger" />
           </div>
 
           <div class="col-12 d-flex gap-2 mt-3">
-            <h:commandButton
-              value="Save"
-              action="#{clinicBean.save}"
-              styleClass="btn btn-primary"
-            />
-            <h:commandButton
-              value="Reset"
-              actionListener="#{clinicBean.init}"
-              immediate="true"
-              styleClass="btn btn-outline-secondary"
-            >
+            <h:commandButton value="Save" action="#{clinicBean.save}" styleClass="btn btn-primary" />
+            <h:commandButton value="Reset" actionListener="#{clinicBean.init}" immediate="true"
+              styleClass="btn btn-outline-secondary">
               <f:ajax render="@form" />
             </h:commandButton>
           </div>

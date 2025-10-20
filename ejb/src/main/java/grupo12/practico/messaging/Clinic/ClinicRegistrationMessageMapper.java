@@ -25,8 +25,6 @@ public final class ClinicRegistrationMessageMapper {
                 optionalNoPipe(dto.getEmail()),
                 optionalNoPipe(dto.getPhone()),
                 optionalNoPipe(dto.getAddress()),
-                optionalNoPipe(dto.getDomain()),
-                optionalNoPipe(dto.getType())
         };
 
         return String.join(ClinicRegistrationMessaging.FIELD_SEPARATOR, fields);
@@ -47,8 +45,6 @@ public final class ClinicRegistrationMessageMapper {
         dto.setEmail(emptyToNull(tokens[1]));
         dto.setPhone(emptyToNull(tokens[2]));
         dto.setAddress(emptyToNull(tokens[3]));
-        dto.setDomain(emptyToNull(tokens[4]));
-        dto.setType(emptyToNull(tokens[5]));
         return dto;
     }
 

@@ -38,12 +38,6 @@ public class DataSeeder {
     @EJB
     private SpecialtyRepositoryLocal specialtyRepository;
 
-    @EJB
-    private SpecialtyRepositoryLocal specialtyRepository;
-
-    @EJB
-    private SpecialtyRepositoryLocal specialtyRepository;
-
     @PostConstruct
     public void seedData() {
         System.out.println("Starting data seeding...");
@@ -63,8 +57,6 @@ public class DataSeeder {
         clinic1.setEmail("contacto@hcm.com.uy");
         clinic1.setPhone("+598 2901 2345");
         clinic1.setAddress("Av. 18 de Julio 1234, Montevideo");
-        clinic1.setDomain("hcm.com.uy");
-        clinic1.setType("HOSPITAL");
         clinicRepository.add(clinic1);
 
         Clinic clinic2 = new Clinic();
@@ -72,8 +64,6 @@ public class DataSeeder {
         clinic2.setEmail("info@sanatorio.com.uy");
         clinic2.setPhone("+598 2711 5678");
         clinic2.setAddress("Bv. Artigas 456, Montevideo");
-        clinic2.setDomain("sanatorio.com.uy");
-        clinic2.setType("PRIVATE_PRACTICE");
         clinicRepository.add(clinic2);
 
         Clinic clinic3 = new Clinic();
@@ -81,8 +71,6 @@ public class DataSeeder {
         clinic3.setEmail("contacto@puntagorda.uy");
         clinic3.setPhone("+598 2604 7890");
         clinic3.setAddress("Rambla Gandhi 789, Punta del Este");
-        clinic3.setDomain("puntagorda.uy");
-        clinic3.setType("DIAGNOSTIC_CENTER");
         clinicRepository.add(clinic3);
 
         Clinic clinic4 = new Clinic();
@@ -90,8 +78,6 @@ public class DataSeeder {
         clinic4.setEmail("info@policlinicorivera.com.uy");
         clinic4.setPhone("+598 4622 3456");
         clinic4.setAddress("Av. Sarandí 321, Rivera");
-        clinic4.setDomain("policlinicorivera.com.uy");
-        clinic4.setType("POLYCLINIC");
         clinicRepository.add(clinic4);
     }
 

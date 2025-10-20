@@ -5,8 +5,6 @@ public class AddClinicDTO {
     private String email;
     private String phone;
     private String address;
-    private String domain;
-    private String type;
 
     public String getName() {
         return name;
@@ -38,21 +36,5 @@ public class AddClinicDTO {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 }
