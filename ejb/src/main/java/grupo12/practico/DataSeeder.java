@@ -6,6 +6,7 @@ import grupo12.practico.repositories.ClinicalHistory.ClinicalHistoryRepositoryLo
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
+import grupo12.practico.repositories.Specialty.SpecialtyRepositoryLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Singleton;
@@ -38,10 +39,14 @@ public class DataSeeder {
     @EJB
     private ClinicalHistoryRepositoryLocal clinicalHistoryRepository;
 
+    @EJB
+    private SpecialtyRepositoryLocal specialtyRepository;
+
     @PostConstruct
     public void seedData() {
         System.out.println("Starting data seeding...");
         createClinics();
+        createSpecialties();
         createHealthWorkers();
         createHealthUsers();
         createClinicalDocuments();
@@ -88,11 +93,60 @@ public class DataSeeder {
         clinicRepository.add(clinic4);
     }
 
+    private void createSpecialties() {
+        System.out.println("Seeding specialties...");
+
+        Specialty cardiology = new Specialty();
+        cardiology.setName("Cardiology");
+        specialtyRepository.add(cardiology);
+
+        Specialty generalMedicine = new Specialty();
+        generalMedicine.setName("General Medicine");
+        specialtyRepository.add(generalMedicine);
+
+        Specialty pediatrics = new Specialty();
+        pediatrics.setName("Pediatrics");
+        specialtyRepository.add(pediatrics);
+
+        Specialty generalSurgery = new Specialty();
+        generalSurgery.setName("General Surgery");
+        specialtyRepository.add(generalSurgery);
+
+        Specialty neurology = new Specialty();
+        neurology.setName("Neurology");
+        specialtyRepository.add(neurology);
+
+        Specialty orthopedics = new Specialty();
+        orthopedics.setName("Orthopedics");
+        specialtyRepository.add(orthopedics);
+
+        Specialty gynecology = new Specialty();
+        gynecology.setName("Gynecology");
+        specialtyRepository.add(gynecology);
+
+        Specialty psychiatry = new Specialty();
+        psychiatry.setName("Psychiatry");
+        specialtyRepository.add(psychiatry);
+
+        Specialty dermatology = new Specialty();
+        dermatology.setName("Dermatology");
+        specialtyRepository.add(dermatology);
+
+        Specialty ophthalmology = new Specialty();
+        ophthalmology.setName("Ophthalmology");
+        specialtyRepository.add(ophthalmology);
+
+        Specialty urology = new Specialty();
+        urology.setName("Urology");
+        specialtyRepository.add(urology);
+    }
+
     private void createHealthWorkers() {
         System.out.println("Seeding health workers...");
 
-        // Get all clinics for reference
+        // Get all clinics and specialties for reference
         var clinics = clinicRepository.findAll();
+        var specialties = specialtyRepository.findAll();
 
         // Health Worker 1 - Cardiologist
         HealthWorker hw1 = new HealthWorker();
@@ -107,11 +161,15 @@ public class DataSeeder {
         hw1.setLicenseNumber("LIC-001");
         hw1.setDateOfBirth(LocalDate.of(1975, 8, 20));
 
-        // Add specialties
+        // Add specialties - Cardiology
         Set<Specialty> specialties1 = new HashSet<>();
-        Specialty cardio = new Specialty();
-        cardio.setName("Cardiology");
-        specialties1.add(cardio);
+        Specialty cardiology = specialties.stream()
+                .filter(s -> "Cardiology".equals(s.getName()))
+                .findFirst()
+                .orElse(null);
+        if (cardiology != null) {
+            specialties1.add(cardiology);
+        }
         hw1.setSpecialties(specialties1);
 
         // Add to first clinic
@@ -135,10 +193,15 @@ public class DataSeeder {
         hw2.setLicenseNumber("LIC-002");
         hw2.setDateOfBirth(LocalDate.of(1980, 12, 5));
 
+        // Add specialties - General Medicine
         Set<Specialty> specialties2 = new HashSet<>();
-        Specialty general = new Specialty();
-        general.setName("General Medicine");
-        specialties2.add(general);
+        Specialty generalMedicine = specialties.stream()
+                .filter(s -> "General Medicine".equals(s.getName()))
+                .findFirst()
+                .orElse(null);
+        if (generalMedicine != null) {
+            specialties2.add(generalMedicine);
+        }
         hw2.setSpecialties(specialties2);
 
         if (clinics.size() > 1) {
@@ -162,10 +225,15 @@ public class DataSeeder {
         hw3.setLicenseNumber("LIC-003");
         hw3.setDateOfBirth(LocalDate.of(1985, 4, 15));
 
+        // Add specialties - Pediatrics
         Set<Specialty> specialties3 = new HashSet<>();
-        Specialty pediatrics = new Specialty();
-        pediatrics.setName("Pediatrics");
-        specialties3.add(pediatrics);
+        Specialty pediatricsSpecialty = specialties.stream()
+                .filter(s -> "Pediatrics".equals(s.getName()))
+                .findFirst()
+                .orElse(null);
+        if (pediatricsSpecialty != null) {
+            specialties3.add(pediatricsSpecialty);
+        }
         hw3.setSpecialties(specialties3);
 
         if (clinics.size() > 2) {
@@ -189,10 +257,15 @@ public class DataSeeder {
         hw4.setLicenseNumber("LIC-004");
         hw4.setDateOfBirth(LocalDate.of(1970, 6, 30));
 
+        // Add specialties - General Surgery
         Set<Specialty> specialties4 = new HashSet<>();
-        Specialty surgery = new Specialty();
-        surgery.setName("General Surgery");
-        specialties4.add(surgery);
+        Specialty generalSurgery = specialties.stream()
+                .filter(s -> "General Surgery".equals(s.getName()))
+                .findFirst()
+                .orElse(null);
+        if (generalSurgery != null) {
+            specialties4.add(generalSurgery);
+        }
         hw4.setSpecialties(specialties4);
 
         if (clinics.size() > 3) {
