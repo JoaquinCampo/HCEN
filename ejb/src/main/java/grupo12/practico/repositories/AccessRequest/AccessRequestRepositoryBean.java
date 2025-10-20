@@ -65,4 +65,16 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
             return Optional.empty();
         }
     }
+
+    @Override
+    public void delete(AccessRequest accessRequest) {
+        if (accessRequest == null) {
+            return;
+        }
+        AccessRequest managed = accessRequest;
+        if (!em.contains(accessRequest)) {
+            managed = em.merge(accessRequest);
+        }
+        em.remove(managed);
+    }
 }

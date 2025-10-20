@@ -13,4 +13,6 @@ public interface AccessRequestRepositoryRemote {
 
     Optional<AccessRequest> findExisting(String healthUserId, String healthWorkerId, String clinicId,
             String specialtyId);
+
+    void delete(AccessRequest accessRequest);
 }
