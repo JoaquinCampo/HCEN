@@ -297,9 +297,10 @@ public class Main {
                                         "Phone: " + (user.getPhone() != null ? user.getPhone() : "Not provided"));
                                 System.out.println(
                                         "Address: " + (user.getAddress() != null ? user.getAddress() : "Not provided"));
-                                System.out.println("Clinical History ID: "
-                                        + (user.getClinicalHistoryId() != null ? user.getClinicalHistoryId()
-                                                : "Not assigned"));
+                                System.out.println("Clinical Documents: "
+                                        + (user.getClinicalDocumentIds() != null && !user.getClinicalDocumentIds().isEmpty()
+                                                ? String.join(", ", user.getClinicalDocumentIds())
+                                                : "None"));
                                 System.out.println(
                                         "Created: " + (user.getCreatedAt() != null ? user.getCreatedAt() : "Unknown"));
                             }
@@ -464,6 +465,15 @@ public class Main {
                         }
                         hw.setLicenseNumber(licenseNumber);
 
+                        System.out.print("Blood type (A+, A-, B+, B-, AB+, AB-, O+, O-): ");
+                        String bloodType = in.nextLine().trim().toUpperCase();
+                        if (!bloodType.matches("^(A|B|AB|O)[+-]$")) {
+                            System.out.println(
+                                    "Error: Blood type must be one of A+, A-, B+, B-, AB+, AB-, O+, O-");
+                            continue;
+                        }
+                        hw.setBloodType(bloodType);
+
                         System.out.print("Add clinic ID (optional, press Enter to skip): ");
                         String clinicId = in.nextLine();
                         if (!clinicId.isBlank()) {
@@ -495,6 +505,8 @@ public class Main {
                                             "Gender: " + (x.getGender() != null ? x.getGender() : "Not specified"));
                                     System.out.println("License: " + x.getLicenseNumber());
                                     System.out.println(
+                                            "Blood Type: " + (x.getBloodType() != null ? x.getBloodType() : "Unknown"));
+                                    System.out.println(
                                             "Clinic IDs: " + (x.getClinicIds() != null && !x.getClinicIds().isEmpty()
                                                     ? String.join(", ", x.getClinicIds())
                                                     : "None"));
@@ -522,6 +534,8 @@ public class Main {
                                     System.out
                                             .println("Document: " + x.getDocument() + " (" + x.getDocumentType() + ")");
                                     System.out.println("License: " + x.getLicenseNumber());
+                                    System.out.println("Blood Type: "
+                                            + (x.getBloodType() != null ? x.getBloodType() : "Unknown"));
                                     System.out.println("---");
                                 });
                             }
@@ -549,6 +563,8 @@ public class Main {
                                 System.out.println("Gender: "
                                         + (worker.getGender() != null ? worker.getGender() : "Not specified"));
                                 System.out.println("License Number: " + worker.getLicenseNumber());
+                                System.out.println(
+                                        "Blood Type: " + (worker.getBloodType() != null ? worker.getBloodType() : "Unknown"));
                                 System.out.println("Clinic IDs: "
                                         + (worker.getClinicIds() != null && !worker.getClinicIds().isEmpty()
                                                 ? String.join(", ", worker.getClinicIds())
@@ -789,7 +805,7 @@ public class Main {
                         }
                         doc.setContentUrl(contentUrl);
 
-                        System.out.print("Patient ID (clinical history ID): ");
+                        System.out.print("Patient ID: ");
                         String userId = in.nextLine().trim();
                         if (userId.isEmpty()) {
                             System.out.println("Error: Patient ID is required");
@@ -801,7 +817,7 @@ public class Main {
                             System.out.println("Error: Patient not found with ID: " + userId);
                             continue;
                         }
-                        doc.setClinicalHistoryId(userId); // Use patient ID as clinical history ID
+                        doc.setHealthUserId(userId);
 
                         // Allow multiple health workers
                         System.out.println("Health Workers (enter IDs separated by commas, or press Enter to skip): ");
@@ -865,7 +881,7 @@ public class Main {
                                     System.out.println("ID: " + x.getId());
                                     System.out.println("Title: " + x.getTitle());
                                     System.out.println("Patient ID: "
-                                            + (x.getClinicalHistoryId() != null ? x.getClinicalHistoryId()
+                                            + (x.getHealthUserId() != null ? x.getHealthUserId()
                                                     : "Not assigned"));
                                     System.out.println("Health Worker IDs: "
                                             + (x.getHealthWorkerIds() != null && !x.getHealthWorkerIds().isEmpty()
@@ -901,7 +917,7 @@ public class Main {
                                     System.out.println("ID: " + x.getId());
                                     System.out.println("Title: " + x.getTitle());
                                     System.out.println("Patient ID: "
-                                            + (x.getClinicalHistoryId() != null ? x.getClinicalHistoryId()
+                                            + (x.getHealthUserId() != null ? x.getHealthUserId()
                                                     : "Not assigned"));
                                     System.out.println("Content URL: "
                                             + (x.getContentUrl() != null ? x.getContentUrl() : "Not provided"));
@@ -928,7 +944,7 @@ public class Main {
                                 System.out.println("ID: " + document.getId());
                                 System.out.println("Title: " + document.getTitle());
                                 System.out.println("Patient ID: "
-                                        + (document.getClinicalHistoryId() != null ? document.getClinicalHistoryId()
+                                        + (document.getHealthUserId() != null ? document.getHealthUserId()
                                                 : "Not assigned"));
                                 System.out.println("Health Worker IDs: " + (document.getHealthWorkerIds() != null
                                         && !document.getHealthWorkerIds().isEmpty()

@@ -49,6 +49,7 @@ public class HealthWorkerBean implements Serializable {
     private List<ClinicDTO> clinics;
     private String[] selectedClinicIds;
     private Map<String, String> clinicNameLookup;
+    private static final List<String> BLOOD_TYPES = List.of("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-");
 
     @PostConstruct
     public void init() {
@@ -76,6 +77,9 @@ public class HealthWorkerBean implements Serializable {
 
     public String save() {
         try {
+            if (newWorker.getBloodType() != null) {
+                newWorker.setBloodType(newWorker.getBloodType().trim().toUpperCase());
+            }
             newWorker.setClinicIds(extractSelectedClinicIds());
             registrationProducer.enqueue(newWorker);
             FacesContext.getCurrentInstance().addMessage(null,
@@ -146,6 +150,10 @@ public class HealthWorkerBean implements Serializable {
             return "";
         }
         return clinicNameLookup.getOrDefault(id, id);
+    }
+
+    public List<String> getBloodTypes() {
+        return BLOOD_TYPES;
     }
 
     private Set<String> extractSelectedClinicIds() {

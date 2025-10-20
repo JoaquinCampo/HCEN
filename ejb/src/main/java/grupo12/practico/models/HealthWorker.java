@@ -19,19 +19,18 @@ public class HealthWorker extends User {
     private Set<Specialty> specialties;
 
     @ManyToMany(mappedBy = "healthWorkers")
-    private Set<ClinicalHistory> clinicalHistories;
-
-    @ManyToMany(mappedBy = "healthWorkers")
     private Set<ClinicalDocument> clinicalDocuments;
 
     @Column(name = "license_number", length = 100)
     private String licenseNumber;
 
+    @Column(name = "blood_type", length = 3)
+    private String bloodType;
+
     public HealthWorker() {
         super();
         this.clinics = new HashSet<>();
         this.specialties = new HashSet<>();
-        this.clinicalHistories = new HashSet<>();
         this.clinicalDocuments = new HashSet<>();
     }
 
@@ -59,20 +58,20 @@ public class HealthWorker extends User {
         this.specialties = specialties;
     }
 
-    public Set<ClinicalHistory> getClinicalHistories() {
-        return clinicalHistories;
-    }
-
-    public void setClinicalHistories(Set<ClinicalHistory> clinicalHistories) {
-        this.clinicalHistories = clinicalHistories;
-    }
-
     public Set<ClinicalDocument> getClinicalDocuments() {
         return clinicalDocuments;
     }
 
     public void setClinicalDocuments(Set<ClinicalDocument> clinicalDocuments) {
         this.clinicalDocuments = clinicalDocuments;
+    }
+
+    public String getBloodType() {
+        return bloodType;
+    }
+
+    public void setBloodType(String bloodType) {
+        this.bloodType = bloodType;
     }
 
     public HealthWorkerDTO toDto() {
@@ -93,6 +92,7 @@ public class HealthWorker extends User {
         dto.setClinicIds(clinics != null ? clinics.stream().map(Clinic::getId).collect(Collectors.toSet()) : null);
         dto.setSpecialtyIds(
                 specialties != null ? specialties.stream().map(Specialty::getId).collect(Collectors.toSet()) : null);
+        dto.setBloodType(bloodType);
         return dto;
     }
 }

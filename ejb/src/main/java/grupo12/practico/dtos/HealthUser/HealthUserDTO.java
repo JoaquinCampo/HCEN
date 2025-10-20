@@ -7,16 +7,8 @@ import grupo12.practico.dtos.User.UserDTO;
 public class HealthUserDTO extends UserDTO {
     private static final long serialVersionUID = 1L;
 
-    private String clinicalHistoryId;
     private Set<String> clinicIds;
-
-    public String getClinicalHistoryId() {
-        return clinicalHistoryId;
-    }
-
-    public void setClinicalHistoryId(String clinicalHistoryId) {
-        this.clinicalHistoryId = clinicalHistoryId;
-    }
+    private Set<String> clinicalDocumentIds;
 
     public Set<String> getClinicIds() {
         return clinicIds;
@@ -24,5 +16,13 @@ public class HealthUserDTO extends UserDTO {
 
     public void setClinicIds(Set<String> clinicIds) {
         this.clinicIds = clinicIds;
+    }
+
+    public Set<String> getClinicalDocumentIds() {
+        return clinicalDocumentIds;
+    }
+
+    public void setClinicalDocumentIds(Set<String> clinicalDocumentIds) {
+        this.clinicalDocumentIds = clinicalDocumentIds;
     }
 }

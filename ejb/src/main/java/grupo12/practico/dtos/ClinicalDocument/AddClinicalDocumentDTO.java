@@ -5,7 +5,7 @@ import java.util.Set;
 public class AddClinicalDocumentDTO {
     private String title;
     private String contentUrl;
-    private String clinicalHistoryId;
+    private String healthUserId;
     private Set<String> healthWorkerIds;
 
     public String getTitle() {
@@ -24,12 +24,12 @@ public class AddClinicalDocumentDTO {
         this.contentUrl = contentUrl;
     }
 
-    public String getClinicalHistoryId() {
-        return clinicalHistoryId;
+    public String getHealthUserId() {
+        return healthUserId;
     }
 
-    public void setClinicalHistoryId(String clinicalHistoryId) {
-        this.clinicalHistoryId = clinicalHistoryId;
+    public void setHealthUserId(String healthUserId) {
+        this.healthUserId = healthUserId;
     }
 
     public Set<String> getHealthWorkerIds() {

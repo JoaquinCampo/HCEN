@@ -1,0 +1,169 @@
+@startuml DeploymentOverview
+left to right direction
+skinparam shadowing false
+skinparam wrapWidth 200
+skinparam maxMessageSize 260
+skinparam componentStyle rectangle
+skinparam defaultFontName "Helvetica"
+skinparam defaultFontSize 12
+skinparam ArrowColor #4b5d7a
+skinparam ArrowFontColor #4b5d7a
+skinparam rectangleBorderColor #2d3f53
+skinparam rectangleBackgroundColor #ffffff
+skinparam nodeBorderColor #2d3f53
+skinparam nodeBackgroundColor #fdfdfd
+skinparam databaseBorderColor #2d3f53
+skinparam databaseBackgroundColor #f6f8fb
+skinparam queueBorderColor #2d3f53
+skinparam queueBackgroundColor #eef3ff
+skinparam cloudBorderColor #2d3f53
+skinparam cloudBackgroundColor #f5f8ff
+skinparam artifactBackgroundColor #ffffff
+skinparam legendBackgroundColor #f9fbff
+skinparam legendBorderColor #2d3f53
+skinparam noteBackgroundColor #fff8e1
+skinparam noteBorderColor #d8b45b
+
+rectangle "Access Channels" as Access {
+  actor "Health Users" as ActorHealth
+  actor "Health Workers" as ActorWorker
+  actor "Clinic Admins" as ActorClinicAdmin
+  actor "HCEN Admins" as ActorHcenAdmin
+
+  node "Mobile Devices" <<device>> as MobileDevice {
+    artifact "HCEN Mobile App\n<<application>>" as MobileApp
+  }
+
+  node "Web Browsers" <<device>> as WebBrowsers {
+    artifact "Health User Portal\n<<web application>>" as PortalUser
+    artifact "Health Worker Portal\n<<web application>>" as PortalWorker
+    artifact "Clinic Admin Portal\n<<web application>>" as PortalClinic
+    artifact "Admin HCEN Portal\n<<web application>>" as PortalAdmin
+  }
+
+  node "Ops Desktop" <<device>> as OpsDesktop {
+    artifact "Console CLI\n<<ops tool>>" as ConsoleCli
+  }
+
+  ActorHealth --> MobileApp : Touch UI
+  ActorHealth --> PortalUser : Web UI
+  ActorWorker --> PortalWorker : Web UI
+  ActorClinicAdmin --> PortalClinic : Web UI
+  ActorHcenAdmin --> PortalAdmin : Web UI
+  ActorHcenAdmin --> ConsoleCli : Shell access
+}
+
+cloud "Elastic Cloud (ANTEL)" <<cloud>> as Central {
+  node "Application Tier\nEC2 – WildFly runtime" <<application server>> as AppTier {
+    artifact "practico-ear\n<<EAR package>>" as Ear
+    node "practico-web\n<<web module>>" <<container>> as WebModule {
+      component "JSF Backing Beans" <<jsf>> as JsfUi
+      component "REST / SOAP Endpoints" <<service>> as Api
+    }
+    node "practico-ejb\n<<ejb module>>" <<container>> as EjbModule {
+      component "Application Services" <<stateless bean>> as Services
+      component "Repositories" <<repository>> as Repositories
+      component "Messaging Producers" <<service>> as Producers
+    }
+    queue "Embedded Artemis\n<<jms broker>>" as Artemis
+    component "LLM Adapter" <<integration>> as LlmAdapter
+  }
+
+  database "PostgreSQL (RDS)\nINUS · RNDC · Policies · pgvector" as Postgres
+}
+
+Ear --> WebModule : EAR packaging
+Ear --> EjbModule : EAR packaging
+
+frame "Automation & Ops" <<devops>> as Automation {
+  artifact "Terraform / Ansible\n(infra/)" <<iac>> as IaC
+  component "CI/CD Pipeline\n(GitLab)" <<pipeline>> as CICD
+}
+
+node "Clinic Tenant\n(replicated per tenant)" <<container>> as Peripheral {
+  artifact "Clinic Frontend" <<web application>> as ClinicFrontend
+  component "Clinic Services" <<service>> as ClinicServices
+  component "Local Cache" <<cache>> as ClinicCache
+  database "Clinic Store\n(SQL / Local)" as ClinicDb
+  queue "JMS / Webhook Connector" <<integration>> as PeripheralQueue
+}
+
+frame "External Services" <<external>> as External {
+  cloud "Usuario gub.uy\n(IdP)" as GubUy
+  cloud "Plataforma de Interoperabilidad\n(DNIC SOAP)" as Pdi
+  cloud "Managed LLM API" as LlmService
+  cloud "External Providers\n(Prestadores)" as ExternalProviders
+}
+
+' Layout anchors for positioning
+Access -[hidden]-> Central
+Central -[hidden]down-> Automation
+Automation -[hidden]down-> Peripheral
+Peripheral -[hidden]down-> External
+
+' Layout hints
+together {
+  Access -- Api
+}
+
+MobileApp --> Api : HTTPS / REST
+PortalUser --> JsfUi : HTTPS / JSF
+PortalWorker --> JsfUi : HTTPS / JSF
+PortalClinic --> JsfUi : HTTPS / JSF
+PortalAdmin --> JsfUi : HTTPS / JSF
+ConsoleCli --> Services : Remote EJB / IIOP
+ConsoleCli --> Artemis : JMS / JNDI commands
+
+JsfUi --> Services : Local EJB invocation
+Api --> Services : Local EJB invocation
+Services --> Repositories : CDI / JPA access
+Repositories --> Postgres : JDBC / pgvector
+Services --> Producers : CDI invocation
+Producers --> Artemis : JMS enqueue
+Artemis --> Services : JMS (MDB callback)
+Services --> LlmAdapter : gRPC / REST client
+LlmAdapter --> LlmService : HTTPS / REST
+Services --> Pdi : SOAP / HTTPS age check
+Services --> GubUy : SAML / OIDC federation
+Services --> PeripheralQueue : JMS / HTTPS notifications
+
+PeripheralQueue --> ClinicServices : JMS / webhook intake
+ClinicServices --> Api : HTTPS / REST sync
+ClinicServices --> ExternalProviders : REST / SOAP fetch
+ClinicServices --> ClinicDb : JDBC / SQL persistence
+ClinicServices --> ClinicCache : Cache API access
+ClinicServices --> Artemis : JMS events
+ClinicFrontend --> ClinicServices : HTTPS / JSF UI calls
+
+IaC --> Central : Provision EC2 + networking
+IaC --> Peripheral : Bootstrap tenant stack
+CICD --> AppTier : Deploy ear/container builds
+
+note right of AppTier
+  * Today: single EC2 with embedded Artemis JMS
+  * Roadmap: containerize into ECS service for scale-out
+end note
+
+note top of LlmAdapter
+  Optional managed LLM integration
+end note
+
+note right of Automation
+  * Terraform already manages central EC2 (infra/)
+  * Extend plans: ECS workloads + tenant automation
+end note
+
+note right of PeripheralQueue
+  Deployed per clinic or lab on chosen PaaS/IaaS
+end note
+
+legend right
+  == Legend
+  <<REST client>> / <<Web>> denote delivery channel
+  JSF calls run over HTTPS between portals and web module
+  Artemis provides JMS queues within WildFly
+  pgvector in Postgres covers optional NoSQL requirement
+  LLM adapter + CI/CD + IaC satisfy optional features
+end legend
+
+@enduml

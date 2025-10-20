@@ -1,0 +1,26 @@
+@startuml HealthUserRegistration
+skinparam ParticipantPadding 30
+skinparam wrapWidth 200
+skinparam maxMessageSize 200
+
+actor Client
+participant "REST Resource\n/ Console UI" as EntryPoint
+participant "HealthUserRegistration\nProducerBean" as Producer
+queue "JMS Queue\nqueue_alta_health_user" as Queue
+participant "HealthUserRegistrationMDB" as Mdb
+participant "HealthUserServiceBean" as Service
+participant "HealthUserRepositoryBean" as UserRepo
+
+Client -> EntryPoint : Submit AddHealthUserDTO
+EntryPoint -> Producer : enqueue(dto)
+Producer -> Queue : send(payload)
+Queue -[#blue,dashed]> Client : 202 Accepted (REST) / ACK (Console)
+
+== Asynchronous processing ==
+Queue -> Mdb : onMessage(payload)
+Mdb -> Service : add(dto)
+Service -> UserRepo : add(new HealthUser)
+Service --> Mdb : HealthUserDTO
+Mdb -[#gray,dashed]> Client : Logging/notifications
+
+@enduml

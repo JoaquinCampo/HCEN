@@ -15,12 +15,13 @@ public final class HealthWorkerRegistrationMessaging {
             "gender",
             "email",
             "phone",
-            "address",
-            "dateOfBirth",
-            "password",
-            "licenseNumber",
-            "clinicIds"
-    };
+    "address",
+    "dateOfBirth",
+    "password",
+    "licenseNumber",
+    "bloodType",
+    "clinicIds"
+};
 
     public static final String FIELD_SEPARATOR = "|";
 }

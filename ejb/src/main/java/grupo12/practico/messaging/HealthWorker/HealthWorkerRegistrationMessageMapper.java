@@ -22,6 +22,8 @@ public final class HealthWorkerRegistrationMessageMapper {
     public static String toMessage(AddHealthWorkerDTO dto) {
         Objects.requireNonNull(dto, "health worker dto must not be null");
 
+        String normalizedBloodType = normalizeBloodType(dto.getBloodType());
+
         String[] fields = new String[] {
                 requireNoPipe(dto.getDocument(), "document"),
                 enumToString(dto.getDocumentType(), "documentType"),
@@ -34,6 +36,7 @@ public final class HealthWorkerRegistrationMessageMapper {
                 toDateString(dto.getDateOfBirth()),
                 requireNoPipe(dto.getPassword(), "password"),
                 requireNoPipe(dto.getLicenseNumber(), "licenseNumber"),
+                requireNoPipe(normalizedBloodType, "bloodType"),
                 setToString(dto.getClinicIds())
         };
 
@@ -62,7 +65,8 @@ public final class HealthWorkerRegistrationMessageMapper {
         dto.setDateOfBirth(parseDate(tokens[8]));
         dto.setPassword(requireNotBlank(tokens[9], "password"));
         dto.setLicenseNumber(requireNotBlank(tokens[10], "licenseNumber"));
-        dto.setClinicIds(parseStringSet(tokens[11]));
+        dto.setBloodType(normalizeBloodType(tokens[11]));
+        dto.setClinicIds(parseStringSet(tokens[12]));
         return dto;
     }
 
@@ -116,6 +120,14 @@ public final class HealthWorkerRegistrationMessageMapper {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static String normalizeBloodType(String value) {
+        String trimmed = requireNotBlank(value, "bloodType").trim().toUpperCase();
+        if (!trimmed.matches("^(A|B|AB|O)[+-]$")) {
+            throw new ValidationException("Invalid bloodType: " + trimmed);
+        }
+        return trimmed;
     }
 
     private static LocalDate parseDate(String token) {

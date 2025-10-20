@@ -13,7 +13,7 @@ public class ClinicalDocumentDTO implements Serializable {
     private LocalDate issuedAt;
     private LocalDate createdAt;
     private LocalDate updatedAt;
-    private String clinicalHistoryId;
+    private String healthUserId;
     private Set<String> healthWorkerIds;
 
     public String getId() {
@@ -64,12 +64,12 @@ public class ClinicalDocumentDTO implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public String getClinicalHistoryId() {
-        return clinicalHistoryId;
+    public String getHealthUserId() {
+        return healthUserId;
     }
 
-    public void setClinicalHistoryId(String clinicalHistoryId) {
-        this.clinicalHistoryId = clinicalHistoryId;
+    public void setHealthUserId(String healthUserId) {
+        this.healthUserId = healthUserId;
     }
 
     public Set<String> getHealthWorkerIds() {

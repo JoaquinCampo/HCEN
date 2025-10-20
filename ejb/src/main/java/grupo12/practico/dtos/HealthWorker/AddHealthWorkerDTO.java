@@ -10,6 +10,7 @@ public class AddHealthWorkerDTO extends AddUserDTO {
     private String licenseNumber;
     private Set<String> clinicIds;
     private Set<String> specialtyIds;
+    private String bloodType;
 
     public String getLicenseNumber() {
         return licenseNumber;
@@ -33,5 +34,13 @@ public class AddHealthWorkerDTO extends AddUserDTO {
 
     public void setSpecialtyIds(Set<String> specialtyIds) {
         this.specialtyIds = specialtyIds;
+    }
+
+    public String getBloodType() {
+        return bloodType;
+    }
+
+    public void setBloodType(String bloodType) {
+        this.bloodType = bloodType;
     }
 }

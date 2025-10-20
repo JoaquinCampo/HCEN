@@ -1,0 +1,47 @@
+@startuml CIPipeline
+skinparam backgroundColor #ffffff
+skinparam activity {
+  ArrowColor #4b5d7a
+  FontName Helvetica
+  FontSize 12
+  StartColor #4b5d7a
+  EndColor #4b5d7a
+  BarColor #4b5d7a
+}
+skinparam wrapWidth 220
+skinparam maxMessageSize 260
+
+start
+
+partition "Developer" {
+  :Commit changes;
+  :Push to `main` on GitLab;
+}
+
+partition "GitLab CI/CD" {
+  :Pipeline triggers `build-image` job (Kaniko);
+  note right
+    Uses `Dockerfile`, Maven modules, and scripts in
+    `docker/entrypoint.sh` + `docker/configure-datasource.cli`
+    to assemble WildFly runtime.
+  end note
+  :Kaniko builds container image;
+  :Tag with `$CI_COMMIT_SHA` and `latest`;
+  :Push image to Amazon ECR using CI IAM role;
+}
+
+partition "Amazon ECR" {
+  :Repository `tse-lab-app` stores new version;
+}
+
+partition "Deployment Signal" {
+  :Update recorded for cron-based rollout on EC2;
+  note right
+    EC2 host periodically pulls `latest` image
+    (see Infrastructure Automation diagram).
+  end note
+}
+
+stop
+
+@enduml

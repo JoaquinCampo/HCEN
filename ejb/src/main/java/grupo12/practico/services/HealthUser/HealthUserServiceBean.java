@@ -3,10 +3,8 @@ package grupo12.practico.services.HealthUser;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.Clinic;
-import grupo12.practico.models.ClinicalHistory;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
-import grupo12.practico.repositories.ClinicalHistory.ClinicalHistoryRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.services.PasswordUtil;
 import jakarta.ejb.EJB;
@@ -31,9 +29,6 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
     @EJB
     private ClinicRepositoryLocal clinicRepository;
-
-    @EJB
-    private ClinicalHistoryRepositoryLocal clinicalHistoryRepository;
 
     @Override
     public List<HealthUserDTO> findAll() {
@@ -60,12 +55,6 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         validateCreateUserDTO(addHealthUserDTO);
 
         HealthUser healthUser = createHealthUserFromDTO(addHealthUserDTO);
-        ClinicalHistory clinicalHistory = new ClinicalHistory();
-        clinicalHistory.setHealthUser(healthUser);
-        healthUser.setClinicalHistory(clinicalHistory);
-
-        clinicalHistoryRepository.add(clinicalHistory);
-
         return userRepository.add(healthUser).toDto();
     }
 

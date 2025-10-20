@@ -1,14 +1,13 @@
 package grupo12.practico.services.ClinicalDocument;
 
-import grupo12.practico.models.ClinicalDocument;
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
-import grupo12.practico.models.ClinicalHistory;
+import grupo12.practico.models.ClinicalDocument;
+import grupo12.practico.models.HealthUser;
 import grupo12.practico.models.HealthWorker;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
-import grupo12.practico.repositories.ClinicalHistory.ClinicalHistoryRepositoryLocal;
+import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
-import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -29,25 +28,21 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
     private ClinicalDocumentRepositoryLocal repository;
 
     @EJB
-    private ClinicalHistoryRepositoryLocal clinicalHistoryRepository;
+    private HealthUserRepositoryLocal healthUserRepository;
 
     @EJB
     private HealthWorkerRepositoryLocal healthWorkerRepository;
-
-    @EJB
-    private ClinicRepositoryLocal clinicRepository;
 
     @Override
     public ClinicalDocumentDTO add(AddClinicalDocumentDTO addClinicalDocumentDTO) {
         validate(addClinicalDocumentDTO);
 
-        String clinicalHistoryId = addClinicalDocumentDTO.getClinicalHistoryId();
+        String healthUserId = addClinicalDocumentDTO.getHealthUserId();
         Set<String> healthWorkerIds = addClinicalDocumentDTO.getHealthWorkerIds();
 
-        ClinicalHistory clinicalHistory = clinicalHistoryRepository.findById(clinicalHistoryId);
-
-        if (clinicalHistory == null) {
-            throw new ValidationException("Clinical history not found");
+        HealthUser healthUser = healthUserRepository.findById(healthUserId);
+        if (healthUser == null) {
+            throw new ValidationException("Health user not found");
         }
 
         Set<HealthWorker> healthWorkers = new HashSet<>();
@@ -63,15 +58,22 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
 
         clinicalDocument.setTitle(addClinicalDocumentDTO.getTitle());
         clinicalDocument.setContentUrl(addClinicalDocumentDTO.getContentUrl());
-        clinicalDocument.setClinicalHistory(clinicalHistory);
+        clinicalDocument.setHealthUser(healthUser);
         clinicalDocument.setHealthWorkers(healthWorkers);
 
-        Set<ClinicalDocument> clinicalHistoryClinicalDocuments = clinicalHistory.getClinicalDocuments();
-        clinicalHistoryClinicalDocuments.add(clinicalDocument);
-        clinicalHistory.setClinicalDocuments(clinicalHistoryClinicalDocuments);
+        Set<ClinicalDocument> userDocuments = healthUser.getClinicalDocuments();
+        if (userDocuments == null) {
+            userDocuments = new HashSet<>();
+            healthUser.setClinicalDocuments(userDocuments);
+        }
+        userDocuments.add(clinicalDocument);
 
         healthWorkers.forEach(healthWorker -> {
             Set<ClinicalDocument> healthWorkerClinicalDocuments = healthWorker.getClinicalDocuments();
+            if (healthWorkerClinicalDocuments == null) {
+                healthWorkerClinicalDocuments = new HashSet<>();
+                healthWorker.setClinicalDocuments(healthWorkerClinicalDocuments);
+            }
             healthWorkerClinicalDocuments.add(clinicalDocument);
             healthWorker.setClinicalDocuments(healthWorkerClinicalDocuments);
         });
@@ -108,9 +110,9 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceRemot
         if (isBlank(addClinicalDocumentDTO.getContentUrl())) {
             throw new ValidationException("Content URL is required");
         }
-        if (addClinicalDocumentDTO.getClinicalHistoryId() == null
-                || addClinicalDocumentDTO.getClinicalHistoryId().isEmpty()) {
-            throw new ValidationException("Clinical history is required");
+        if (addClinicalDocumentDTO.getHealthUserId() == null
+                || addClinicalDocumentDTO.getHealthUserId().isEmpty()) {
+            throw new ValidationException("Health user is required");
         }
         if (addClinicalDocumentDTO.getHealthWorkerIds() == null
                 || addClinicalDocumentDTO.getHealthWorkerIds().isEmpty()) {

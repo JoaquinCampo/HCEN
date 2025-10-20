@@ -20,7 +20,7 @@ public final class ClinicalDocumentRegistrationMessaging {
     public static final String[] PAYLOAD_FIELDS = {
             "title",
             "contentUrl",
-            "clinicalHistoryId",
+            "healthUserId",
             "healthWorkerIds" // comma-separated list of IDs
     };
 

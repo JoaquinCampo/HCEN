@@ -21,7 +21,7 @@ public final class ClinicalDocumentRegistrationMessageMapper {
         String[] fields = new String[] {
                 requireNoPipe(dto.getTitle(), "title"),
                 requireNoPipe(dto.getContentUrl(), "contentUrl"),
-                requireNoPipe(dto.getClinicalHistoryId(), "clinicalHistoryId"),
+                requireNoPipe(dto.getHealthUserId(), "healthUserId"),
                 toList(dto.getHealthWorkerIds())
         };
 
@@ -41,7 +41,7 @@ public final class ClinicalDocumentRegistrationMessageMapper {
         AddClinicalDocumentDTO dto = new AddClinicalDocumentDTO();
         dto.setTitle(requireNotBlank(tokens[0], "title"));
         dto.setContentUrl(requireNotBlank(tokens[1], "contentUrl"));
-        dto.setClinicalHistoryId(requireNotBlank(tokens[2], "clinicalHistoryId"));
+        dto.setHealthUserId(requireNotBlank(tokens[2], "healthUserId"));
         dto.setHealthWorkerIds(fromList(tokens[3]));
         return dto;
     }

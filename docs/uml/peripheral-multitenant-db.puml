@@ -1,0 +1,196 @@
+@startuml
+hide circle
+skinparam linetype ortho
+left to right direction
+title Peripheral Component Multi-Tenant DB
+
+package "Tenancy" {
+  entity "Tenant" as tenant {
+    *id : UUID
+    --
+    name : varchar
+    status : tenant_status
+    created_at : timestamptz
+    updated_at : timestamptz
+  }
+
+  entity "TenantConfig" as tenant_config {
+    *tenant_id : UUID <<FK>>
+    --
+    theme_primary_color : varchar
+    logo_uri : varchar
+    rndc_endpoint : varchar
+    rndc_auth_secret : varchar
+    mobile_push_key : varchar
+    updated_at : timestamptz
+  }
+}
+
+package "Identity & Workforce" {
+  entity "ClinicUser" as clinic_user {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    username : varchar
+    email : varchar
+    password_hash : varchar
+    password_salt : varchar
+    role : user_role
+    must_change_password : boolean
+    created_at : timestamptz
+    disabled_at : timestamptz
+  }
+
+  entity "Professional" as professional {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    user_id : UUID <<FK>>
+    license_number : varchar
+    specialty_id : UUID <<FK>>
+    active : boolean
+    created_at : timestamptz
+  }
+
+  entity "Specialty" as specialty {
+    *id : UUID
+    --
+    code : varchar
+    name : varchar
+    terminology_system : varchar
+    active : boolean
+  }
+}
+
+package "Patient Registry & Docs" {
+  entity "Patient" as patient {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    inus_id : varchar
+    national_id_type : varchar
+    national_id : varchar
+    first_name : varchar
+    last_name : varchar
+    birth_date : date
+    gender : gender_type
+    sync_status : sync_state
+    created_at : timestamptz
+    updated_at : timestamptz
+  }
+
+  entity "ClinicalDocument" as clinical_document {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    patient_id : UUID <<FK>>
+    author_professional_id : UUID <<FK>>
+    document_type : document_type
+    status : document_status
+    storage_uri : varchar
+    rndc_id : varchar
+    created_at : timestamptz
+    signed_at : timestamptz
+    version : integer
+  }
+}
+
+package "Access & Audit" {
+  entity "DocumentAccessLog" as document_access_log {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    document_id : UUID <<FK>>
+    actor_type : actor_type
+    actor_id : UUID
+    access_reason : varchar
+    access_channel : channel_type
+    accessed_at : timestamptz
+    granted_by_policy_id : UUID <<FK>>
+  }
+
+  entity "AccessPolicy" as access_policy {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    patient_id : UUID <<FK>>
+    grant_type : policy_type
+    granted_to_clinic_id : UUID
+    granted_specialty_id : UUID <<FK>>
+    scope_json : jsonb
+    expires_at : timestamptz
+    created_at : timestamptz
+    revoked_at : timestamptz
+  }
+
+  entity "AccessRequest" as access_request {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    document_id : UUID <<FK>>
+    requester_professional_id : UUID <<FK>>
+    status : request_status
+    reason : varchar
+    requested_at : timestamptz
+    responded_at : timestamptz
+    response_notes : varchar
+  }
+}
+
+package "Notifications" {
+  entity "NotificationSubscription" as notification_subscription {
+    *id : UUID
+    --
+    tenant_id : UUID <<FK>>
+    patient_id : UUID <<FK>>
+    channel : notification_channel
+    destination : varchar
+    enabled : boolean
+    last_notified_at : timestamptz
+    created_at : timestamptz
+  }
+}
+
+tenant ||--|| tenant_config : "config 1..1"
+tenant ||--o{ clinic_user : "users"
+tenant ||--o{ patient : "patients"
+tenant ||--o{ professional : "professionals"
+tenant ||--o{ clinical_document : "documents"
+tenant ||--o{ access_policy : "policies"
+tenant ||--o{ document_access_log : "access logs"
+tenant ||--o{ access_request : "access requests"
+tenant ||--o{ notification_subscription : "subscriptions"
+
+clinic_user ||--|| professional : "1..1 when role=PROF"
+specialty ||--o{ professional : "specialists"
+patient ||--o{ clinical_document : "documents"
+professional ||--o{ clinical_document : "authored"
+
+clinical_document ||--o{ document_access_log : "audit"
+clinical_document ||--o{ access_request : "requests"
+access_policy ||--o{ document_access_log : "grants"
+access_policy ||--o{ access_request : "fulfills"
+patient ||--o{ access_policy : "policies"
+patient ||--o{ notification_subscription : "notification preferences"
+
+note right of tenant
+  Shared-schema multi-tenancy.
+  RLS enforces tenant_id = current_setting('app.tenant').
+  Provisioning del alta de clínica crea Tenant y TenantConfig.
+end note
+
+note right of clinic_user
+  Roles esperados:
+  - admin_clinica
+  - prof_salud
+  - operator
+end note
+
+note right of access_policy
+  scope_json almacena reglas dinámicas:
+  - especialidades permitidas
+  - ventanas de tiempo
+  - motivos autorizados
+end note
+
+@enduml

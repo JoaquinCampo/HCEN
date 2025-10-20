@@ -32,6 +32,9 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
 
     @Override
     public HealthWorkerDTO add(AddHealthWorkerDTO addHealthWorkerDTO) {
+        if (addHealthWorkerDTO.getBloodType() != null) {
+            addHealthWorkerDTO.setBloodType(addHealthWorkerDTO.getBloodType().trim().toUpperCase());
+        }
         validateHealthWorker(addHealthWorkerDTO);
         HealthWorker healthWorker = createHealthWorkerFromDTO(addHealthWorkerDTO);
         return repository.add(healthWorker).toDto();
@@ -72,6 +75,12 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
         if (isBlank(addHealthWorkerDTO.getLicenseNumber())) {
             throw new ValidationException("License number is required");
         }
+        if (isBlank(addHealthWorkerDTO.getBloodType())) {
+            throw new ValidationException("Blood type is required");
+        }
+        if (!isValidBloodType(addHealthWorkerDTO.getBloodType())) {
+            throw new ValidationException("Blood type must be one of A+, A-, B+, B-, AB+, AB-, O+, O-");
+        }
         if (isBlank(addHealthWorkerDTO.getPassword())) {
             throw new ValidationException("HealthWorker password is required");
         }
@@ -91,6 +100,9 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
         worker.setAddress(dto.getAddress());
         worker.setDateOfBirth(dto.getDateOfBirth());
         worker.setLicenseNumber(dto.getLicenseNumber());
+        if (dto.getBloodType() != null) {
+            worker.setBloodType(dto.getBloodType().trim().toUpperCase());
+        }
 
         String salt = PasswordUtil.generateSalt();
         String hashedPassword = PasswordUtil.hashPassword(dto.getPassword(), salt);
@@ -115,5 +127,10 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private boolean isValidBloodType(String value) {
+        String normalized = value.trim().toUpperCase();
+        return normalized.matches("^(A|B|AB|O)[+-]$");
     }
 }
