@@ -30,8 +30,8 @@ public class ClinicalDocument {
     private LocalDate updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "clinical_history_id")
-    private ClinicalHistory clinicalHistory;
+    @JoinColumn(name = "health_user_id")
+    private HealthUser healthUser;
 
     @ManyToMany
     @JoinTable(name = "clinical_document_health_worker", joinColumns = @JoinColumn(name = "clinical_document_id"), inverseJoinColumns = @JoinColumn(name = "health_worker_id"))
@@ -95,12 +95,12 @@ public class ClinicalDocument {
         this.updatedAt = updatedAt;
     }
 
-    public ClinicalHistory getClinicalHistory() {
-        return clinicalHistory;
+    public HealthUser getHealthUser() {
+        return healthUser;
     }
 
-    public void setClinicalHistory(ClinicalHistory clinicalHistory) {
-        this.clinicalHistory = clinicalHistory;
+    public void setHealthUser(HealthUser healthUser) {
+        this.healthUser = healthUser;
     }
 
     public Set<HealthWorker> getHealthWorkers() {
@@ -143,7 +143,7 @@ public class ClinicalDocument {
         dto.setContentUrl(contentUrl);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
-        dto.setClinicalHistoryId(clinicalHistory != null ? clinicalHistory.getId() : null);
+        dto.setHealthUserId(healthUser != null ? healthUser.getId() : null);
         dto.setHealthWorkerIds(
                 healthWorkers != null ? healthWorkers.stream().map(HealthWorker::getId).collect(Collectors.toSet())
                         : null);

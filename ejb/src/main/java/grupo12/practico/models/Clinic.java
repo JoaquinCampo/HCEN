@@ -49,14 +49,10 @@ public class Clinic {
     @ManyToMany(mappedBy = "clinics")
     private Set<ClinicAdmin> clinicAdmins;
 
-    @OneToMany(mappedBy = "clinic")
-    private Set<ClinicalHistory> clinicalHistories;
-
     public Clinic() {
         this.healthUsers = new HashSet<>();
         this.healthWorkers = new HashSet<>();
         this.clinicAdmins = new HashSet<>();
-        this.clinicalHistories = new HashSet<>();
     }
 
     @PrePersist
@@ -167,14 +163,6 @@ public class Clinic {
 
     public void setClinicAdmins(Set<ClinicAdmin> clinicAdmins) {
         this.clinicAdmins = clinicAdmins;
-    }
-
-    public Set<ClinicalHistory> getClinicalHistories() {
-        return clinicalHistories;
-    }
-
-    public void setClinicalHistories(Set<ClinicalHistory> clinicalHistories) {
-        this.clinicalHistories = clinicalHistories;
     }
 
     @Override

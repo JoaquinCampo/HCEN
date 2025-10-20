@@ -28,17 +28,17 @@ public class SpecialtyRepositoryBean implements SpecialtyRepositoryRemote {
     }
 
     @Override
-    public List<Specialty> findAll() {
-        TypedQuery<Specialty> query = em.createQuery("SELECT s FROM Specialty s", Specialty.class);
-        return query.getResultList();
-    }
-
-    @Override
     public Specialty findById(String id) {
         if (id == null || id.trim().isEmpty()) {
             return null;
         }
         return em.find(Specialty.class, id);
+    }
+
+    @Override
+    public List<Specialty> findAll() {
+        TypedQuery<Specialty> query = em.createQuery("SELECT s FROM Specialty s", Specialty.class);
+        return query.getResultList();
     }
 
     @Override

@@ -9,9 +9,9 @@ import jakarta.ejb.Local;
 public interface SpecialtyRepositoryLocal {
     Specialty add(Specialty specialty);
 
-    List<Specialty> findAll();
-
     Specialty findById(String id);
+
+    List<Specialty> findAll();
 
     List<Specialty> findByName(String name);
 }

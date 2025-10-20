@@ -299,7 +299,7 @@
             />
           </div>
 
-          <div class="col-sm-6">
+          <div class="col-sm-4">
             <h:outputLabel
               for="password"
               value="Password"
@@ -328,7 +328,7 @@
               styleClass="form-text text-danger"
             />
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-4">
             <h:outputLabel
               for="license"
               value="License Number"
@@ -349,6 +349,38 @@
             <h:message
               id="licenseMessage"
               for="license"
+              styleClass="form-text text-danger"
+            />
+          </div>
+          <div class="col-sm-4">
+            <h:outputLabel
+              for="bloodType"
+              value="Blood Type"
+              styleClass="form-label"
+            />
+            <h:selectOneMenu
+              id="bloodType"
+              value="#{healthWorkerBean.newWorker.bloodType}"
+              required="true"
+              requiredMessage="Select a blood type"
+              styleClass="form-select"
+            >
+              <f:selectItem
+                itemLabel="-- Select --"
+                itemValue=""
+                noSelectionOption="true"
+              />
+              <f:selectItems
+                value="#{healthWorkerBean.bloodTypes}"
+                var="blood"
+                itemValue="#{blood}"
+                itemLabel="#{blood}"
+              />
+              <f:ajax event="change" render="bloodTypeMessage" execute="bloodType" />
+            </h:selectOneMenu>
+            <h:message
+              id="bloodTypeMessage"
+              for="bloodType"
               styleClass="form-text text-danger"
             />
           </div>

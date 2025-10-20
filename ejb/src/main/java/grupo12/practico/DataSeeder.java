@@ -2,10 +2,9 @@ package grupo12.practico;
 
 import grupo12.practico.models.*;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
-import grupo12.practico.repositories.ClinicalHistory.ClinicalHistoryRepositoryLocal;
+import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
-import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
 import grupo12.practico.repositories.Specialty.SpecialtyRepositoryLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -37,7 +36,10 @@ public class DataSeeder {
     private ClinicalDocumentRepositoryLocal clinicalDocumentRepository;
 
     @EJB
-    private ClinicalHistoryRepositoryLocal clinicalHistoryRepository;
+    private SpecialtyRepositoryLocal specialtyRepository;
+
+    @EJB
+    private SpecialtyRepositoryLocal specialtyRepository;
 
     @EJB
     private SpecialtyRepositoryLocal specialtyRepository;
@@ -160,6 +162,7 @@ public class DataSeeder {
         hw1.setAddress("Calle Colonia 567, Montevideo");
         hw1.setLicenseNumber("LIC-001");
         hw1.setDateOfBirth(LocalDate.of(1975, 8, 20));
+        hw1.setBloodType("O+");
 
         // Add specialties - Cardiology
         Set<Specialty> specialties1 = new HashSet<>();
@@ -192,6 +195,7 @@ public class DataSeeder {
         hw2.setAddress("Av. Rivera 890, Montevideo");
         hw2.setLicenseNumber("LIC-002");
         hw2.setDateOfBirth(LocalDate.of(1980, 12, 5));
+        hw2.setBloodType("A+");
 
         // Add specialties - General Medicine
         Set<Specialty> specialties2 = new HashSet<>();
@@ -224,6 +228,7 @@ public class DataSeeder {
         hw3.setAddress("Rambla Brava 123, Punta del Este");
         hw3.setLicenseNumber("LIC-003");
         hw3.setDateOfBirth(LocalDate.of(1985, 4, 15));
+        hw3.setBloodType("B-");
 
         // Add specialties - Pediatrics
         Set<Specialty> specialties3 = new HashSet<>();
@@ -256,6 +261,7 @@ public class DataSeeder {
         hw4.setAddress("Calle Artigas 456, Rivera");
         hw4.setLicenseNumber("LIC-004");
         hw4.setDateOfBirth(LocalDate.of(1970, 6, 30));
+        hw4.setBloodType("AB+");
 
         // Add specialties - General Surgery
         Set<Specialty> specialties4 = new HashSet<>();
@@ -293,11 +299,6 @@ public class DataSeeder {
         hu1.setAddress("Calle Ejido 789, Montevideo");
         hu1.setDateOfBirth(LocalDate.of(1990, 2, 14));
 
-        ClinicalHistory ch1 = new ClinicalHistory();
-        ch1.setHealthUser(hu1);
-        hu1.setClinicalHistory(ch1);
-        clinicalHistoryRepository.add(ch1);
-
         if (!clinics.isEmpty()) {
             Set<Clinic> clinics1 = new HashSet<>();
             clinics1.add(clinics.get(0));
@@ -316,11 +317,6 @@ public class DataSeeder {
         hu2.setPhone("+598 99 678 901");
         hu2.setAddress("Av. Brasil 234, Montevideo");
         hu2.setDateOfBirth(LocalDate.of(1985, 11, 8));
-
-        ClinicalHistory ch2 = new ClinicalHistory();
-        ch2.setHealthUser(hu2);
-        hu2.setClinicalHistory(ch2);
-        clinicalHistoryRepository.add(ch2);
 
         if (!clinics.isEmpty()) {
             Set<Clinic> clinics2 = new HashSet<>();
@@ -341,11 +337,6 @@ public class DataSeeder {
         hu3.setAddress("Bv. España 567, Montevideo");
         hu3.setDateOfBirth(LocalDate.of(2015, 6, 22));
 
-        ClinicalHistory ch3 = new ClinicalHistory();
-        ch3.setHealthUser(hu3);
-        hu3.setClinicalHistory(ch3);
-        clinicalHistoryRepository.add(ch3);
-
         if (clinics.size() > 2) {
             Set<Clinic> clinics3 = new HashSet<>();
             clinics3.add(clinics.get(2));
@@ -364,11 +355,6 @@ public class DataSeeder {
         hu4.setPhone("+598 99 890 123");
         hu4.setAddress("Calle 25 de Mayo 890, Rivera");
         hu4.setDateOfBirth(LocalDate.of(1978, 9, 17));
-
-        ClinicalHistory ch4 = new ClinicalHistory();
-        ch4.setHealthUser(hu4);
-        hu4.setClinicalHistory(ch4);
-        clinicalHistoryRepository.add(ch4);
 
         if (clinics.size() > 3) {
             Set<Clinic> clinics4 = new HashSet<>();
@@ -394,11 +380,13 @@ public class DataSeeder {
         doc1.setTitle("Initial Consultation - Cardiovascular Check");
         doc1.setContentUrl(
                 "https://health-records-bucket.s3.amazonaws.com/documents/lucia-cardiovascular-check-2024.pdf");
-        doc1.setClinicalHistory(healthUsers.get(0).getClinicalHistory());
+        doc1.setHealthUser(healthUsers.get(0));
 
         Set<HealthWorker> healthWorkers1 = new HashSet<>();
         healthWorkers1.add(healthWorkers.get(0));
         doc1.setHealthWorkers(healthWorkers1);
+        healthUsers.get(0).getClinicalDocuments().add(doc1);
+        healthWorkers.get(0).getClinicalDocuments().add(doc1);
 
         clinicalDocumentRepository.add(doc1);
 
@@ -406,11 +394,13 @@ public class DataSeeder {
         ClinicalDocument doc2 = new ClinicalDocument();
         doc2.setTitle("Blood Pressure Medication Prescription");
         doc2.setContentUrl("https://health-records-bucket.s3.amazonaws.com/documents/miguel-prescription-2024.pdf");
-        doc2.setClinicalHistory(healthUsers.get(1).getClinicalHistory());
+        doc2.setHealthUser(healthUsers.get(1));
 
         Set<HealthWorker> healthWorkers2 = new HashSet<>();
         healthWorkers2.add(healthWorkers.get(1));
         doc2.setHealthWorkers(healthWorkers2);
+        healthUsers.get(1).getClinicalDocuments().add(doc2);
+        healthWorkers.get(1).getClinicalDocuments().add(doc2);
 
         clinicalDocumentRepository.add(doc2);
 
@@ -418,11 +408,13 @@ public class DataSeeder {
         ClinicalDocument doc3 = new ClinicalDocument();
         doc3.setTitle("Well-child Visit - 8 Years Old");
         doc3.setContentUrl("https://health-records-bucket.s3.amazonaws.com/documents/sofia-pediatric-check-2024.pdf");
-        doc3.setClinicalHistory(healthUsers.get(2).getClinicalHistory());
+        doc3.setHealthUser(healthUsers.get(2));
 
         Set<HealthWorker> healthWorkers3 = new HashSet<>();
         healthWorkers3.add(healthWorkers.get(2));
         doc3.setHealthWorkers(healthWorkers3);
+        healthUsers.get(2).getClinicalDocuments().add(doc3);
+        healthWorkers.get(2).getClinicalDocuments().add(doc3);
 
         clinicalDocumentRepository.add(doc3);
 
@@ -431,10 +423,12 @@ public class DataSeeder {
         doc4.setTitle("Appendectomy Surgery Report");
         doc4.setContentUrl(
                 "https://health-records-bucket.s3.amazonaws.com/documents/roberto-appendectomy-report-2024.pdf");
-        doc4.setClinicalHistory(healthUsers.get(3).getClinicalHistory());
+        doc4.setHealthUser(healthUsers.get(3));
         Set<HealthWorker> healthWorkers4 = new HashSet<>();
         healthWorkers4.add(healthWorkers.get(3));
         doc4.setHealthWorkers(healthWorkers4);
+        healthUsers.get(3).getClinicalDocuments().add(doc4);
+        healthWorkers.get(3).getClinicalDocuments().add(doc4);
 
         clinicalDocumentRepository.add(doc4);
     }

@@ -105,8 +105,8 @@
               <f:selectItems
                 value="#{clinicalDocumentBean.users}"
                 var="patient"
-                itemValue="#{patient.clinicalHistoryId}"
-                itemLabel="#{clinicalDocumentBean.healthUserName(patient.clinicalHistoryId)}"
+                itemValue="#{patient.id}"
+                itemLabel="#{clinicalDocumentBean.healthUserName(patient.id)}"
               />
               <f:ajax
                 event="change"

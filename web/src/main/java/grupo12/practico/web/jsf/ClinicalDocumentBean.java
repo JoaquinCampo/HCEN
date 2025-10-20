@@ -17,9 +17,11 @@ import jakarta.inject.Named;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Named("clinicalDocumentBean")
 @ViewScoped
@@ -83,8 +85,11 @@ public class ClinicalDocumentBean implements Serializable {
             }
 
             // Set the IDs in the DTO
-            newDocument.setClinicalHistoryId(selectedHealthUserId);
-            newDocument.setHealthWorkerIds(java.util.Set.of(selectedHealthWorkerIds));
+            newDocument.setHealthUserId(selectedHealthUserId);
+            newDocument.setHealthWorkerIds(Arrays.stream(selectedHealthWorkerIds)
+                    .map(String::trim)
+                    .filter(id -> id != null && !id.isEmpty())
+                    .collect(Collectors.toSet()));
 
             registrationProducer.enqueue(newDocument);
             FacesContext.getCurrentInstance().addMessage(null,
@@ -147,11 +152,11 @@ public class ClinicalDocumentBean implements Serializable {
         return workers;
     }
 
-    public String healthUserName(String clinicalHistoryId) {
-        if (clinicalHistoryId == null) {
+    public String healthUserName(String healthUserId) {
+        if (healthUserId == null) {
             return "";
         }
-        return healthUserLookup.getOrDefault(clinicalHistoryId, clinicalHistoryId);
+        return healthUserLookup.getOrDefault(healthUserId, healthUserId);
     }
 
     public String healthWorkerName(String workerId) {
@@ -169,11 +174,11 @@ public class ClinicalDocumentBean implements Serializable {
 
         healthUserLookup = new HashMap<>();
         for (HealthUserDTO user : users) {
-            if (user.getClinicalHistoryId() == null) {
+            if (user.getId() == null) {
                 continue;
             }
             String display = buildHealthUserDisplay(user);
-            healthUserLookup.putIfAbsent(user.getClinicalHistoryId(), display);
+            healthUserLookup.putIfAbsent(user.getId(), display);
         }
 
         healthWorkerLookup = new HashMap<>();
@@ -197,8 +202,8 @@ public class ClinicalDocumentBean implements Serializable {
             }
             builder.append(user.getFirstName());
         }
-        if (builder.length() == 0 && user.getClinicalHistoryId() != null) {
-            builder.append(user.getClinicalHistoryId());
+        if (builder.length() == 0 && user.getId() != null) {
+            builder.append(user.getId());
         }
         if (user.getDocument() != null && !user.getDocument().isBlank()) {
             builder.append(" (" + user.getDocument() + ")");
@@ -222,6 +227,9 @@ public class ClinicalDocumentBean implements Serializable {
         }
         if (worker.getLicenseNumber() != null && !worker.getLicenseNumber().isBlank()) {
             builder.append(" (" + worker.getLicenseNumber() + ")");
+        }
+        if (worker.getBloodType() != null && !worker.getBloodType().isBlank()) {
+            builder.append(" · " + worker.getBloodType());
         }
         return builder.toString();
     }

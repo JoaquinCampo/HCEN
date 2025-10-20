@@ -91,6 +91,12 @@
               <div class="fw-semibold">#{w.licenseNumber}</div>
             </h:column>
             <h:column>
+              <f:facet name="header">Blood Type</f:facet>
+              <span class="badge bg-light text-dark border"
+                >#{w.bloodType}</span
+              >
+            </h:column>
+            <h:column>
               <f:facet name="header">Clinics</f:facet>
               <div class="fw-semibold">
                 <h:panelGroup rendered="#{not empty w.clinicIds}">
