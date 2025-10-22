@@ -17,25 +17,45 @@
         </div>
 
         <h:form styleClass="row g-3">
-          <div class="col-sm-8">
-            <h:outputLabel for="name" value="Clinic Name" styleClass="form-label" />
-            <h:inputText id="name" value="#{clinicBean.newProvider.name}" required="true"
-              requiredMessage="Clinic name is required" styleClass="form-control" p:placeholder="Enter clinic name"
-              p:autocomplete="organization">
+          <div class="col-sm-6">
+            <h:outputLabel
+              for="name"
+              value="Clinic Name"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="name"
+              value="#{clinicBean.newProvider.name}"
+              required="true"
+              requiredMessage="Clinic name is required"
+              styleClass="form-control"
+              p:placeholder="Enter clinic name"
+              p:autocomplete="organization"
+            >
               <f:ajax event="blur" render="nameMessage" execute="name" />
               <f:validateLength minimum="3" maximum="120" />
             </h:inputText>
             <h:message id="nameMessage" for="name" styleClass="form-text text-danger" />
           </div>
-          <div class="col-sm-4">
-            <h:outputLabel for="type" value="Clinic Type" styleClass="form-label" />
-            <h:selectOneMenu id="type" value="#{clinicBean.newProvider.type}" required="true"
-              requiredMessage="Select a clinic type" styleClass="form-select">
-              <f:selectItem itemLabel="-- Select --" itemValue="" noSelectionOption="true" />
-              <f:selectItems value="#{clinicBean.clinicTypes}" var="type" itemValue="#{type}" itemLabel="#{type}" />
-              <f:ajax event="change" render="typeMessage" execute="type" />
-            </h:selectOneMenu>
-            <h:message id="typeMessage" for="type" styleClass="form-text text-danger" />
+          <div class="col-sm-6">
+            <h:outputLabel for="email" value="Email" styleClass="form-label" />
+            <h:inputText
+              id="email"
+              value="#{clinicBean.newProvider.email}"
+              required="true"
+              requiredMessage="Email is required"
+              styleClass="form-control"
+              p:type="email"
+              p:placeholder="contact@example.com"
+              p:autocomplete="email"
+            >
+              <f:ajax event="blur" render="emailMessage" execute="email" />
+            </h:inputText>
+            <h:message
+              id="emailMessage"
+              for="email"
+              styleClass="form-text text-danger"
+            />
           </div>
 
           <div class="col-12">
@@ -50,19 +70,103 @@
 
           <div class="col-md-6">
             <h:outputLabel for="phone" value="Phone" styleClass="form-label" />
-            <h:inputText id="phone" value="#{clinicBean.newProvider.phone}" styleClass="form-control" p:type="tel"
-              p:inputmode="tel" p:placeholder="e.g. +598123456" p:pattern="^[+0-9 ()-]{7,20}$">
+            <h:inputText
+              id="phone"
+              value="#{clinicBean.newProvider.phone}"
+              required="true"
+              requiredMessage="Phone is required"
+              styleClass="form-control"
+              p:type="tel"
+              p:inputmode="tel"
+              p:placeholder="e.g. +598123456"
+              p:pattern="^[+0-9 ()-]{7,20}$"
+            >
               <f:ajax event="blur" render="phoneMessage" execute="phone" />
             </h:inputText>
             <h:message id="phoneMessage" for="phone" styleClass="form-text text-danger" />
           </div>
-          <div class="col-md-6">
-            <h:outputLabel for="email" value="Email" styleClass="form-label" />
-            <h:inputText id="email" value="#{clinicBean.newProvider.email}" styleClass="form-control" p:type="email"
-              p:placeholder="contact@example.com" p:autocomplete="email">
-              <f:ajax event="blur" render="emailMessage" execute="email" />
+
+          <div class="col-md-4">
+            <h:outputLabel
+              for="adminName"
+              value="Clinic Admin Name"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="adminName"
+              value="#{clinicBean.newProvider.clinicAdmin.name}"
+              required="true"
+              requiredMessage="Clinic admin name is required"
+              styleClass="form-control"
+              p:placeholder="Full name"
+            >
+              <f:ajax
+                event="blur"
+                render="adminNameMessage"
+                execute="adminName"
+              />
             </h:inputText>
-            <h:message id="emailMessage" for="email" styleClass="form-text text-danger" />
+            <h:message
+              id="adminNameMessage"
+              for="adminName"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-4">
+            <h:outputLabel
+              for="adminEmail"
+              value="Clinic Admin Email"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="adminEmail"
+              value="#{clinicBean.newProvider.clinicAdmin.email}"
+              required="true"
+              requiredMessage="Clinic admin email is required"
+              styleClass="form-control"
+              p:type="email"
+              p:placeholder="admin@example.com"
+            >
+              <f:ajax
+                event="blur"
+                render="adminEmailMessage"
+                execute="adminEmail"
+              />
+            </h:inputText>
+            <h:message
+              id="adminEmailMessage"
+              for="adminEmail"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-4">
+            <h:outputLabel
+              for="adminPhone"
+              value="Clinic Admin Phone"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="adminPhone"
+              value="#{clinicBean.newProvider.clinicAdmin.phone}"
+              styleClass="form-control"
+              p:type="tel"
+              p:inputmode="tel"
+              p:placeholder="Optional phone"
+              p:pattern="^[+0-9 ()-]{7,20}$"
+            >
+              <f:ajax
+                event="blur"
+                render="adminPhoneMessage"
+                execute="adminPhone"
+              />
+            </h:inputText>
+            <h:message
+              id="adminPhoneMessage"
+              for="adminPhone"
+              styleClass="form-text text-danger"
+            />
           </div>
 
           <div class="col-12 d-flex gap-2 mt-3">

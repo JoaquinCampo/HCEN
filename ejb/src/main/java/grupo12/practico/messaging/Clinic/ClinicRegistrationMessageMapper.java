@@ -3,6 +3,7 @@ package grupo12.practico.messaging.Clinic;
 import java.util.Objects;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
 import jakarta.validation.ValidationException;
 
 /**
@@ -20,11 +21,16 @@ public final class ClinicRegistrationMessageMapper {
     public static String toMessage(AddClinicDTO dto) {
         Objects.requireNonNull(dto, "clinic dto must not be null");
 
+        ClinicAdminInfoDTO admin = dto.getClinicAdmin() != null ? dto.getClinicAdmin() : new ClinicAdminInfoDTO();
+
         String[] fields = new String[] {
                 requireNoPipe(dto.getName(), "name"),
-                optionalNoPipe(dto.getEmail()),
-                optionalNoPipe(dto.getPhone()),
-                optionalNoPipe(dto.getAddress()),
+                requireNoPipe(dto.getEmail(), "email"),
+                requireNoPipe(dto.getPhone(), "phone"),
+                requireNoPipe(dto.getAddress(), "address"),
+                requireNoPipe(admin.getName(), "clinicAdmin.name"),
+                requireNoPipe(admin.getEmail(), "clinicAdmin.email"),
+                optionalNoPipe(admin.getPhone()),
         };
 
         return String.join(ClinicRegistrationMessaging.FIELD_SEPARATOR, fields);
@@ -42,9 +48,15 @@ public final class ClinicRegistrationMessageMapper {
 
         AddClinicDTO dto = new AddClinicDTO();
         dto.setName(requireNotBlank(tokens[0], "name"));
-        dto.setEmail(emptyToNull(tokens[1]));
-        dto.setPhone(emptyToNull(tokens[2]));
-        dto.setAddress(emptyToNull(tokens[3]));
+        dto.setEmail(requireNotBlank(tokens[1], "email"));
+        dto.setPhone(requireNotBlank(tokens[2], "phone"));
+        dto.setAddress(requireNotBlank(tokens[3], "address"));
+
+        ClinicAdminInfoDTO admin = new ClinicAdminInfoDTO();
+        admin.setName(requireNotBlank(tokens[4], "clinicAdmin.name"));
+        admin.setEmail(requireNotBlank(tokens[5], "clinicAdmin.email"));
+        admin.setPhone(emptyToNull(tokens[6]));
+        dto.setClinicAdmin(admin);
         return dto;
     }
 
