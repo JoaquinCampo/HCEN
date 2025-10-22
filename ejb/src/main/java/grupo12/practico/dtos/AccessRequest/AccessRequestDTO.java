@@ -11,8 +11,11 @@ public class AccessRequestDTO implements Serializable {
     private String id;
     private String healthUserId;
     private String healthWorkerId;
+    private String healthWorkerName;
     private String clinicId;
+    private String clinicName;
     private String specialtyId;
+    private String specialtyName;
     private AccessRequestStatus status;
     private LocalDate createdAt;
     private LocalDate updatedAt;
@@ -41,6 +44,14 @@ public class AccessRequestDTO implements Serializable {
         this.healthWorkerId = healthWorkerId;
     }
 
+    public String getHealthWorkerName() {
+        return healthWorkerName;
+    }
+
+    public void setHealthWorkerName(String healthWorkerName) {
+        this.healthWorkerName = healthWorkerName;
+    }
+
     public String getClinicId() {
         return clinicId;
     }
@@ -49,12 +60,28 @@ public class AccessRequestDTO implements Serializable {
         this.clinicId = clinicId;
     }
 
+    public String getClinicName() {
+        return clinicName;
+    }
+
+    public void setClinicName(String clinicName) {
+        this.clinicName = clinicName;
+    }
+
     public String getSpecialtyId() {
         return specialtyId;
     }
 
     public void setSpecialtyId(String specialtyId) {
         this.specialtyId = specialtyId;
+    }
+
+    public String getSpecialtyName() {
+        return specialtyName;
+    }
+
+    public void setSpecialtyName(String specialtyName) {
+        this.specialtyName = specialtyName;
     }
 
     public AccessRequestStatus getStatus() {

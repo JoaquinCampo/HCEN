@@ -147,8 +147,12 @@ public class AccessRequest {
         dto.setId(id);
         dto.setHealthUserId(healthUser != null ? healthUser.getId() : null);
         dto.setHealthWorkerId(healthWorker != null ? healthWorker.getId() : null);
+        dto.setHealthWorkerName(
+                healthWorker != null ? healthWorker.getFirstName() + " " + healthWorker.getLastName() : null);
         dto.setClinicId(clinic != null ? clinic.getId() : null);
+        dto.setClinicName(clinic != null ? clinic.getName() : null);
         dto.setSpecialtyId(specialty != null ? specialty.getId() : null);
+        dto.setSpecialtyName(specialty != null ? specialty.getName() : null);
         dto.setStatus(status);
         dto.setCreatedAt(createdAt);
         dto.setUpdatedAt(updatedAt);
