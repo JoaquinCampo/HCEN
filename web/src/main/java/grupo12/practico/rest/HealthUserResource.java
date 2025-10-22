@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import grupo12.practico.rest.dto.HealthUserPageResponse;
-import java.util.List;
 
 @Path("/health-users")
 @Produces(MediaType.APPLICATION_JSON)
