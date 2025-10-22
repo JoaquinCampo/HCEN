@@ -56,4 +56,41 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
         em.persist(healthUser);
         return healthUser;
     }
+
+    @Override
+    public HealthUser findByDocument(String document) {
+        if (document == null || document.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalizedDocument = document.trim();
+        TypedQuery<HealthUser> query = em.createQuery(
+                "SELECT h FROM HealthUser h WHERE h.document = :document",
+                HealthUser.class);
+        query.setParameter("document", normalizedDocument);
+        query.setMaxResults(1);
+        List<HealthUser> results = query.getResultList();
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    @Override
+    public List<HealthUser> findPage(int offset, int limit) {
+        if (offset < 0) {
+            offset = 0;
+        }
+        if (limit <= 0) {
+            return List.of();
+        }
+
+        TypedQuery<HealthUser> query = em.createQuery("SELECT h FROM HealthUser h ORDER BY h.createdAt DESC",
+                HealthUser.class);
+        query.setFirstResult(offset);
+        query.setMaxResults(limit);
+        return query.getResultList();
+    }
+
+    @Override
+    public long count() {
+        return em.createQuery("SELECT COUNT(h) FROM HealthUser h", Long.class).getSingleResult();
+    }
 }

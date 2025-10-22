@@ -16,4 +16,10 @@ public interface HealthUserServiceLocal {
     List<HealthUserDTO> findByName(String name);
 
     HealthUserDTO add(AddHealthUserDTO addHealthUserDTO);
+
+    HealthUserDTO findByDocument(String document);
+
+    List<HealthUserDTO> findPage(int page, int size);
+
+    long count();
 }
