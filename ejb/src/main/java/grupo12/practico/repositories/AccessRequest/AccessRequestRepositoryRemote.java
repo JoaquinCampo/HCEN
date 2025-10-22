@@ -1,5 +1,6 @@
 package grupo12.practico.repositories.AccessRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 import grupo12.practico.models.AccessRequest;
@@ -15,4 +16,6 @@ public interface AccessRequestRepositoryRemote {
             String specialtyId);
 
     void delete(AccessRequest accessRequest);
+
+    List<AccessRequest> findAllByHealthUserId(String healthUserId);
 }

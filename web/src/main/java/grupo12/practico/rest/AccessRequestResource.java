@@ -14,6 +14,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/access-requests")
 @Produces(MediaType.APPLICATION_JSON)
@@ -39,6 +40,12 @@ public class AccessRequestResource {
                     .build();
         }
         return Response.ok(accessRequest).build();
+    }
+
+    @GET
+    @Path("/health-user/{healthUserId}")
+    public List<AccessRequestDTO> findAllByHealthUserId(@PathParam("healthUserId") String healthUserId) {
+        return accessRequestService.findAllByHealthUserId(healthUserId);
     }
 
     @POST

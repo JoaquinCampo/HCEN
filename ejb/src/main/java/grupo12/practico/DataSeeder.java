@@ -1,6 +1,7 @@
 package grupo12.practico;
 
 import grupo12.practico.models.*;
+import grupo12.practico.repositories.AccessRequest.AccessRequestRepositoryLocal;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
@@ -38,6 +39,9 @@ public class DataSeeder {
     @EJB
     private SpecialtyRepositoryLocal specialtyRepository;
 
+    @EJB
+    private AccessRequestRepositoryLocal accessRequestRepository;
+
     @PostConstruct
     public void seedData() {
         System.out.println("Starting data seeding...");
@@ -46,6 +50,7 @@ public class DataSeeder {
         createHealthWorkers();
         createHealthUsers();
         createClinicalDocuments();
+        createAccessRequests();
         System.out.println("Data seeding completed successfully!");
     }
 
@@ -417,5 +422,81 @@ public class DataSeeder {
         healthWorkers.get(3).getClinicalDocuments().add(doc4);
 
         clinicalDocumentRepository.add(doc4);
+    }
+
+    private void createAccessRequests() {
+        System.out.println("Seeding access requests...");
+
+        var healthUsers = healthUserRepository.findAll();
+        var healthWorkers = healthWorkerRepository.findAll();
+        var clinics = clinicRepository.findAll();
+        var specialties = specialtyRepository.findAll();
+
+        if (healthUsers.size() < 2 || healthWorkers.isEmpty() || clinics.isEmpty() || specialties.isEmpty()) {
+            return;
+        }
+
+        // Get the first two health users (Lucía Silva and Miguel López)
+        HealthUser user1 = healthUsers.get(0); // Lucía Silva
+        HealthUser user2 = healthUsers.get(1); // Miguel López
+
+        // Create access requests for Lucía Silva (user1)
+        // Access request to cardiologist at her clinic - PENDING
+        AccessRequest ar1 = new AccessRequest();
+        ar1.setHealthUser(user1);
+        ar1.setHealthWorker(healthWorkers.get(0)); // María Rodríguez (Cardiologist)
+        ar1.setClinic(clinics.get(0)); // Hospital Central de Montevideo
+        ar1.setSpecialty(specialties.stream().filter(s -> "Cardiology".equals(s.getName())).findFirst().orElse(null));
+        ar1.setStatus(AccessRequestStatus.PENDING);
+        accessRequestRepository.add(ar1);
+
+        // Access request to neurologist at different clinic - PENDING
+        AccessRequest ar2 = new AccessRequest();
+        ar2.setHealthUser(user1);
+        ar2.setHealthWorker(healthWorkers.get(1)); // Carlos Fernández (General Medicine)
+        ar2.setClinic(clinics.get(1)); // Clínica Sanatorio Americano
+        ar2.setSpecialty(
+                specialties.stream().filter(s -> "General Medicine".equals(s.getName())).findFirst().orElse(null));
+        ar2.setStatus(AccessRequestStatus.PENDING);
+        accessRequestRepository.add(ar2);
+
+        // Access request to pediatrician - PENDING
+        AccessRequest ar3 = new AccessRequest();
+        ar3.setHealthUser(user1);
+        ar3.setHealthWorker(healthWorkers.get(2)); // Ana Gómez (Pediatrician)
+        ar3.setClinic(clinics.get(2)); // Centro Médico Punta Gorda
+        ar3.setSpecialty(specialties.stream().filter(s -> "Pediatrics".equals(s.getName())).findFirst().orElse(null));
+        ar3.setStatus(AccessRequestStatus.PENDING);
+        accessRequestRepository.add(ar3);
+
+        // Create access requests for Miguel López (user2)
+        // Access request to general medicine doctor at his clinic - PENDING
+        AccessRequest ar4 = new AccessRequest();
+        ar4.setHealthUser(user2);
+        ar4.setHealthWorker(healthWorkers.get(1)); // Carlos Fernández (General Medicine)
+        ar4.setClinic(clinics.get(1)); // Clínica Sanatorio Americano
+        ar4.setSpecialty(
+                specialties.stream().filter(s -> "General Medicine".equals(s.getName())).findFirst().orElse(null));
+        ar4.setStatus(AccessRequestStatus.PENDING);
+        accessRequestRepository.add(ar4);
+
+        // Access request to surgeon at different clinic - PENDING
+        AccessRequest ar5 = new AccessRequest();
+        ar5.setHealthUser(user2);
+        ar5.setHealthWorker(healthWorkers.get(3)); // José Martínez (Surgeon)
+        ar5.setClinic(clinics.get(3)); // Policlínica Rivera
+        ar5.setSpecialty(
+                specialties.stream().filter(s -> "General Surgery".equals(s.getName())).findFirst().orElse(null));
+        ar5.setStatus(AccessRequestStatus.PENDING);
+        accessRequestRepository.add(ar5);
+
+        // Access request to dermatologist - PENDING
+        AccessRequest ar6 = new AccessRequest();
+        ar6.setHealthUser(user2);
+        ar6.setHealthWorker(healthWorkers.get(0)); // María Rodríguez (Cardiologist)
+        ar6.setClinic(clinics.get(0)); // Hospital Central de Montevideo
+        ar6.setSpecialty(specialties.stream().filter(s -> "Cardiology".equals(s.getName())).findFirst().orElse(null));
+        ar6.setStatus(AccessRequestStatus.PENDING);
+        accessRequestRepository.add(ar6);
     }
 }
