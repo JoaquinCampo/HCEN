@@ -1,5 +1,7 @@
 package grupo12.practico.services.AccessRequest;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.GrantAccessDecisionDTO;
@@ -219,6 +221,12 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
         return GrantAccessResultDTO.accepted(savedPolicy.getId(), healthUser.getId(), "SPECIALTY",
                 specialty.getId(), savedPolicy.getGrantedAt());
+    }
+
+    @Override
+    public List<AccessRequestDTO> findAllByHealthUserId(String healthUserId) {
+        List<AccessRequest> accessRequests = accessRequestRepository.findAllByHealthUserId(healthUserId);
+        return accessRequests.stream().map(AccessRequest::toDto).collect(Collectors.toList());
     }
 
     private void validatePayload(AddAccessRequestDTO dto) {

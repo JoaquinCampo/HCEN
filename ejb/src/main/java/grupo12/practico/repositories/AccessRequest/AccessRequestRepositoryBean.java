@@ -1,5 +1,7 @@
 package grupo12.practico.repositories.AccessRequest;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import grupo12.practico.models.AccessRequest;
@@ -76,5 +78,16 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
             managed = em.merge(accessRequest);
         }
         em.remove(managed);
+    }
+
+    @Override
+    public List<AccessRequest> findAllByHealthUserId(String healthUserId) {
+        if (healthUserId == null || healthUserId.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        TypedQuery<AccessRequest> query = em.createQuery(
+                "SELECT ar FROM AccessRequest ar WHERE ar.healthUser.id = :healthUserId", AccessRequest.class);
+        query.setParameter("healthUserId", healthUserId);
+        return query.getResultList();
     }
 }
