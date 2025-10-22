@@ -15,4 +15,10 @@ public interface HealthUserRepositoryLocal {
     List<HealthUser> findByName(String name);
 
     HealthUser add(HealthUser healthUser);
+
+    HealthUser findByDocument(String document);
+
+    List<HealthUser> findPage(int offset, int limit);
+
+    long count();
 }

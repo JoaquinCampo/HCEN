@@ -58,6 +58,28 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         return userRepository.add(healthUser).toDto();
     }
 
+    @Override
+    public HealthUserDTO findByDocument(String document) {
+        HealthUser user = userRepository.findByDocument(document);
+        return user != null ? user.toDto() : null;
+    }
+
+    @Override
+    public List<HealthUserDTO> findPage(int page, int size) {
+        if (page < 0 || size <= 0) {
+            return List.of();
+        }
+        int offset = page * size;
+        return userRepository.findPage(offset, size).stream()
+                .map(HealthUser::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public long count() {
+        return userRepository.count();
+    }
+
     private void validateCreateUserDTO(AddHealthUserDTO addHealthUserDTO) {
         if (addHealthUserDTO == null) {
             throw new ValidationException("User data must not be null");
