@@ -18,7 +18,7 @@ public interface HealthUserRepositoryLocal {
 
     HealthUser findByDocument(String document);
 
-    List<HealthUser> findPage(int offset, int limit);
+    List<HealthUser> findPage(String documentFragment, String clinicName, int offset, int limit);
 
-    long count();
+    long count(String documentFragment, String clinicName);
 }

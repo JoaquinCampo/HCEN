@@ -19,7 +19,7 @@ public interface HealthUserServiceLocal {
 
     HealthUserDTO findByDocument(String document);
 
-    List<HealthUserDTO> findPage(int page, int size);
+    List<HealthUserDTO> findPage(int page, int size, String documentFragment, String clinicName);
 
-    long count();
+    long count(String documentFragment, String clinicName);
 }

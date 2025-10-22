@@ -7,7 +7,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import grupo12.practico.models.HealthUser;
 
@@ -74,7 +76,7 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
     }
 
     @Override
-    public List<HealthUser> findPage(int offset, int limit) {
+    public List<HealthUser> findPage(String documentFragment, String clinicName, int offset, int limit) {
         if (offset < 0) {
             offset = 0;
         }
@@ -82,15 +84,52 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
             return List.of();
         }
 
-        TypedQuery<HealthUser> query = em.createQuery("SELECT h FROM HealthUser h ORDER BY h.createdAt DESC",
-                HealthUser.class);
+        QueryComponents components = buildQueryComponents(documentFragment, clinicName,
+                "SELECT DISTINCT h FROM HealthUser h", " ORDER BY h.createdAt DESC");
+        TypedQuery<HealthUser> query = em.createQuery(components.jpql(), HealthUser.class);
+        components.parameters().forEach(query::setParameter);
         query.setFirstResult(offset);
         query.setMaxResults(limit);
         return query.getResultList();
     }
 
     @Override
-    public long count() {
-        return em.createQuery("SELECT COUNT(h) FROM HealthUser h", Long.class).getSingleResult();
+    public long count(String documentFragment, String clinicName) {
+        QueryComponents components = buildQueryComponents(documentFragment, clinicName,
+                "SELECT COUNT(DISTINCT h.id) FROM HealthUser h", "");
+        TypedQuery<Long> query = em.createQuery(components.jpql(), Long.class);
+        components.parameters().forEach(query::setParameter);
+        return query.getSingleResult();
+    }
+
+    private QueryComponents buildQueryComponents(String documentFragment, String clinicName, String baseSelect,
+            String suffix) {
+        StringBuilder jpql = new StringBuilder(baseSelect);
+        Map<String, Object> parameters = new HashMap<>();
+        boolean joinClinics = clinicName != null && !clinicName.trim().isEmpty();
+
+        if (joinClinics) {
+            jpql.append(" JOIN h.clinics c");
+        }
+
+        boolean whereAdded = false;
+        if (documentFragment != null && !documentFragment.trim().isEmpty()) {
+            jpql.append(whereAdded ? " AND " : " WHERE ");
+            jpql.append("LOWER(h.document) LIKE :documentPattern");
+            parameters.put("documentPattern", "%" + documentFragment.trim().toLowerCase() + "%");
+            whereAdded = true;
+        }
+
+        if (joinClinics) {
+            jpql.append(whereAdded ? " AND " : " WHERE ");
+            jpql.append("LOWER(c.name) LIKE :clinicNamePattern");
+            parameters.put("clinicNamePattern", "%" + clinicName.trim().toLowerCase() + "%");
+        }
+
+        jpql.append(suffix);
+        return new QueryComponents(jpql.toString(), parameters);
+    }
+
+    private record QueryComponents(String jpql, Map<String, Object> parameters) {
     }
 }

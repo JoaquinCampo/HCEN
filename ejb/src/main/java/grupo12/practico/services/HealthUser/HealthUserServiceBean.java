@@ -65,19 +65,19 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     }
 
     @Override
-    public List<HealthUserDTO> findPage(int page, int size) {
+    public List<HealthUserDTO> findPage(int page, int size, String documentFragment, String clinicName) {
         if (page < 0 || size <= 0) {
             return List.of();
         }
         int offset = page * size;
-        return userRepository.findPage(offset, size).stream()
+        return userRepository.findPage(documentFragment, clinicName, offset, size).stream()
                 .map(HealthUser::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public long count() {
-        return userRepository.count();
+    public long count(String documentFragment, String clinicName) {
+        return userRepository.count(documentFragment, clinicName);
     }
 
     private void validateCreateUserDTO(AddHealthUserDTO addHealthUserDTO) {

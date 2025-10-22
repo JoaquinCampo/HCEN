@@ -31,7 +31,9 @@ public class HealthUserResource {
     @GET
     public Response findAll(
             @DefaultValue("1") @QueryParam("page") int page,
-            @DefaultValue("20") @QueryParam("size") int size) {
+            @DefaultValue("20") @QueryParam("size") int size,
+            @QueryParam("document") String documentFragment,
+            @QueryParam("clinicName") String clinicName) {
         if (size <= 0) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\":\"Parameter 'size' must be greater than 0\"}")
@@ -44,13 +46,20 @@ public class HealthUserResource {
         }
 
         int normalizedSize = Math.min(size, 100);
-        long totalItems = healthUserService.count();
+        String normalizedDocumentFragment = documentFragment != null && !documentFragment.trim().isEmpty()
+                ? documentFragment.trim()
+                : null;
+        String normalizedClinicName = clinicName != null && !clinicName.trim().isEmpty()
+                ? clinicName.trim()
+                : null;
+
+        long totalItems = healthUserService.count(normalizedDocumentFragment, normalizedClinicName);
         long totalPages = normalizedSize == 0 ? 0 : (totalItems + normalizedSize - 1) / normalizedSize;
         int zeroBasedPage = page - 1;
 
         List<HealthUserDTO> items = List.of();
         if (totalItems > 0 && zeroBasedPage < totalPages) {
-            items = healthUserService.findPage(zeroBasedPage, normalizedSize);
+            items = healthUserService.findPage(zeroBasedPage, normalizedSize, normalizedDocumentFragment, normalizedClinicName);
         }
 
         HealthUserPageResponse response = new HealthUserPageResponse();
