@@ -60,9 +60,6 @@ public class HealthUserResource {
         response.setSize(normalizedSize);
         response.setTotalItems(totalItems);
         response.setTotalPages(totalPages);
-        response.setHasPrevious(page > 1 && totalPages > 0);
-        response.setHasNext(totalPages > 0 && page < totalPages);
-
         return Response.ok(response).build();
     }
 

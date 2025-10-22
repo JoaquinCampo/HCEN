@@ -22,8 +22,7 @@ public class HealthUserPageResponse {
         this.size = size;
         this.totalItems = totalItems;
         this.totalPages = totalPages;
-        this.hasPrevious = page > 1 && totalPages > 0;
-        this.hasNext = totalPages > 0 && page < totalPages;
+        updateNavigationFlags();
     }
 
     public List<HealthUserDTO> getItems() {
@@ -40,6 +39,7 @@ public class HealthUserPageResponse {
 
     public void setPage(int page) {
         this.page = page;
+        updateNavigationFlags();
     }
 
     public int getSize() {
@@ -64,21 +64,20 @@ public class HealthUserPageResponse {
 
     public void setTotalPages(long totalPages) {
         this.totalPages = totalPages;
+        updateNavigationFlags();
     }
 
     public boolean isHasNext() {
         return hasNext;
     }
 
-    public void setHasNext(boolean hasNext) {
-        this.hasNext = hasNext;
-    }
-
     public boolean isHasPrevious() {
         return hasPrevious;
     }
 
-    public void setHasPrevious(boolean hasPrevious) {
-        this.hasPrevious = hasPrevious;
+    private void updateNavigationFlags() {
+        boolean hasPages = totalPages > 0;
+        this.hasPrevious = hasPages && page > 1;
+        this.hasNext = hasPages && page < totalPages;
     }
 }
