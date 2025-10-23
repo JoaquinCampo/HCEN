@@ -1,16 +1,21 @@
 package grupo12.practico.services.Clinic;
 
 import grupo12.practico.models.Clinic;
+import grupo12.practico.models.HealthUser;
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
+import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 
+import java.text.Normalizer;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +29,9 @@ public class ClinicServiceBean implements ClinicServiceRemote {
 
     @EJB
     private ClinicRegistrationNotifierLocal registrationNotifier;
+
+    @EJB
+    private HealthUserRepositoryLocal healthUserRepository;
 
     @Override
     public ClinicDTO addClinic(AddClinicDTO addclinicDTO) {
@@ -55,6 +63,53 @@ public class ClinicServiceBean implements ClinicServiceRemote {
         return repository.findByName(name).stream()
                 .map(Clinic::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String linkHealthUserToClinic(String clinicName, String healthUserDocument) {
+        if (isBlank(clinicName)) {
+            throw new ValidationException("Clinic name is required");
+        }
+        if (isBlank(healthUserDocument)) {
+            throw new ValidationException("Health user document is required");
+        }
+
+        String normalizedClinicName = clinicName.trim();
+        String normalizedDocument = healthUserDocument.trim();
+
+        List<Clinic> matches = repository.findByName(normalizedClinicName);
+        if (matches == null || matches.isEmpty()) {
+            matches = repository.findAll();
+        }
+        String normalizedClinicKey = normalizeForComparison(normalizedClinicName);
+        Clinic clinic = matches.stream()
+                .filter(c -> normalizedClinicKey.equals(normalizeForComparison(c.getName())))
+                .findFirst()
+                .orElse(null);
+
+        if (clinic == null) {
+            throw new EntityNotFoundException("Clinic not found with name: " + normalizedClinicName);
+        }
+
+        HealthUser healthUser = healthUserRepository.findByDocument(normalizedDocument);
+        if (healthUser == null) {
+            throw new EntityNotFoundException("Health user not found with document: " + normalizedDocument);
+        }
+
+        if (healthUser.getClinics().contains(clinic)) {
+            return "Health user is already linked to the clinic";
+        }
+
+        if (healthUser.getClinics() == null) {
+            healthUser.setClinics(new HashSet<>());
+        }
+        healthUser.getClinics().add(clinic);
+        if (clinic.getHealthUsers() == null) {
+            clinic.setHealthUsers(new HashSet<>());
+        }
+        clinic.getHealthUsers().add(healthUser);
+
+        return "Health user linked to clinic successfully";
     }
 
     private void validateClinic(AddClinicDTO addClinicDTO) {
@@ -89,6 +144,15 @@ public class ClinicServiceBean implements ClinicServiceRemote {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private String normalizeForComparison(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim().toLowerCase();
+        String normalized = Normalizer.normalize(trimmed, Normalizer.Form.NFD);
+        return normalized.replaceAll("\\p{M}", "");
     }
 
 }
