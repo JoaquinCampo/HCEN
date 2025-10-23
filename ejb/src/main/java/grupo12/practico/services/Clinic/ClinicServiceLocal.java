@@ -16,4 +16,6 @@ public interface ClinicServiceLocal {
     ClinicDTO findById(String id);
 
     List<ClinicDTO> findByName(String name);
+
+    String linkHealthUserToClinic(String clinicName, String healthUserDocument);
 }

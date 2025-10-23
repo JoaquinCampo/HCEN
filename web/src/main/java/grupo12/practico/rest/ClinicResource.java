@@ -12,6 +12,8 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Map;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 
 @Path("/clinics")
 @Produces(MediaType.APPLICATION_JSON)
@@ -48,6 +50,34 @@ public class ClinicResource {
     @Path("/search")
     public List<ClinicDTO> findByName(@QueryParam("name") String name) {
         return clinicService.findByName(name);
+    }
+
+    @POST
+    @Path("/link/{clinicName}/{document}")
+    public Response linkHealthUser(@PathParam("clinicName") String clinicName, @PathParam("document") String document) {
+        try {
+            String message = clinicService.linkHealthUserToClinic(clinicName, document);
+            return Response.ok("{\"message\":\"" + message + "\"}")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (EntityNotFoundException ex) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (ValidationException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (Exception ex) {
+            String message = ex.getMessage() != null ? ex.getMessage()
+                    : "Failed to link health user to clinic";
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"" + message + "\"}")
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
     }
 
     @POST
