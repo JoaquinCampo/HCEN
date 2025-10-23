@@ -53,10 +53,10 @@ public class ClinicResource {
     }
 
     @POST
-    @Path("/link/{clinicName}/{document}")
-    public Response linkHealthUser(@PathParam("clinicName") String clinicName, @PathParam("document") String document) {
+    @Path("/link")
+    public Response linkHealthUser(grupo12.practico.rest.dto.LinkHealthUserRequest request) {
         try {
-            String message = clinicService.linkHealthUserToClinic(clinicName, document);
+            String message = clinicService.linkHealthUserToClinic(request.getClinicName(), request.getDocument());
             return Response.ok("{\"message\":\"" + message + "\"}")
                     .type(MediaType.APPLICATION_JSON)
                     .build();
