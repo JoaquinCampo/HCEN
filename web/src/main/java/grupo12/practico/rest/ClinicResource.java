@@ -52,7 +52,7 @@ public class ClinicResource {
         return clinicService.findByName(name);
     }
 
-    @GET
+    @POST
     @Path("/link/{clinicName}/{document}")
     public Response linkHealthUser(@PathParam("clinicName") String clinicName, @PathParam("document") String document) {
         try {

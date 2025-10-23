@@ -96,13 +96,13 @@ public class ClinicServiceBean implements ClinicServiceRemote {
             throw new EntityNotFoundException("Health user not found with document: " + normalizedDocument);
         }
 
+        if (healthUser.getClinics() == null) {
+            healthUser.setClinics(new HashSet<>());
+        }
         if (healthUser.getClinics().contains(clinic)) {
             return "Health user is already linked to the clinic";
         }
 
-        if (healthUser.getClinics() == null) {
-            healthUser.setClinics(new HashSet<>());
-        }
         healthUser.getClinics().add(clinic);
         if (clinic.getHealthUsers() == null) {
             clinic.setHealthUsers(new HashSet<>());
