@@ -5,6 +5,8 @@ import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.GrantAccessDecisionDTO;
 import grupo12.practico.dtos.AccessRequest.GrantAccessResultDTO;
 import grupo12.practico.services.AccessRequest.AccessRequestServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
+import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -23,6 +25,9 @@ public class AccessRequestResource {
 
     @EJB
     private AccessRequestServiceLocal accessRequestService;
+
+    @EJB
+    private HealthUserServiceLocal healthUserService;
 
     @POST
     public Response create(AddAccessRequestDTO dto) {
@@ -45,6 +50,14 @@ public class AccessRequestResource {
     @GET
     @Path("/health-user/{healthUserId}")
     public List<AccessRequestDTO> findAllByHealthUserId(@PathParam("healthUserId") String healthUserId) {
+        return accessRequestService.findAllByHealthUserId(healthUserId);
+    }
+
+    @GET
+    @Path("/health-user/name/{name}")
+    public List<AccessRequestDTO> findAllByHealthUserName(@PathParam("name") String name) {
+        List<HealthUserDTO> healthUsers = healthUserService.findByName(name);
+        String healthUserId = healthUsers.get(0).getId();
         return accessRequestService.findAllByHealthUserId(healthUserId);
     }
 

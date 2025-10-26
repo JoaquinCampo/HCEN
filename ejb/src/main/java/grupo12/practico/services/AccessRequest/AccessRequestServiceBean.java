@@ -23,6 +23,8 @@ import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
 import grupo12.practico.repositories.HealthWorkerAccessPolicy.HealthWorkerAccessPolicyRepositoryLocal;
 import grupo12.practico.repositories.Specialty.SpecialtyRepositoryLocal;
 import grupo12.practico.repositories.SpecialtyAccessPolicy.SpecialtyAccessPolicyRepositoryLocal;
+import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
+import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -57,6 +59,12 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
     @EJB
     private SpecialtyAccessPolicyRepositoryLocal specialtyAccessPolicyRepository;
+
+    @EJB
+    private NotificationTokenRepositoryLocal notificationTokenRepository;
+
+    @EJB
+    private PushNotificationServiceLocal pushNotificationService;
 
     @Override
     public AccessRequestDTO create(AddAccessRequestDTO dto) {
@@ -103,6 +111,24 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         accessRequest.setStatus(AccessRequestStatus.PENDING);
 
         AccessRequest persisted = accessRequestRepository.add(accessRequest);
+
+        try {
+            var tokens = notificationTokenRepository.findByUserId(healthUser.getId());
+            if (tokens != null && !tokens.isEmpty()) {
+                String title = "New access request";
+                String clinicName = clinic.getName() != null ? clinic.getName() : clinic.getId();
+                String specialtyName = specialty.getName() != null ? specialty.getName() : specialty.getId();
+                String workerFirst = healthWorker.getFirstName() != null ? healthWorker.getFirstName() : "";
+                String workerLast = healthWorker.getLastName() != null ? healthWorker.getLastName() : "";
+                String body = String.format("%s %s requested access to your records at %s (%s)",
+                        workerFirst, workerLast, clinicName, specialtyName);
+                for (var t : tokens) {
+                    pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
         return persisted.toDto();
     }
 
