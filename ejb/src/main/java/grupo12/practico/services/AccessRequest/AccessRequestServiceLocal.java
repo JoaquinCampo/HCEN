@@ -2,7 +2,7 @@ package grupo12.practico.services.AccessRequest;
 
 import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
-import grupo12.practico.dtos.AccessRequest.GrantAccessDecisionDTO;
+import grupo12.practico.dtos.AccessRequest.GrantAccessDTO;
 import grupo12.practico.dtos.AccessRequest.GrantAccessResultDTO;
 import jakarta.ejb.Local;
 import java.util.List;
@@ -15,9 +15,11 @@ public interface AccessRequestServiceLocal {
 
     List<AccessRequestDTO> findAllByHealthUserId(String healthUserId);
 
-    GrantAccessResultDTO grantAccessByHealthWorker(String accessRequestId, GrantAccessDecisionDTO dto);
+    GrantAccessResultDTO grantAccessByHealthWorker(String accessRequestId, GrantAccessDTO dto);
 
-    GrantAccessResultDTO grantAccessByClinic(String accessRequestId, GrantAccessDecisionDTO dto);
+    GrantAccessResultDTO grantAccessByClinic(String accessRequestId, GrantAccessDTO dto);
 
-    GrantAccessResultDTO grantAccessBySpecialty(String accessRequestId, GrantAccessDecisionDTO dto);
+    GrantAccessResultDTO grantAccessBySpecialty(String accessRequestId, GrantAccessDTO dto);
+
+    GrantAccessResultDTO denyAccess(String accessRequestId, GrantAccessDTO dto);
 }
