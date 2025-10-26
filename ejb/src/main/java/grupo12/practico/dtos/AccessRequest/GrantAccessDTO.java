@@ -2,12 +2,11 @@ package grupo12.practico.dtos.AccessRequest;
 
 import java.io.Serializable;
 
-public class GrantAccessDecisionDTO implements Serializable {
+public class GrantAccessDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String accessRequestId;
     private String healthUserId;
-    private boolean accepted;
 
     public String getAccessRequestId() {
         return accessRequestId;
@@ -23,13 +22,5 @@ public class GrantAccessDecisionDTO implements Serializable {
 
     public void setHealthUserId(String healthUserId) {
         this.healthUserId = healthUserId;
-    }
-
-    public boolean isAccepted() {
-        return accepted;
-    }
-
-    public void setAccepted(boolean accepted) {
-        this.accepted = accepted;
     }
 }

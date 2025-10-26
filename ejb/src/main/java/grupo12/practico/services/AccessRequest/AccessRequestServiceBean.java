@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
-import grupo12.practico.dtos.AccessRequest.GrantAccessDecisionDTO;
+import grupo12.practico.dtos.AccessRequest.GrantAccessDTO;
 import grupo12.practico.dtos.AccessRequest.GrantAccessResultDTO;
 import grupo12.practico.models.AccessRequest;
 import grupo12.practico.models.AccessRequestStatus;
@@ -23,6 +23,8 @@ import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
 import grupo12.practico.repositories.HealthWorkerAccessPolicy.HealthWorkerAccessPolicyRepositoryLocal;
 import grupo12.practico.repositories.Specialty.SpecialtyRepositoryLocal;
 import grupo12.practico.repositories.SpecialtyAccessPolicy.SpecialtyAccessPolicyRepositoryLocal;
+import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
+import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -57,6 +59,12 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
     @EJB
     private SpecialtyAccessPolicyRepositoryLocal specialtyAccessPolicyRepository;
+
+    @EJB
+    private NotificationTokenRepositoryLocal notificationTokenRepository;
+
+    @EJB
+    private PushNotificationServiceLocal pushNotificationService;
 
     @Override
     public AccessRequestDTO create(AddAccessRequestDTO dto) {
@@ -103,6 +111,24 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         accessRequest.setStatus(AccessRequestStatus.PENDING);
 
         AccessRequest persisted = accessRequestRepository.add(accessRequest);
+
+        try {
+            var tokens = notificationTokenRepository.findByUserId(healthUser.getId());
+            if (tokens != null && !tokens.isEmpty()) {
+                String title = "New access request";
+                String clinicName = clinic.getName() != null ? clinic.getName() : clinic.getId();
+                String specialtyName = specialty.getName() != null ? specialty.getName() : specialty.getId();
+                String workerFirst = healthWorker.getFirstName() != null ? healthWorker.getFirstName() : "";
+                String workerLast = healthWorker.getLastName() != null ? healthWorker.getLastName() : "";
+                String body = String.format("%s %s requested access to your records at %s (%s)",
+                        workerFirst, workerLast, clinicName, specialtyName);
+                for (var t : tokens) {
+                    pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
         return persisted.toDto();
     }
 
@@ -113,20 +139,13 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
     }
 
     @Override
-    public GrantAccessResultDTO grantAccessByHealthWorker(String accessRequestId, GrantAccessDecisionDTO dto) {
+    public GrantAccessResultDTO grantAccessByHealthWorker(String accessRequestId, GrantAccessDTO dto) {
         AccessRequest accessRequest = getAccessRequestOrThrow(accessRequestId);
         validateGrantPayload(accessRequestId, dto);
 
         HealthWorker healthWorker = accessRequest.getHealthWorker();
         if (healthWorker == null) {
             throw new ValidationException("Access request does not contain a health worker reference");
-        }
-
-        String targetId = healthWorker.getId();
-
-        if (!dto.isAccepted()) {
-            accessRequestRepository.delete(accessRequest);
-            return GrantAccessResultDTO.denied(dto.getHealthUserId(), "HEALTH_WORKER", targetId);
         }
 
         HealthUser healthUser = requireHealthUser(dto.getHealthUserId());
@@ -150,20 +169,13 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
     }
 
     @Override
-    public GrantAccessResultDTO grantAccessByClinic(String accessRequestId, GrantAccessDecisionDTO dto) {
+    public GrantAccessResultDTO grantAccessByClinic(String accessRequestId, GrantAccessDTO dto) {
         AccessRequest accessRequest = getAccessRequestOrThrow(accessRequestId);
         validateGrantPayload(accessRequestId, dto);
 
         Clinic clinic = accessRequest.getClinic();
         if (clinic == null) {
             throw new ValidationException("Access request does not contain a clinic reference");
-        }
-
-        String targetId = clinic.getId();
-
-        if (!dto.isAccepted()) {
-            accessRequestRepository.delete(accessRequest);
-            return GrantAccessResultDTO.denied(dto.getHealthUserId(), "CLINIC", targetId);
         }
 
         HealthUser healthUser = requireHealthUser(dto.getHealthUserId());
@@ -187,20 +199,13 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
     }
 
     @Override
-    public GrantAccessResultDTO grantAccessBySpecialty(String accessRequestId, GrantAccessDecisionDTO dto) {
+    public GrantAccessResultDTO grantAccessBySpecialty(String accessRequestId, GrantAccessDTO dto) {
         AccessRequest accessRequest = getAccessRequestOrThrow(accessRequestId);
         validateGrantPayload(accessRequestId, dto);
 
         Specialty specialty = accessRequest.getSpecialty();
         if (specialty == null) {
             throw new ValidationException("Access request does not contain a specialty reference");
-        }
-
-        String targetId = specialty.getId();
-
-        if (!dto.isAccepted()) {
-            accessRequestRepository.delete(accessRequest);
-            return GrantAccessResultDTO.denied(dto.getHealthUserId(), "SPECIALTY", targetId);
         }
 
         HealthUser healthUser = requireHealthUser(dto.getHealthUserId());
@@ -221,6 +226,15 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
         return GrantAccessResultDTO.accepted(savedPolicy.getId(), healthUser.getId(), "SPECIALTY",
                 specialty.getId(), savedPolicy.getGrantedAt());
+    }
+
+    @Override
+    public GrantAccessResultDTO denyAccess(String accessRequestId, GrantAccessDTO dto) {
+        AccessRequest accessRequest = getAccessRequestOrThrow(accessRequestId);
+        validateGrantPayload(accessRequestId, dto);
+
+        accessRequestRepository.delete(accessRequest);
+        return GrantAccessResultDTO.denied(dto.getHealthUserId(), "ACCESS_REQUEST", accessRequest.getId());
     }
 
     @Override
@@ -247,7 +261,7 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         }
     }
 
-    private void validateGrantPayload(String pathAccessRequestId, GrantAccessDecisionDTO dto) {
+    private void validateGrantPayload(String pathAccessRequestId, GrantAccessDTO dto) {
         if (dto == null) {
             throw new ValidationException("Grant decision payload is required");
         }

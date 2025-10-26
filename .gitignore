@@ -19,3 +19,5 @@ target/
 
 # Logs
 *.log
+
+FIREBASE_PK.json

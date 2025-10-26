@@ -2,9 +2,11 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
-import grupo12.practico.dtos.AccessRequest.GrantAccessDecisionDTO;
+import grupo12.practico.dtos.AccessRequest.GrantAccessDTO;
 import grupo12.practico.dtos.AccessRequest.GrantAccessResultDTO;
 import grupo12.practico.services.AccessRequest.AccessRequestServiceLocal;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
+import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -23,6 +25,9 @@ public class AccessRequestResource {
 
     @EJB
     private AccessRequestServiceLocal accessRequestService;
+
+    @EJB
+    private HealthUserServiceLocal healthUserService;
 
     @POST
     public Response create(AddAccessRequestDTO dto) {
@@ -48,26 +53,42 @@ public class AccessRequestResource {
         return accessRequestService.findAllByHealthUserId(healthUserId);
     }
 
+    @GET
+    @Path("/health-user/name/{name}")
+    public List<AccessRequestDTO> findAllByHealthUserName(@PathParam("name") String name) {
+        List<HealthUserDTO> healthUsers = healthUserService.findByName(name);
+        String healthUserId = healthUsers.get(0).getId();
+        return accessRequestService.findAllByHealthUserId(healthUserId);
+    }
+
     @POST
-    @Path("/{id}/grant-by-health-worker")
-    public Response grantByHealthWorker(@PathParam("id") String accessRequestId, GrantAccessDecisionDTO dto) {
-        GrantAccessResultDTO result = accessRequestService.grantAccessByHealthWorker(accessRequestId, dto);
+    @Path("/grant-by-health-worker")
+    public Response grantByHealthWorker(GrantAccessDTO dto) {
+        GrantAccessResultDTO result = accessRequestService.grantAccessByHealthWorker(dto.getAccessRequestId(), dto);
         Response.Status status = result.isAccepted() ? Response.Status.CREATED : Response.Status.OK;
         return Response.status(status).entity(result).build();
     }
 
     @POST
-    @Path("/{id}/grant-by-clinic")
-    public Response grantByClinic(@PathParam("id") String accessRequestId, GrantAccessDecisionDTO dto) {
-        GrantAccessResultDTO result = accessRequestService.grantAccessByClinic(accessRequestId, dto);
+    @Path("/grant-by-clinic")
+    public Response grantByClinic(GrantAccessDTO dto) {
+        GrantAccessResultDTO result = accessRequestService.grantAccessByClinic(dto.getAccessRequestId(), dto);
         Response.Status status = result.isAccepted() ? Response.Status.CREATED : Response.Status.OK;
         return Response.status(status).entity(result).build();
     }
 
     @POST
-    @Path("/{id}/grant-by-specialty")
-    public Response grantBySpecialty(@PathParam("id") String accessRequestId, GrantAccessDecisionDTO dto) {
-        GrantAccessResultDTO result = accessRequestService.grantAccessBySpecialty(accessRequestId, dto);
+    @Path("/grant-by-specialty")
+    public Response grantBySpecialty(GrantAccessDTO dto) {
+        GrantAccessResultDTO result = accessRequestService.grantAccessBySpecialty(dto.getAccessRequestId(), dto);
+        Response.Status status = result.isAccepted() ? Response.Status.CREATED : Response.Status.OK;
+        return Response.status(status).entity(result).build();
+    }
+
+    @POST
+    @Path("/deny")
+    public Response deny(GrantAccessDTO dto) {
+        GrantAccessResultDTO result = accessRequestService.denyAccess(dto.getAccessRequestId(), dto);
         Response.Status status = result.isAccepted() ? Response.Status.CREATED : Response.Status.OK;
         return Response.status(status).entity(result).build();
     }
