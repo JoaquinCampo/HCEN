@@ -1,8 +1,8 @@
-package grupo12.practico.dtos.Authorization;
+package grupo12.practico.dtos.AccessControl;
 
 import java.io.Serializable;
 
-public class AuthorizationCheckRequestDTO implements Serializable {
+public class AccessCheckRequestDTO implements Serializable {
 
     private String healthUserId;
     private String healthWorkerId;

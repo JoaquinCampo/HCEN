@@ -1,8 +1,8 @@
-package grupo12.practico.services.Authorization;
+package grupo12.practico.services.AccessControl;
 
-import grupo12.practico.dtos.Authorization.AuthorizationCheckRequestDTO;
-import grupo12.practico.dtos.Authorization.AuthorizationDecisionDTO;
-import grupo12.practico.dtos.Authorization.AuthorizationDecisionSource;
+import grupo12.practico.dtos.AccessControl.AccessCheckRequestDTO;
+import grupo12.practico.dtos.AccessControl.AccessDecisionDTO;
+import grupo12.practico.dtos.AccessControl.AccessDecisionSource;
 import grupo12.practico.models.Clinic;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.models.HealthWorker;
@@ -19,9 +19,9 @@ import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
 @Stateless
-@Local(AuthorizationServiceLocal.class)
-@Remote(AuthorizationServiceRemote.class)
-public class AuthorizationServiceBean implements AuthorizationServiceRemote {
+@Local(AccessControlServiceLocal.class)
+@Remote(AccessControlServiceRemote.class)
+public class AccessControlServiceBean implements AccessControlServiceRemote {
 
     @EJB
     private ClinicAccessPolicyRepositoryLocal clinicAccessPolicyRepository;
@@ -39,7 +39,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceRemote {
     private HealthWorkerRepositoryLocal healthWorkerRepository;
 
     @Override
-    public AuthorizationDecisionDTO checkAccess(AuthorizationCheckRequestDTO request) {
+    public AccessDecisionDTO checkAccess(AccessCheckRequestDTO request) {
         validateRequest(request);
 
         HealthUser healthUser = requireHealthUser(request.getHealthUserId());
@@ -48,7 +48,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceRemote {
                 .findByHealthUserAndClinic(healthUser.getId(), request.getClinicId())
                 .isPresent();
         if (clinicAllowed) {
-            return AuthorizationDecisionDTO.allowed(AuthorizationDecisionSource.CLINIC_POLICY,
+            return AccessDecisionDTO.allowed(AccessDecisionSource.CLINIC_POLICY,
                     "Clinic has access to health user history");
         }
 
@@ -66,7 +66,7 @@ public class AuthorizationServiceBean implements AuthorizationServiceRemote {
                         .findByHealthUserAndSpecialty(healthUser.getId(), specialty.getId())
                         .isPresent();
                 if (specialtyAllowed) {
-                    return AuthorizationDecisionDTO.allowed(AuthorizationDecisionSource.SPECIALTY_POLICY,
+                    return AccessDecisionDTO.allowed(AccessDecisionSource.SPECIALTY_POLICY,
                             "Health worker specialty is allowed for this user");
                 }
             }
@@ -76,14 +76,14 @@ public class AuthorizationServiceBean implements AuthorizationServiceRemote {
                 .findByHealthUserAndHealthWorker(healthUser.getId(), healthWorker.getId())
                 .isPresent();
         if (workerAllowed) {
-            return AuthorizationDecisionDTO.allowed(AuthorizationDecisionSource.HEALTH_WORKER_POLICY,
+            return AccessDecisionDTO.allowed(AccessDecisionSource.HEALTH_WORKER_POLICY,
                     "Health worker is explicitly allowed");
         }
 
-        return AuthorizationDecisionDTO.denied("No matching access policy found");
+        return AccessDecisionDTO.denied("No matching access policy found");
     }
 
-    private void validateRequest(AuthorizationCheckRequestDTO request) {
+    private void validateRequest(AccessCheckRequestDTO request) {
         if (request == null) {
             throw new ValidationException("Authorization request payload is required");
         }
