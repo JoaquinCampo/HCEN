@@ -9,6 +9,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import java.time.LocalDateTime;
 
 @Stateless
 @Local(NotificationTokenRepositoryLocal.class)
@@ -34,8 +35,25 @@ public class NotificationTokenRepositoryBean implements NotificationTokenReposit
     }
 
     @Override
+    public NotificationToken findByToken(String token) {
+        TypedQuery<NotificationToken> q = em.createQuery(
+                "SELECT t FROM NotificationToken t WHERE t.token = :token",
+                NotificationToken.class);
+        q.setParameter("token", token);
+        return q.getResultList().stream().findFirst().orElse(null);
+    }
+
+    @Override
     public void delete(NotificationToken token) {
         NotificationToken managed = em.merge(token);
         em.remove(managed);
+    }
+
+    @Override
+    public NotificationToken updateLastUsedAt(String tokenId) {
+        NotificationToken token = findByToken(tokenId);
+        token.setLastUsedAt(LocalDateTime.now());
+        return em.merge(token);
+
     }
 }

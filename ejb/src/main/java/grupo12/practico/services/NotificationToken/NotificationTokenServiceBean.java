@@ -13,6 +13,8 @@ import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
+import java.time.LocalDateTime;
+
 @Stateless
 @Local(NotificationTokenServiceLocal.class)
 @Remote(NotificationTokenServiceRemote.class)
@@ -25,11 +27,17 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
     public NotificationTokenDTO add(NotificationTokenDTO dto) {
         validate(dto);
         NotificationToken entity = new NotificationToken();
+        NotificationTokenDTO out = new NotificationTokenDTO();
+        NotificationToken saved = null;
         User user = new UserProxy(dto.getUserId());
         entity.setUser(user);
         entity.setToken(dto.getToken());
-        NotificationToken saved = notificationTokenRepository.add(entity);
-        NotificationTokenDTO out = new NotificationTokenDTO();
+        if (notificationTokenRepository.findByToken(dto.getToken()) != null) {
+            saved = notificationTokenRepository.updateLastUsedAt(dto.getToken());
+        } else {
+            entity.setLastUsedAt(LocalDateTime.now());
+            saved = notificationTokenRepository.add(entity);
+        }
         out.setId(saved.getId());
         out.setUserId(dto.getUserId());
         out.setToken(saved.getToken());

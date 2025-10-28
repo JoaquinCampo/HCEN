@@ -31,6 +31,9 @@ public class NotificationToken {
     @Column(name = "token", nullable = false, length = 4096)
     private String token;
 
+    @Column(name = "last_used_at", nullable = false)
+    private LocalDateTime lastUsedAt;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -47,6 +50,7 @@ public class NotificationToken {
         }
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.lastUsedAt = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -76,5 +80,13 @@ public class NotificationToken {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public LocalDateTime getLastUsedAt() {
+        return lastUsedAt;
+    }
+
+    public void setLastUsedAt(LocalDateTime lastUsedAt) {
+        this.lastUsedAt = lastUsedAt;
     }
 }
