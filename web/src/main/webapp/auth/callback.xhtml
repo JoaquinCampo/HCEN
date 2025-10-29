@@ -1,0 +1,77 @@
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  template="/WEB-INF/templates/layout.xhtml"
+>
+  <ui:define name="title">Authentication Callback</ui:define>
+  <ui:define name="content">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body p-5 text-center">
+            <div class="mb-4">
+              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+
+            <h2 class="card-title h4 mb-3">Processing Authentication</h2>
+            <p class="text-muted">
+              Please wait while we complete your authentication...
+            </p>
+
+            <div class="alert alert-info mt-4" role="alert">
+              <small>
+                <strong>Note:</strong> The authentication is being processed by the REST API.
+                Check the browser console or network tab for the authentication result.
+              </small>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="text-muted small">
+              <p class="mb-2">
+                <strong>What's happening?</strong>
+              </p>
+              <p class="mb-0">
+                After logging in with gub.uy, you are redirected here. The authentication
+                process is handled by the REST endpoint at
+                <code>/api/auth/gubuy/callback</code>.
+              </p>
+            </div>
+
+            <div class="mt-4">
+              <h:link outcome="/index" styleClass="btn btn-primary">
+                <i class="bi bi-house-fill"></i> Return to Home
+              </h:link>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">Integration Information</h6>
+            <p class="small text-muted mb-2">
+              This is a callback page for the OIDC flow. In a real application, you would:
+            </p>
+            <ol class="small text-muted">
+              <li>Extract the <code>code</code> and <code>state</code> parameters from the URL</li>
+              <li>Send them to <code>GET /api/auth/gubuy/callback</code></li>
+              <li>Receive a JWT token and user information</li>
+              <li>Store the JWT token in localStorage or a cookie</li>
+              <li>Redirect to the authenticated area of your application</li>
+            </ol>
+            <p class="small text-muted mb-0">
+              <strong>Example:</strong> The REST endpoint handles this automatically.
+              You can test it by accessing
+              <code>/api/auth/gubuy/callback?code=xxx&amp;state=xxx</code>
+              in your browser or API client.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ui:define>
+</ui:composition>
+

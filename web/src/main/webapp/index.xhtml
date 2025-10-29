@@ -44,6 +44,12 @@
             <h3 class="card-title h5">Quick Actions</h3>
             <div class="list-group list-group-flush">
               <h:link
+                outcome="/auth/login"
+                styleClass="list-group-item list-group-item-action list-group-item-primary"
+                >
+                <i class="bi bi-shield-lock-fill"></i> Login with gub.uy
+              </h:link>
+              <h:link
                 outcome="/health-user/form"
                 styleClass="list-group-item list-group-item-action"
                 >Create Health User</h:link
