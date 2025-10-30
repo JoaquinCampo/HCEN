@@ -12,4 +12,6 @@ public interface NotificationTokenServiceLocal {
     List<NotificationTokenDTO> findByUserId(String userId);
 
     void delete(NotificationTokenDTO token);
+
+    void unsubscribe(String userId);
 }

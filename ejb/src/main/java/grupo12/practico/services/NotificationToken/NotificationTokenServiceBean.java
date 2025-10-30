@@ -5,8 +5,10 @@ import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.NotificationToken.NotificationTokenDTO;
 import grupo12.practico.models.NotificationToken;
+import grupo12.practico.models.NotificationUnsubscription;
 import grupo12.practico.models.User;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
+import grupo12.practico.repositories.NotificationUnsubscription.NotificationUnsubscriptionRepositoryLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -23,9 +25,15 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
     @EJB
     private NotificationTokenRepositoryLocal notificationTokenRepository;
 
+    @EJB
+    private NotificationUnsubscriptionRepositoryLocal notificationUnsubscriptionRepository;
+
     @Override
     public NotificationTokenDTO add(NotificationTokenDTO dto) {
         validate(dto);
+        if (notificationUnsubscriptionRepository.existsByUserId(dto.getUserId())) {
+            throw new ValidationException("User has unsubscribed from notifications");
+        }
         NotificationToken entity = new NotificationToken();
         NotificationTokenDTO out = new NotificationTokenDTO();
         NotificationToken saved = null;
@@ -64,6 +72,19 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
                 .filter(t -> dto.getToken().equals(t.getToken()))
                 .findFirst()
                 .ifPresent(notificationTokenRepository::delete);
+    }
+
+    @Override
+    public void unsubscribe(String userId) {
+        if (isBlank(userId)) {
+            throw new ValidationException("userId is required");
+        }
+        if (!notificationUnsubscriptionRepository.existsByUserId(userId)) {
+            NotificationUnsubscription record = new NotificationUnsubscription();
+            record.setUser(new UserProxy(userId));
+            notificationUnsubscriptionRepository.add(record);
+        }
+        notificationTokenRepository.findByUserId(userId).forEach(notificationTokenRepository::delete);
     }
 
     private void validate(NotificationTokenDTO dto) {
