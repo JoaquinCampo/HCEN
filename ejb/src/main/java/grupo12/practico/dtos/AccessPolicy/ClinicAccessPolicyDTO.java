@@ -8,8 +8,8 @@ public class ClinicAccessPolicyDTO implements Serializable {
 
     private String id;
     private String healthUserId;
-    private String clinicId;
-    private LocalDate grantedAt;
+    private String clinicName;
+    private LocalDate createdAt;
 
     public String getId() {
         return id;
@@ -27,19 +27,19 @@ public class ClinicAccessPolicyDTO implements Serializable {
         this.healthUserId = healthUserId;
     }
 
-    public String getClinicId() {
-        return clinicId;
+    public String getClinicName() {
+        return clinicName;
     }
 
-    public void setClinicId(String clinicId) {
-        this.clinicId = clinicId;
+    public void setClinicName(String clinicName) {
+        this.clinicName = clinicName;
     }
 
-    public LocalDate getGrantedAt() {
-        return grantedAt;
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
-    public void setGrantedAt(LocalDate grantedAt) {
-        this.grantedAt = grantedAt;
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 }

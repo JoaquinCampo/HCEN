@@ -1,22 +1,37 @@
 package grupo12.practico.services.Clinic;
 
-import grupo12.practico.models.Clinic;
-import grupo12.practico.models.HealthUser;
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
-import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
-import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
+import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
+import jakarta.json.Json;
+import jakarta.json.JsonException;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonValue;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Stateless
@@ -24,8 +39,10 @@ import java.util.stream.Collectors;
 @Remote(ClinicServiceRemote.class)
 public class ClinicServiceBean implements ClinicServiceRemote {
 
-    @EJB
-    private ClinicRepositoryLocal repository;
+    private static final Logger LOGGER = Logger.getLogger(ClinicServiceBean.class.getName());
+    private static final String EXTERNAL_BASE_URL = "http://localhost:3000/api/clinics";
+
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
     @EJB
     private ClinicRegistrationNotifierLocal registrationNotifier;
@@ -112,6 +129,107 @@ public class ClinicServiceBean implements ClinicServiceRemote {
         return "Health user linked to clinic successfully";
     }
 
+    @Override
+    public ClinicDTO findExternalClinicByName(String clinicName) {
+        if (isBlank(clinicName)) {
+            throw new ValidationException("Clinic name is required");
+        }
+
+        String normalizedName = clinicName.trim();
+        String encodedName = encodePathSegment(normalizedName);
+        URI uri = URI.create(EXTERNAL_BASE_URL + "/" + encodedName);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            int status = response.statusCode();
+
+            if (status == 404) {
+                return null;
+            }
+
+            if (status != 200) {
+                LOGGER.log(Level.WARNING, "Unexpected response when fetching clinic {0}: HTTP {1}",
+                        new Object[] { normalizedName, status });
+                throw new IllegalStateException("Failed to fetch clinic: HTTP " + status);
+            }
+
+            return mapExternalClinic(response.body());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while fetching clinic data", ex);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Unable to fetch clinic data", ex);
+        }
+    }
+
+    private ClinicDTO mapExternalClinic(String body) {
+        if (body == null || body.isBlank()) {
+            return null;
+        }
+
+        try (JsonReader reader = Json.createReader(new StringReader(body))) {
+            JsonObject json = reader.readObject();
+
+            ClinicDTO dto = new ClinicDTO();
+            dto.setId(getString(json, "id"));
+            dto.setName(getString(json, "name"));
+            dto.setEmail(getString(json, "email"));
+            dto.setPhone(getString(json, "phone"));
+            dto.setAddress(getString(json, "address"));
+
+            String createdAt = getString(json, "createdAt");
+            if (createdAt != null) {
+                LocalDate parsed = parseDate(createdAt, "createdAt");
+                if (parsed != null) {
+                    dto.setCreatedAt(parsed);
+                }
+            }
+
+            String updatedAt = getString(json, "updatedAt");
+            if (updatedAt != null) {
+                LocalDate parsed = parseDate(updatedAt, "updatedAt");
+                if (parsed != null) {
+                    dto.setUpdatedAt(parsed);
+                }
+            }
+
+            return dto;
+        } catch (JsonException ex) {
+            throw new IllegalStateException("Invalid JSON received for clinic", ex);
+        }
+    }
+
+    private LocalDate parseDate(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException ex) {
+            LOGGER.log(Level.WARNING, "Invalid {0} received for clinic: {1}", new Object[] { fieldName, value });
+            return null;
+        }
+    }
+
+    private String getString(JsonObject json, String key) {
+        JsonValue value = json.get(key);
+        if (value == null || value.getValueType() == JsonValue.ValueType.NULL) {
+            return null;
+        }
+        return json.getString(key, null);
+    }
+
+    private String encodePathSegment(String segment) {
+        String encoded = URLEncoder.encode(segment, StandardCharsets.UTF_8);
+        return encoded.replace("+", "%20");
+    }
+
     private void validateClinic(AddClinicDTO addClinicDTO) {
         if (addClinicDTO == null) {
             throw new ValidationException("Clinic must not be null");
@@ -129,7 +247,7 @@ public class ClinicServiceBean implements ClinicServiceRemote {
             throw new ValidationException("Address is required");
         }
 
-        ClinicAdminInfoDTO admin = addClinicDTO.getClinicAdmin();
+        ClinicAdminDTO admin = addClinicDTO.getClinicAdmin();
         if (admin == null) {
             throw new ValidationException("Clinic admin information is required");
         }

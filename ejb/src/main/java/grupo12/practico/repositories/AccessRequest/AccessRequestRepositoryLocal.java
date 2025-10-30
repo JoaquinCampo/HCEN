@@ -12,8 +12,7 @@ public interface AccessRequestRepositoryLocal {
 
     AccessRequest findById(String id);
 
-    Optional<AccessRequest> findExisting(String healthUserId, String healthWorkerId, String clinicId,
-            String specialtyId);
+    Optional<AccessRequest> findExisting(String healthUserId, String healthWorkerCi, String clinicName);
 
     void delete(AccessRequest accessRequest);
 

@@ -5,21 +5,16 @@ import jakarta.ejb.Local;
 import java.util.List;
 
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
+import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 
 @Local
 public interface HealthUserServiceLocal {
-    List<HealthUserDTO> findAll();
-
-    HealthUserDTO findById(String id);
-
-    List<HealthUserDTO> findByName(String name);
+    List<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize);
 
     HealthUserDTO add(AddHealthUserDTO addHealthUserDTO);
 
-    HealthUserDTO findByDocument(String document);
+    HealthUserDTO addClinicToHealthUser(String healthUserId, String clinicName);
 
-    List<HealthUserDTO> findPage(int page, int size, String documentFragment, String clinicName);
-
-    long count(String documentFragment, String clinicName);
+    ClinicalHistoryDTO getClinicalHistory(String healthUserId, String clinicName, String healthWorkerCi);
 }

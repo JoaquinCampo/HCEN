@@ -18,8 +18,7 @@ public final class HealthUserRegistrationMessaging {
      * Ordered list of payload fields used in the pipe-separated message.
      */
     public static final String[] PAYLOAD_FIELDS = {
-            "document",
-            "documentType",
+            "ci",
             "firstName",
             "lastName",
             "gender",
@@ -27,8 +26,7 @@ public final class HealthUserRegistrationMessaging {
             "phone",
             "address",
             "dateOfBirth",
-            "password",
-            "clinicIds"
+            "clinicNames"
     };
 
     /**

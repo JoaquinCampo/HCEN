@@ -9,5 +9,5 @@ import jakarta.ejb.Local;
 public interface HealthWorkerAccessPolicyRepositoryLocal {
     HealthWorkerAccessPolicy add(HealthWorkerAccessPolicy policy);
 
-    Optional<HealthWorkerAccessPolicy> findByHealthUserAndHealthWorker(String healthUserId, String healthWorkerId);
+    Optional<HealthWorkerAccessPolicy> findByHealthUserAndHealthWorker(String healthUserId, String healthWorkerCi);
 }

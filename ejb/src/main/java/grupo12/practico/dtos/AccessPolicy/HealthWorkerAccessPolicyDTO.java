@@ -8,8 +8,8 @@ public class HealthWorkerAccessPolicyDTO implements Serializable {
 
     private String id;
     private String healthUserId;
-    private String healthWorkerId;
-    private LocalDate grantedAt;
+    private String healthWorkerCi;
+    private LocalDate createdAt;
 
     public String getId() {
         return id;
@@ -27,19 +27,19 @@ public class HealthWorkerAccessPolicyDTO implements Serializable {
         this.healthUserId = healthUserId;
     }
 
-    public String getHealthWorkerId() {
-        return healthWorkerId;
+    public String getHealthWorkerCi() {
+        return healthWorkerCi;
     }
 
-    public void setHealthWorkerId(String healthWorkerId) {
-        this.healthWorkerId = healthWorkerId;
+    public void setHealthWorkerCi(String healthWorkerCi) {
+        this.healthWorkerCi = healthWorkerCi;
     }
 
-    public LocalDate getGrantedAt() {
-        return grantedAt;
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
-    public void setGrantedAt(LocalDate grantedAt) {
-        this.grantedAt = grantedAt;
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 }

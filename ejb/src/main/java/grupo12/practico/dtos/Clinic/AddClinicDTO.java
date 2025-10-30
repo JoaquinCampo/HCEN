@@ -5,7 +5,7 @@ public class AddClinicDTO {
     private String email;
     private String phone;
     private String address;
-    private ClinicAdminInfoDTO clinicAdmin = new ClinicAdminInfoDTO();
+    private ClinicAdminDTO clinicAdmin = new ClinicAdminDTO();
 
     public String getName() {
         return name;
@@ -39,11 +39,11 @@ public class AddClinicDTO {
         this.address = address;
     }
 
-    public ClinicAdminInfoDTO getClinicAdmin() {
+    public ClinicAdminDTO getClinicAdmin() {
         return clinicAdmin;
     }
 
-    public void setClinicAdmin(ClinicAdminInfoDTO clinicAdmin) {
-        this.clinicAdmin = clinicAdmin != null ? clinicAdmin : new ClinicAdminInfoDTO();
+    public void setClinicAdmin(ClinicAdminDTO clinicAdmin) {
+        this.clinicAdmin = clinicAdmin != null ? clinicAdmin : new ClinicAdminDTO();
     }
 }

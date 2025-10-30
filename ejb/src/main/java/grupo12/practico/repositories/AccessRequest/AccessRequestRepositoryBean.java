@@ -40,25 +40,21 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
     }
 
     @Override
-    public Optional<AccessRequest> findExisting(String healthUserId, String healthWorkerId, String clinicId,
-            String specialtyId) {
+    public Optional<AccessRequest> findExisting(String healthUserId, String healthWorkerCi, String clinicName) {
         if (healthUserId == null || healthUserId.trim().isEmpty()
-                || healthWorkerId == null || healthWorkerId.trim().isEmpty()
-                || clinicId == null || clinicId.trim().isEmpty()
-                || specialtyId == null || specialtyId.trim().isEmpty()) {
+                || healthWorkerCi == null || healthWorkerCi.trim().isEmpty()
+                || clinicName == null || clinicName.trim().isEmpty()) {
             return Optional.empty();
         }
 
         TypedQuery<AccessRequest> query = em.createQuery(
                 "SELECT ar FROM AccessRequest ar WHERE ar.healthUser.id = :healthUserId "
-                        + "AND ar.healthWorker.id = :healthWorkerId "
-                        + "AND ar.clinic.id = :clinicId "
-                        + "AND ar.specialty.id = :specialtyId",
+                        + "AND ar.healthWorkerCi = :healthWorkerCi "
+                        + "AND ar.clinicName = :clinicName",
                 AccessRequest.class);
         query.setParameter("healthUserId", healthUserId);
-        query.setParameter("healthWorkerId", healthWorkerId);
-        query.setParameter("clinicId", clinicId);
-        query.setParameter("specialtyId", specialtyId);
+        query.setParameter("healthWorkerCi", healthWorkerCi);
+        query.setParameter("clinicName", clinicName);
 
         try {
             AccessRequest result = query.setMaxResults(1).getSingleResult();

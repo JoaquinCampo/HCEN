@@ -1,136 +1,139 @@
 package grupo12.practico.services.HealthWorker;
 
-import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
-import grupo12.practico.models.Clinic;
-import grupo12.practico.models.HealthWorker;
-import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
-import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
-import grupo12.practico.services.PasswordUtil;
-import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
+import jakarta.json.Json;
+import jakarta.json.JsonException;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonValue;
 import jakarta.validation.ValidationException;
-
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Stateless
 @Local(HealthWorkerServiceLocal.class)
 @Remote(HealthWorkerServiceRemote.class)
 public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
 
-    @EJB
-    private HealthWorkerRepositoryLocal repository;
+    private static final Logger LOGGER = Logger.getLogger(HealthWorkerServiceBean.class.getName());
+    private static final String BASE_URL = "http://localhost:3000/api/clinics";
 
-    @EJB
-    private ClinicRepositoryLocal clinicRepository;
-
-    @Override
-    public HealthWorkerDTO add(AddHealthWorkerDTO addHealthWorkerDTO) {
-        if (addHealthWorkerDTO.getBloodType() != null) {
-            addHealthWorkerDTO.setBloodType(addHealthWorkerDTO.getBloodType().trim().toUpperCase());
-        }
-        validateHealthWorker(addHealthWorkerDTO);
-        HealthWorker healthWorker = createHealthWorkerFromDTO(addHealthWorkerDTO);
-        return repository.add(healthWorker).toDto();
-    }
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
     @Override
     public List<HealthWorkerDTO> findAll() {
-        return repository.findAll().stream()
-                .map(HealthWorker::toDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<HealthWorkerDTO> findByName(String name) {
-        return repository.findByName(name).stream()
-                .map(HealthWorker::toDto)
-                .collect(Collectors.toList());
+        return Collections.emptyList();
     }
 
     @Override
     public HealthWorkerDTO findById(String id) {
-        return repository.findById(id).toDto();
+        return null;
     }
 
-    private void validateHealthWorker(AddHealthWorkerDTO addHealthWorkerDTO) {
-        if (addHealthWorkerDTO == null) {
-            throw new ValidationException("HealthWorker must not be null");
+    @Override
+    public List<HealthWorkerDTO> findByName(String name) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public HealthWorkerDTO findByClinicAndCi(String clinicName, String healthWorkerCi) {
+        if (clinicName == null || clinicName.isBlank()) {
+            throw new ValidationException("Clinic name must not be blank");
         }
-        if (isBlank(addHealthWorkerDTO.getFirstName()) || isBlank(addHealthWorkerDTO.getLastName())) {
-            throw new ValidationException("HealthWorker first name and last name are required");
+        if (healthWorkerCi == null || healthWorkerCi.isBlank()) {
+            throw new ValidationException("Health worker CI must not be blank");
         }
-        if (isBlank(addHealthWorkerDTO.getDocument())) {
-            throw new ValidationException("HealthWorker document is required");
-        }
-        if (addHealthWorkerDTO.getDocumentType() == null) {
-            throw new ValidationException("HealthWorker document type is required");
-        }
-        if (isBlank(addHealthWorkerDTO.getLicenseNumber())) {
-            throw new ValidationException("License number is required");
-        }
-        if (isBlank(addHealthWorkerDTO.getBloodType())) {
-            throw new ValidationException("Blood type is required");
-        }
-        if (!isValidBloodType(addHealthWorkerDTO.getBloodType())) {
-            throw new ValidationException("Blood type must be one of A+, A-, B+, B-, AB+, AB-, O+, O-");
-        }
-        if (isBlank(addHealthWorkerDTO.getPassword())) {
-            throw new ValidationException("HealthWorker password is required");
+
+        String encodedClinic = encodePathSegment(clinicName);
+        String encodedCi = encodePathSegment(healthWorkerCi);
+        URI uri = URI.create(BASE_URL + "/" + encodedClinic + "/healthWorker/" + encodedCi);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            int status = response.statusCode();
+
+            if (status == 404) {
+                return null;
+            }
+
+            if (status != 200) {
+                LOGGER.log(Level.WARNING, "Unexpected response when fetching health worker {0} at clinic {1}: HTTP {2}",
+                        new Object[] { healthWorkerCi, clinicName, status });
+                throw new IllegalStateException("Failed to fetch health worker: HTTP " + status);
+            }
+
+            return mapResponseToDto(response.body());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while fetching health worker data", ex);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Unable to fetch health worker data", ex);
         }
     }
 
-    private HealthWorker createHealthWorkerFromDTO(AddHealthWorkerDTO dto) {
-        HealthWorker worker = new HealthWorker();
-
-        worker.setDocument(dto.getDocument());
-        worker.setDocumentType(dto.getDocumentType());
-        worker.setFirstName(dto.getFirstName());
-        worker.setLastName(dto.getLastName());
-        worker.setGender(dto.getGender());
-        worker.setEmail(dto.getEmail());
-        worker.setPhone(dto.getPhone());
-        worker.setImageUrl(dto.getImageUrl());
-        worker.setAddress(dto.getAddress());
-        worker.setDateOfBirth(dto.getDateOfBirth());
-        worker.setLicenseNumber(dto.getLicenseNumber());
-        if (dto.getBloodType() != null) {
-            worker.setBloodType(dto.getBloodType().trim().toUpperCase());
+    private HealthWorkerDTO mapResponseToDto(String body) {
+        if (body == null || body.isBlank()) {
+            return null;
         }
 
-        String salt = PasswordUtil.generateSalt();
-        String hashedPassword = PasswordUtil.hashPassword(dto.getPassword(), salt);
+        try (JsonReader reader = Json.createReader(new StringReader(body))) {
+            JsonObject json = reader.readObject();
 
-        worker.setPasswordSalt(salt);
-        worker.setPasswordHash(hashedPassword);
-        worker.setPasswordUpdatedAt(LocalDate.now());
+            HealthWorkerDTO dto = new HealthWorkerDTO();
+            dto.setCi(getString(json, "ci"));
+            dto.setFirstName(getString(json, "firstName"));
+            dto.setLastName(getString(json, "lastName"));
+            dto.setEmail(getString(json, "email"));
+            dto.setPhone(getString(json, "phone"));
+            dto.setAddress(getString(json, "address"));
 
-        if (dto.getClinicIds() != null && !dto.getClinicIds().isEmpty()) {
-            Set<Clinic> clinics = new HashSet<>();
-            for (String clinicId : dto.getClinicIds()) {
-                Clinic clinic = clinicRepository.findById(clinicId);
-                if (clinic != null) {
-                    clinics.add(clinic);
+            String dob = getString(json, "dateOfBirth");
+            if (dob != null && !dob.isBlank()) {
+                try {
+                    dto.setDateOfBirth(LocalDate.parse(dob));
+                } catch (DateTimeParseException ex) {
+                    LOGGER.log(Level.WARNING, "Invalid dateOfBirth received for health worker: " + dob, ex);
                 }
             }
-            worker.setClinics(clinics);
+
+            return dto;
+        } catch (JsonException ex) {
+            throw new IllegalStateException("Invalid JSON received for health worker", ex);
         }
-
-        return worker;
     }
 
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
+    private String getString(JsonObject json, String key) {
+        JsonValue value = json.get(key);
+        if (value == null || value.getValueType() == JsonValue.ValueType.NULL) {
+            return null;
+        }
+        return json.getString(key, null);
     }
 
-    private boolean isValidBloodType(String value) {
-        String normalized = value.trim().toUpperCase();
-        return normalized.matches("^(A|B|AB|O)[+-]$");
+    private String encodePathSegment(String segment) {
+        String encoded = URLEncoder.encode(segment, StandardCharsets.UTF_8);
+        return encoded.replace("+", "%20");
     }
 }

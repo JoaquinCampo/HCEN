@@ -1,19 +1,19 @@
 package grupo12.practico.dtos.HealthUser;
 
-import grupo12.practico.dtos.User.AddUserDTO;
+import grupo12.practico.dtos.User.UserDTO;
 
 import java.util.Set;
 
-public class AddHealthUserDTO extends AddUserDTO {
+public class AddHealthUserDTO extends UserDTO {
     private static final long serialVersionUID = 1L;
 
-    private Set<String> clinicIds;
+    private Set<String> clinicNames;
 
-    public Set<String> getClinicIds() {
-        return clinicIds;
+    public Set<String> getClinicNames() {
+        return clinicNames;
     }
 
-    public void setClinicIds(Set<String> clinicIds) {
-        this.clinicIds = clinicIds;
+    public void setClinicNames(Set<String> clinicNames) {
+        this.clinicNames = clinicNames;
     }
 }

@@ -9,7 +9,7 @@ import javax.naming.Context;
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
-import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
@@ -644,7 +644,7 @@ public class Main {
                         }
                         hp.setEmail(email);
 
-                        ClinicAdminInfoDTO admin = hp.getClinicAdmin();
+                        ClinicAdminDTO admin = hp.getClinicAdmin();
                         System.out.print("Clinic admin name: ");
                         String adminName = in.nextLine().trim();
                         if (adminName.isEmpty()) {

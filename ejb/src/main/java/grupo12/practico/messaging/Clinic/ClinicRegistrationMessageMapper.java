@@ -3,7 +3,7 @@ package grupo12.practico.messaging.Clinic;
 import java.util.Objects;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
-import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminDTO;
 import jakarta.validation.ValidationException;
 
 /**
@@ -21,7 +21,7 @@ public final class ClinicRegistrationMessageMapper {
     public static String toMessage(AddClinicDTO dto) {
         Objects.requireNonNull(dto, "clinic dto must not be null");
 
-        ClinicAdminInfoDTO admin = dto.getClinicAdmin() != null ? dto.getClinicAdmin() : new ClinicAdminInfoDTO();
+        ClinicAdminDTO admin = dto.getClinicAdmin() != null ? dto.getClinicAdmin() : new ClinicAdminDTO();
 
         String[] fields = new String[] {
                 requireNoPipe(dto.getName(), "name"),
@@ -52,7 +52,7 @@ public final class ClinicRegistrationMessageMapper {
         dto.setPhone(requireNotBlank(tokens[2], "phone"));
         dto.setAddress(requireNotBlank(tokens[3], "address"));
 
-        ClinicAdminInfoDTO admin = new ClinicAdminInfoDTO();
+        ClinicAdminDTO admin = new ClinicAdminDTO();
         admin.setName(requireNotBlank(tokens[4], "clinicAdmin.name"));
         admin.setEmail(requireNotBlank(tokens[5], "clinicAdmin.email"));
         admin.setPhone(emptyToNull(tokens[6]));

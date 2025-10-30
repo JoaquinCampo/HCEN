@@ -30,18 +30,18 @@ public class ClinicAccessPolicyRepositoryBean implements ClinicAccessPolicyRepos
     }
 
     @Override
-    public Optional<ClinicAccessPolicy> findByHealthUserAndClinic(String healthUserId, String clinicId) {
+    public Optional<ClinicAccessPolicy> findByHealthUserAndClinic(String healthUserId, String clinicName) {
         if (healthUserId == null || healthUserId.trim().isEmpty()
-                || clinicId == null || clinicId.trim().isEmpty()) {
+                || clinicName == null || clinicName.trim().isEmpty()) {
             return Optional.empty();
         }
 
         TypedQuery<ClinicAccessPolicy> query = em.createQuery(
                 "SELECT p FROM ClinicAccessPolicy p WHERE p.healthUser.id = :healthUserId "
-                        + "AND p.clinic.id = :clinicId",
+                        + "AND p.clinicName = :clinicName",
                 ClinicAccessPolicy.class);
         query.setParameter("healthUserId", healthUserId);
-        query.setParameter("clinicId", clinicId);
+        query.setParameter("clinicName", clinicName);
 
         try {
             return Optional.of(query.setMaxResults(1).getSingleResult());

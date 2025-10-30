@@ -31,19 +31,19 @@ public class HealthWorkerAccessPolicyRepositoryBean implements HealthWorkerAcces
 
     @Override
     public Optional<HealthWorkerAccessPolicy> findByHealthUserAndHealthWorker(String healthUserId,
-            String healthWorkerId) {
+            String healthWorkerCi) {
         if (healthUserId == null || healthUserId.trim().isEmpty()
-                || healthWorkerId == null || healthWorkerId.trim().isEmpty()) {
+                || healthWorkerCi == null || healthWorkerCi.trim().isEmpty()) {
             return Optional.empty();
         }
 
         TypedQuery<HealthWorkerAccessPolicy> query = em.createQuery(
                 "SELECT p FROM HealthWorkerAccessPolicy p WHERE p.healthUser.id = :healthUserId "
-                        + "AND p.healthWorker.id = :healthWorkerId",
+                        + "AND p.healthWorkerCi = :healthWorkerCi",
                 HealthWorkerAccessPolicy.class);
 
         query.setParameter("healthUserId", healthUserId);
-        query.setParameter("healthWorkerId", healthWorkerId);
+        query.setParameter("healthWorkerCi", healthWorkerCi);
 
         try {
             return Optional.of(query.setMaxResults(1).getSingleResult());

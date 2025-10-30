@@ -9,7 +9,7 @@ import java.time.Duration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminDTO;
 import grupo12.practico.models.Clinic;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Stateless;
@@ -38,7 +38,7 @@ public class ClinicRegistrationNotifierBean implements ClinicRegistrationNotifie
     }
 
     @Override
-    public void notifyClinicCreated(Clinic clinic, ClinicAdminInfoDTO admin) {
+    public void notifyClinicCreated(Clinic clinic, ClinicAdminDTO admin) {
         if (clinic == null || admin == null) {
             LOGGER.warning("Skipping external notification: clinic or admin information is missing");
             return;
@@ -69,7 +69,7 @@ public class ClinicRegistrationNotifierBean implements ClinicRegistrationNotifie
         }
     }
 
-    private String buildPayload(Clinic clinic, ClinicAdminInfoDTO admin) {
+    private String buildPayload(Clinic clinic, ClinicAdminDTO admin) {
         JsonObjectBuilder clinicBuilder = Json.createObjectBuilder()
                 .add("name", clinic.getName())
                 .add("email", clinic.getEmail() == null ? "" : clinic.getEmail())
