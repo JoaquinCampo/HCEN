@@ -3,8 +3,6 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16
-    security_opt:
-      - seccomp=unconfined
     environment:
       POSTGRES_DB: practico_db
       POSTGRES_USER: ${DB_USER}
@@ -21,7 +19,9 @@ services:
     restart: unless-stopped
 
   app:
-    image: 879753557246.dkr.ecr.us-east-2.amazonaws.com/tse/hcen:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       postgres:
         condition: service_healthy
