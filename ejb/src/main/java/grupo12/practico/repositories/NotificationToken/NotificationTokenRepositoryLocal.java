@@ -11,5 +11,9 @@ public interface NotificationTokenRepositoryLocal {
 
     List<NotificationToken> findByUserId(String userId);
 
+    NotificationToken findByToken(String token);
+
+    NotificationToken updateLastUsedAt(String token);
+
     void delete(NotificationToken token);
 }
