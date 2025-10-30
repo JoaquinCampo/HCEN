@@ -1,0 +1,4 @@
+package grupo12.practico.repositories.NotificationUnsubscription;
+
+public interface NotificationUnsubscriptionRepositoryRemote extends NotificationUnsubscriptionRepositoryLocal {
+}
