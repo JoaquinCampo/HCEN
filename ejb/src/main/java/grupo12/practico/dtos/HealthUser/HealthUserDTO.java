@@ -8,6 +8,7 @@ public class HealthUserDTO extends UserDTO {
     private static final long serialVersionUID = 1L;
 
     private Set<String> clinicIds;
+    private Set<String> clinicNames;
     private Set<String> clinicalDocumentIds;
 
     public Set<String> getClinicIds() {
@@ -16,6 +17,14 @@ public class HealthUserDTO extends UserDTO {
 
     public void setClinicIds(Set<String> clinicIds) {
         this.clinicIds = clinicIds;
+    }
+
+    public Set<String> getClinicNames() {
+        return clinicNames;
+    }
+
+    public void setClinicNames(Set<String> clinicNames) {
+        this.clinicNames = clinicNames;
     }
 
     public Set<String> getClinicalDocumentIds() {

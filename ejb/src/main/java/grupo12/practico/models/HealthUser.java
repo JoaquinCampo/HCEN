@@ -62,8 +62,10 @@ public class HealthUser extends User {
         dto.setCreatedAt(getCreatedAt());
         dto.setUpdatedAt(getUpdatedAt());
         dto.setClinicIds(clinics != null ? clinics.stream().map(Clinic::getId).collect(Collectors.toSet()) : null);
+        dto.setClinicNames(clinics != null ? clinics.stream().map(Clinic::getName).collect(Collectors.toSet()) : null);
         dto.setClinicalDocumentIds(
-                clinicalDocuments != null ? clinicalDocuments.stream().map(ClinicalDocument::getId).collect(Collectors.toSet())
+                clinicalDocuments != null
+                        ? clinicalDocuments.stream().map(ClinicalDocument::getId).collect(Collectors.toSet())
                         : null);
         return dto;
     }
