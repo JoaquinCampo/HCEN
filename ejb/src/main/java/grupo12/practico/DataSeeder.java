@@ -1,7 +1,7 @@
 package grupo12.practico;
 
 import grupo12.practico.models.*;
-import grupo12.practico.repositories.AccessRequest.AccessRequestRepositoryLocal;
+import grupo12.practico.repositories.AccessPolicy.AccessPolicyRepositoryLocal;
 import grupo12.practico.repositories.Clinic.ClinicRepositoryLocal;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
@@ -40,7 +40,7 @@ public class DataSeeder {
     private SpecialtyRepositoryLocal specialtyRepository;
 
     @EJB
-    private AccessRequestRepositoryLocal accessRequestRepository;
+    private AccessPolicyRepositoryLocal accessRequestRepository;
 
     @PostConstruct
     public void seedData() {

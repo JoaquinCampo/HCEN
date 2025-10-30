@@ -7,9 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import grupo12.practico.models.HealthUser;
 
@@ -24,112 +22,111 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
     private EntityManager em;
 
     @Override
-    public List<HealthUser> findAll() {
-        TypedQuery<HealthUser> query = em.createQuery("SELECT h FROM HealthUser h", HealthUser.class);
+    public List<HealthUser> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize) {
+        String trimmedClinic = clinicName != null ? clinicName.trim() : null;
+        String trimmedName = name != null ? name.trim() : null;
+        String trimmedCi = ci != null ? ci.trim() : null;
+
+        StringBuilder jpql = new StringBuilder("SELECT DISTINCT h FROM HealthUser h");
+
+        boolean filterByClinic = trimmedClinic != null && !trimmedClinic.isEmpty();
+        boolean filterByName = trimmedName != null && !trimmedName.isEmpty();
+        boolean filterByCi = trimmedCi != null && !trimmedCi.isEmpty();
+
+        if (filterByClinic) {
+            jpql.append(" JOIN h.clinicNames clinic");
+        }
+
+        boolean hasCondition = false;
+        if (filterByCi || filterByClinic || filterByName) {
+            jpql.append(" WHERE");
+        }
+
+        if (filterByCi) {
+            jpql.append(" LOWER(h.ci) LIKE :ci");
+            hasCondition = true;
+        }
+
+        if (filterByClinic) {
+            if (hasCondition) {
+                jpql.append(" AND");
+            }
+            jpql.append(" LOWER(clinic) LIKE :clinic");
+            hasCondition = true;
+        }
+
+        if (filterByName) {
+            if (hasCondition) {
+                jpql.append(" AND");
+            }
+            jpql.append(
+                    " LOWER(CONCAT(CONCAT(COALESCE(h.firstName, ''), ' '), COALESCE(h.lastName, ''))) LIKE :name");
+        }
+
+        jpql.append(" ORDER BY h.lastName ASC, h.firstName ASC, h.id ASC");
+
+        TypedQuery<HealthUser> query = em.createQuery(jpql.toString(), HealthUser.class);
+
+        if (filterByCi) {
+            query.setParameter("ci", "%" + trimmedCi.toLowerCase() + "%");
+        }
+
+        if (filterByClinic) {
+            query.setParameter("clinic", "%" + trimmedClinic.toLowerCase() + "%");
+        }
+
+        if (filterByName) {
+            query.setParameter("name", "%" + trimmedName.toLowerCase() + "%");
+        }
+
+        if (pageSize != null && pageSize > 0) {
+            int safePageIndex = pageIndex != null && pageIndex >= 0 ? pageIndex : 0;
+            query.setFirstResult(safePageIndex * pageSize);
+            query.setMaxResults(pageSize);
+        }
+
         return query.getResultList();
     }
 
     @Override
-    public HealthUser findById(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            return null;
+    public HealthUser findByCi(String healthUserCi) {
+        if (healthUserCi == null || healthUserCi.trim().isEmpty()) {
+            throw new ValidationException("Health user CI must not be null or empty");
         }
-        return em.find(HealthUser.class, id);
+        return em.createQuery("SELECT h FROM HealthUser h WHERE h.ci = :ci", HealthUser.class)
+                .setParameter("ci", healthUserCi)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
-    public List<HealthUser> findByName(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            return findAll();
+    public HealthUser findById(String healthUserId) {
+        if (healthUserId == null || healthUserId.trim().isEmpty()) {
+            throw new ValidationException("Health user ID must not be null or empty");
         }
-
-        TypedQuery<HealthUser> query = em.createQuery(
-                "SELECT h FROM HealthUser h WHERE LOWER(h.firstName) LIKE LOWER(:name) OR LOWER(h.lastName) LIKE LOWER(:name)",
-                HealthUser.class);
-        query.setParameter("name", "%" + name.trim() + "%");
-        return query.getResultList();
+        return em.find(HealthUser.class, healthUserId);
     }
 
     @Override
-    public HealthUser add(HealthUser healthUser) {
+    public HealthUser linkClinicToHealthUser(String healthUserCi, String clinicName) {
+        HealthUser healthUser = findByCi(healthUserCi);
+        boolean alreadyLinked = healthUser.getClinicNames().stream()
+                .anyMatch(existing -> existing != null && existing.equalsIgnoreCase(clinicName));
+        if (!alreadyLinked) {
+            healthUser.getClinicNames().add(clinicName);
+            em.merge(healthUser);
+        }
+        return healthUser;
+    }
+
+    @Override
+    public HealthUser create(HealthUser healthUser) {
         if (healthUser == null) {
             throw new ValidationException("HealthUser must not be null");
         }
         em.persist(healthUser);
         return healthUser;
-    }
-
-    @Override
-    public HealthUser findByDocument(String document) {
-        if (document == null || document.trim().isEmpty()) {
-            return null;
-        }
-
-        String normalizedDocument = document.trim();
-        TypedQuery<HealthUser> query = em.createQuery(
-                "SELECT h FROM HealthUser h WHERE h.document = :document",
-                HealthUser.class);
-        query.setParameter("document", normalizedDocument);
-        query.setMaxResults(1);
-        List<HealthUser> results = query.getResultList();
-        return results.isEmpty() ? null : results.get(0);
-    }
-
-    @Override
-    public List<HealthUser> findPage(String documentFragment, String clinicName, int offset, int limit) {
-        if (offset < 0) {
-            offset = 0;
-        }
-        if (limit <= 0) {
-            return List.of();
-        }
-
-        QueryComponents components = buildQueryComponents(documentFragment, clinicName,
-                "SELECT DISTINCT h FROM HealthUser h", " ORDER BY h.createdAt DESC");
-        TypedQuery<HealthUser> query = em.createQuery(components.jpql(), HealthUser.class);
-        components.parameters().forEach(query::setParameter);
-        query.setFirstResult(offset);
-        query.setMaxResults(limit);
-        return query.getResultList();
-    }
-
-    @Override
-    public long count(String documentFragment, String clinicName) {
-        QueryComponents components = buildQueryComponents(documentFragment, clinicName,
-                "SELECT COUNT(DISTINCT h.id) FROM HealthUser h", "");
-        TypedQuery<Long> query = em.createQuery(components.jpql(), Long.class);
-        components.parameters().forEach(query::setParameter);
-        return query.getSingleResult();
-    }
-
-    private QueryComponents buildQueryComponents(String documentFragment, String clinicName, String baseSelect,
-            String suffix) {
-        StringBuilder jpql = new StringBuilder(baseSelect);
-        Map<String, Object> parameters = new HashMap<>();
-        boolean joinClinics = clinicName != null && !clinicName.trim().isEmpty();
-
-        if (joinClinics) {
-            jpql.append(" JOIN h.clinics c");
-        }
-
-        boolean whereAdded = false;
-        if (documentFragment != null && !documentFragment.trim().isEmpty()) {
-            jpql.append(whereAdded ? " AND " : " WHERE ");
-            jpql.append("LOWER(h.document) LIKE :documentPattern");
-            parameters.put("documentPattern", "%" + documentFragment.trim().toLowerCase() + "%");
-            whereAdded = true;
-        }
-
-        if (joinClinics) {
-            jpql.append(whereAdded ? " AND " : " WHERE ");
-            jpql.append("LOWER(c.name) LIKE :clinicNamePattern");
-            parameters.put("clinicNamePattern", "%" + clinicName.trim().toLowerCase() + "%");
-        }
-
-        jpql.append(suffix);
-        return new QueryComponents(jpql.toString(), parameters);
-    }
-
-    private record QueryComponents(String jpql, Map<String, Object> parameters) {
     }
 }

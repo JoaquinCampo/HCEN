@@ -3,13 +3,18 @@ package grupo12.practico.dtos.AccessPolicy;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
+
 public class HealthWorkerAccessPolicyDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String id;
     private String healthUserId;
-    private String healthWorkerId;
-    private LocalDate grantedAt;
+    private HealthWorkerDTO healthWorker;
+    private ClinicDTO clinic;
+
+    private LocalDate createdAt;
 
     public String getId() {
         return id;
@@ -27,19 +32,27 @@ public class HealthWorkerAccessPolicyDTO implements Serializable {
         this.healthUserId = healthUserId;
     }
 
-    public String getHealthWorkerId() {
-        return healthWorkerId;
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
-    public void setHealthWorkerId(String healthWorkerId) {
-        this.healthWorkerId = healthWorkerId;
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public LocalDate getGrantedAt() {
-        return grantedAt;
+    public HealthWorkerDTO getHealthWorker() {
+        return healthWorker;
     }
 
-    public void setGrantedAt(LocalDate grantedAt) {
-        this.grantedAt = grantedAt;
+    public void setHealthWorker(HealthWorkerDTO healthWorker) {
+        this.healthWorker = healthWorker;
+    }
+
+    public ClinicDTO getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(ClinicDTO clinic) {
+        this.clinic = clinic;
     }
 }

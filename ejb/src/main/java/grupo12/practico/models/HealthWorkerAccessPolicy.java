@@ -3,7 +3,6 @@ package grupo12.practico.models;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import grupo12.practico.dtos.AccessPolicy.HealthWorkerAccessPolicyDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,12 +30,14 @@ public class HealthWorkerAccessPolicy {
     @JoinColumn(name = "health_user_id", nullable = false)
     private HealthUser healthUser;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "health_worker_id", nullable = false)
-    private HealthWorker healthWorker;
+    @Column(name = "health_worker_ci", nullable = false)
+    private String healthWorkerCi;
 
-    @Column(name = "granted_at", nullable = false)
-    private LocalDate grantedAt;
+    @Column(name = "health_worker_clinic", nullable = false)
+    private String clinicName;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDate createdAt;
 
     public HealthWorkerAccessPolicy() {
     }
@@ -46,7 +47,7 @@ public class HealthWorkerAccessPolicy {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
         }
-        this.grantedAt = LocalDate.now();
+        this.createdAt = LocalDate.now();
     }
 
     public String getId() {
@@ -65,28 +66,27 @@ public class HealthWorkerAccessPolicy {
         this.healthUser = healthUser;
     }
 
-    public HealthWorker getHealthWorker() {
-        return healthWorker;
+    public String getHealthWorkerCi() {
+        return healthWorkerCi;
     }
 
-    public void setHealthWorker(HealthWorker healthWorker) {
-        this.healthWorker = healthWorker;
+    public void setHealthWorkerCi(String healthWorkerCi) {
+        this.healthWorkerCi = healthWorkerCi;
     }
 
-    public LocalDate getGrantedAt() {
-        return grantedAt;
+    public String getClinicName() {
+        return clinicName;
     }
 
-    public void setGrantedAt(LocalDate grantedAt) {
-        this.grantedAt = grantedAt;
+    public void setClinicName(String clinicName) {
+        this.clinicName = clinicName;
     }
 
-    public HealthWorkerAccessPolicyDTO toDto() {
-        HealthWorkerAccessPolicyDTO dto = new HealthWorkerAccessPolicyDTO();
-        dto.setId(id);
-        dto.setHealthUserId(healthUser != null ? healthUser.getId() : null);
-        dto.setHealthWorkerId(healthWorker != null ? healthWorker.getId() : null);
-        dto.setGrantedAt(grantedAt);
-        return dto;
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 }

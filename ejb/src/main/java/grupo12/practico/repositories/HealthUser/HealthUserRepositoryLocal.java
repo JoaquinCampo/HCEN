@@ -8,17 +8,13 @@ import grupo12.practico.models.HealthUser;
 
 @Local
 public interface HealthUserRepositoryLocal {
-    List<HealthUser> findAll();
+    List<HealthUser> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize);
 
-    HealthUser findById(String id);
+    HealthUser create(HealthUser healthUser);
 
-    List<HealthUser> findByName(String name);
+    HealthUser linkClinicToHealthUser(String healthUserId, String clinicName);
 
-    HealthUser add(HealthUser healthUser);
+    HealthUser findByCi(String healthUserCi);
 
-    HealthUser findByDocument(String document);
-
-    List<HealthUser> findPage(String documentFragment, String clinicName, int offset, int limit);
-
-    long count(String documentFragment, String clinicName);
+    HealthUser findById(String healthUserId);
 }

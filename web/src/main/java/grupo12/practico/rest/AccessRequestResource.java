@@ -3,7 +3,6 @@ package grupo12.practico.rest;
 import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.GrantAccessDTO;
-import grupo12.practico.dtos.AccessRequest.GrantAccessResultDTO;
 import grupo12.practico.services.AccessRequest.AccessRequestServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;

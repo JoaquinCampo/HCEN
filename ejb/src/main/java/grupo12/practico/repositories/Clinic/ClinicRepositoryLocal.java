@@ -1,18 +1,16 @@
 package grupo12.practico.repositories.Clinic;
 
-import jakarta.ejb.Local;
-
 import java.util.List;
 
-import grupo12.practico.models.Clinic;
+import grupo12.practico.dtos.Clinic.AddClinicDTO;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
+import jakarta.ejb.Local;
 
 @Local
 public interface ClinicRepositoryLocal {
-    Clinic add(Clinic clinic);
+    ClinicDTO create(AddClinicDTO clinicDTO);
 
-    List<Clinic> findAll();
+    ClinicDTO findByName(String name);
 
-    Clinic findById(String id);
-
-    List<Clinic> findByName(String name);
+    List<ClinicDTO> findAll();
 }

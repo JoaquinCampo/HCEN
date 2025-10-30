@@ -34,7 +34,7 @@ public class HealthUserRegistrationProducerBean implements HealthUserRegistratio
         try {
             String payload = HealthUserRegistrationMessageMapper.toMessage(dto);
             jmsContext.createProducer().send(queue, payload);
-            LOGGER.fine(() -> "Queued health user registration request for document " + dto.getDocument());
+            LOGGER.fine(() -> "Queued health user registration request for ci " + dto.getCi());
         } catch (ValidationException ex) {
             throw ex;
         } catch (JMSRuntimeException ex) {

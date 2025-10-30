@@ -3,7 +3,6 @@ package grupo12.practico.models;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import grupo12.practico.dtos.AccessPolicy.ClinicAccessPolicyDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,7 +17,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(name = "clinic_access_policies", uniqueConstraints = {
         @UniqueConstraint(name = "uq_health_user_clinic_policy", columnNames = {
                 "health_user_id",
-                "clinic_id"
+                "clinic_name"
         })
 })
 public class ClinicAccessPolicy {
@@ -31,12 +30,11 @@ public class ClinicAccessPolicy {
     @JoinColumn(name = "health_user_id", nullable = false)
     private HealthUser healthUser;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "clinic_id", nullable = false)
-    private Clinic clinic;
+    @Column(name = "clinic_name", nullable = false)
+    private String clinicName;
 
-    @Column(name = "granted_at", nullable = false)
-    private LocalDate grantedAt;
+    @Column(name = "created_at", nullable = false)
+    private LocalDate createdAt;
 
     public ClinicAccessPolicy() {
     }
@@ -46,7 +44,7 @@ public class ClinicAccessPolicy {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
         }
-        this.grantedAt = LocalDate.now();
+        this.createdAt = LocalDate.now();
     }
 
     public String getId() {
@@ -65,28 +63,19 @@ public class ClinicAccessPolicy {
         this.healthUser = healthUser;
     }
 
-    public Clinic getClinic() {
-        return clinic;
+    public String getClinicName() {
+        return clinicName;
     }
 
-    public void setClinic(Clinic clinic) {
-        this.clinic = clinic;
+    public void setClinicName(String clinicName) {
+        this.clinicName = clinicName;
     }
 
-    public LocalDate getGrantedAt() {
-        return grantedAt;
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
-    public void setGrantedAt(LocalDate grantedAt) {
-        this.grantedAt = grantedAt;
-    }
-
-    public ClinicAccessPolicyDTO toDto() {
-        ClinicAccessPolicyDTO dto = new ClinicAccessPolicyDTO();
-        dto.setId(id);
-        dto.setHealthUserId(healthUser != null ? healthUser.getId() : null);
-        dto.setClinicId(clinic != null ? clinic.getId() : null);
-        dto.setGrantedAt(grantedAt);
-        return dto;
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 }

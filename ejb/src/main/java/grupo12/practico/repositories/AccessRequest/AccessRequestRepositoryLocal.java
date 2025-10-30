@@ -1,21 +1,17 @@
 package grupo12.practico.repositories.AccessRequest;
 
 import java.util.List;
-import java.util.Optional;
 
 import grupo12.practico.models.AccessRequest;
 import jakarta.ejb.Local;
 
 @Local
 public interface AccessRequestRepositoryLocal {
-    AccessRequest add(AccessRequest accessRequest);
+    AccessRequest create(AccessRequest accessRequest);
 
     AccessRequest findById(String id);
 
-    Optional<AccessRequest> findExisting(String healthUserId, String healthWorkerId, String clinicId,
-            String specialtyId);
+    List<AccessRequest> findAll(String healthUserId, String healthWorkerCi, String clinicName);
 
-    void delete(AccessRequest accessRequest);
-
-    List<AccessRequest> findAllByHealthUserId(String healthUserId);
+    void delete(String accessRequestId);
 }

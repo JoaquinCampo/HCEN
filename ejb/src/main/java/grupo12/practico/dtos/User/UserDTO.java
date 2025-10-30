@@ -3,21 +3,18 @@ package grupo12.practico.dtos.User;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
 
 public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String id;
-    private String document;
-    private DocumentType documentType;
+    private String ci;
     private String firstName;
     private String lastName;
     private Gender gender;
     private String email;
     private String phone;
-    private String imageUrl;
     private String address;
     private LocalDate dateOfBirth;
     private LocalDate createdAt;
@@ -31,20 +28,12 @@ public class UserDTO implements Serializable {
         this.id = id;
     }
 
-    public String getDocument() {
-        return document;
+    public String getCi() {
+        return ci;
     }
 
-    public void setDocument(String document) {
-        this.document = document;
-    }
-
-    public DocumentType getDocumentType() {
-        return documentType;
-    }
-
-    public void setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
+    public void setCi(String ci) {
+        this.ci = ci;
     }
 
     public String getFirstName() {
@@ -85,14 +74,6 @@ public class UserDTO implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public String getAddress() {

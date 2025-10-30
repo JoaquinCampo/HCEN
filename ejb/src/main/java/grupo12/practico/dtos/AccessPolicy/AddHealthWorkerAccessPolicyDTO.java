@@ -1,20 +1,16 @@
-package grupo12.practico.dtos.AccessRequest;
+package grupo12.practico.dtos.AccessPolicy;
 
-import java.io.Serializable;
-
-public class AddAccessRequestDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    private String healthUserCi;
+public class AddHealthWorkerAccessPolicyDTO {
+    private String healthUserId;
     private String healthWorkerCi;
     private String clinicName;
 
-    public String getHealthUserCi() {
-        return healthUserCi;
+    public String getHealthUserId() {
+        return healthUserId;
     }
 
-    public void setHealthUserCi(String healthUserCi) {
-        this.healthUserCi = healthUserCi;
+    public void setHealthUserId(String healthUserId) {
+        this.healthUserId = healthUserId;
     }
 
     public String getHealthWorkerCi() {
@@ -32,5 +28,4 @@ public class AddAccessRequestDTO implements Serializable {
     public void setClinicName(String clinicName) {
         this.clinicName = clinicName;
     }
-
 }

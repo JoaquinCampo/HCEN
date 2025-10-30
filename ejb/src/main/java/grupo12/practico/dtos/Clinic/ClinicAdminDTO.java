@@ -1,9 +1,14 @@
-package grupo12.practico.dtos.HealthWorker;
+package grupo12.practico.dtos.Clinic;
 
+import java.io.Serializable;
 import java.time.LocalDate;
-import grupo12.practico.dtos.Clinic.ClinicDTO;
 
-public class HealthWorkerDTO {
+/**
+ * Minimal clinic admin information required when registering a clinic.
+ */
+public class ClinicAdminDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String ci;
     private String firstName;
     private String lastName;
@@ -11,7 +16,6 @@ public class HealthWorkerDTO {
     private String phone;
     private String address;
     private LocalDate dateOfBirth;
-    private ClinicDTO clinic;
 
     public String getCi() {
         return ci;
@@ -67,13 +71,5 @@ public class HealthWorkerDTO {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
-    }
-
-    public ClinicDTO getClinic() {
-        return clinic;
-    }
-
-    public void setClinic(ClinicDTO clinic) {
-        this.clinic = clinic;
     }
 }

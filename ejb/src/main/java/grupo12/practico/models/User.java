@@ -15,12 +15,8 @@ public abstract class User {
     @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name = "document")
-    private String document;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "document_type")
-    private DocumentType documentType;
+    @Column(name = "ci", unique = true)
+    private String ci;
 
     @Column(name = "first_name")
     private String firstName;
@@ -40,18 +36,6 @@ public abstract class User {
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
-
-    @Column(name = "password_hash")
-    private String passwordHash;
-
-    @Column(name = "password_salt")
-    private String passwordSalt;
-
-    @Column(name = "password_updated_at")
-    private LocalDate passwordUpdatedAt;
-
-    @Column(name = "image_url")
-    private String imageUrl;
 
     @Column(name = "address")
     private String address;
@@ -143,52 +127,12 @@ public abstract class User {
         this.address = address;
     }
 
-    public String getDocument() {
-        return document;
+    public String getCi() {
+        return ci;
     }
 
-    public void setDocument(String document) {
-        this.document = document;
-    }
-
-    public DocumentType getDocumentType() {
-        return documentType;
-    }
-
-    public void setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public String getPasswordSalt() {
-        return passwordSalt;
-    }
-
-    public void setPasswordSalt(String passwordSalt) {
-        this.passwordSalt = passwordSalt;
-    }
-
-    public LocalDate getPasswordUpdatedAt() {
-        return passwordUpdatedAt;
-    }
-
-    public void setPasswordUpdatedAt(LocalDate passwordUpdatedAt) {
-        this.passwordUpdatedAt = passwordUpdatedAt;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setCi(String ci) {
+        this.ci = ci;
     }
 
     public LocalDate getCreatedAt() {
@@ -225,14 +169,12 @@ public abstract class User {
     public UserDTO toDto() {
         UserDTO dto = new UserDTO();
         dto.setId(id);
-        dto.setDocument(document);
-        dto.setDocumentType(documentType);
+        dto.setCi(ci);
         dto.setFirstName(firstName);
         dto.setLastName(lastName);
         dto.setGender(gender);
         dto.setEmail(email);
         dto.setPhone(phone);
-        dto.setImageUrl(imageUrl);
         dto.setAddress(address);
         dto.setDateOfBirth(dateOfBirth);
         dto.setCreatedAt(createdAt);
