@@ -8,7 +8,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,12 +31,14 @@ import jakarta.validation.ValidationException;
 public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote {
 
     private static final Logger logger = Logger.getLogger(HealthWorkerRepositoryBean.class.getName());
-    private static final String BASE_URL = "http://localhost:3000/api/clinics";
+    private static final String BASE_URL = "http://host.docker.internal:3000/api/clinics";
 
     private final HttpClient httpClient;
 
     public HealthWorkerRepositoryBean() {
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
     }
 
     @Override
@@ -91,19 +94,23 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
             JsonObject json = reader.readObject();
 
             HealthWorkerDTO dto = new HealthWorkerDTO();
-            dto.setCi(getString(json, "ci"));
-            dto.setFirstName(getString(json, "firstName"));
-            dto.setLastName(getString(json, "lastName"));
-            dto.setEmail(getString(json, "email"));
-            dto.setPhone(getString(json, "phone"));
-            dto.setAddress(getString(json, "address"));
 
-            String dob = getString(json, "dateOfBirth");
-            if (dob != null && !dob.isBlank()) {
-                try {
-                    dto.setDateOfBirth(LocalDate.parse(dob));
-                } catch (DateTimeParseException ex) {
-                    logger.log(Level.WARNING, "Invalid dateOfBirth received for health worker: " + dob, ex);
+            if (json.containsKey("user") && !json.isNull("user")) {
+                JsonObject userJson = json.getJsonObject("user");
+                dto.setCi(getString(userJson, "ci"));
+                dto.setFirstName(getString(userJson, "firstName"));
+                dto.setLastName(getString(userJson, "lastName"));
+                dto.setEmail(getString(userJson, "email"));
+                dto.setPhone(getString(userJson, "phone"));
+                dto.setAddress(getString(userJson, "address"));
+
+                String dob = getString(userJson, "dateOfBirth");
+                if (dob != null && !dob.isBlank()) {
+                    try {
+                        dto.setDateOfBirth(Instant.parse(dob).atZone(ZoneId.systemDefault()).toLocalDate());
+                    } catch (DateTimeParseException ex) {
+                        logger.log(Level.WARNING, "Invalid dateOfBirth received for health worker: " + dob, ex);
+                    }
                 }
             }
 

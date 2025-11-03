@@ -3,9 +3,6 @@ package grupo12.practico.dtos.Clinic;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-/**
- * Minimal clinic admin information required when registering a clinic.
- */
 public class ClinicAdminDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 

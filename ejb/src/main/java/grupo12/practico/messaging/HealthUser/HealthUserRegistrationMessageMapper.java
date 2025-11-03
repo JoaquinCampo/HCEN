@@ -53,14 +53,14 @@ public final class HealthUserRegistrationMessageMapper {
 
         AddHealthUserDTO dto = new AddHealthUserDTO();
         dto.setCi(requireNotBlank(tokens[0], "ci"));
-        dto.setFirstName(requireNotBlank(tokens[2], "firstName"));
-        dto.setLastName(requireNotBlank(tokens[3], "lastName"));
-        dto.setGender(parseGender(tokens[4]));
-        dto.setEmail(emptyToNull(tokens[5]));
-        dto.setPhone(emptyToNull(tokens[6]));
-        dto.setAddress(emptyToNull(tokens[7]));
-        dto.setDateOfBirth(parseDate(tokens[8]));
-        dto.setClinicNames(parseStringSet(tokens[9]));
+        dto.setFirstName(requireNotBlank(tokens[1], "firstName"));
+        dto.setLastName(requireNotBlank(tokens[2], "lastName"));
+        dto.setGender(parseGender(tokens[3]));
+        dto.setEmail(emptyToNull(tokens[4]));
+        dto.setPhone(emptyToNull(tokens[5]));
+        dto.setAddress(emptyToNull(tokens[6]));
+        dto.setDateOfBirth(parseDate(tokens[7]));
+        dto.setClinicNames(parseStringSet(tokens[8]));
         return dto;
     }
 

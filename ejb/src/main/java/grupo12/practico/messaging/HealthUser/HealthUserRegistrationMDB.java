@@ -35,7 +35,7 @@ public class HealthUserRegistrationMDB implements MessageListener {
         try {
             String payload = textMessage.getText();
             AddHealthUserDTO dto = HealthUserRegistrationMessageMapper.fromMessage(payload);
-            healthUserService.add(dto);
+            healthUserService.create(dto);
             LOGGER.info(() -> "Processed health user registration for document " + dto.getCi());
         } catch (ValidationException ex) {
             LOGGER.log(Level.WARNING, "Invalid health user registration payload", ex);

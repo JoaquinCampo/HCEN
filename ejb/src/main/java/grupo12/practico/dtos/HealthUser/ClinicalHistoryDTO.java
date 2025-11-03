@@ -2,6 +2,8 @@ package grupo12.practico.dtos.HealthUser;
 
 import java.io.Serializable;
 
+import java.util.List;
+
 /**
  * Simple DTO that wraps the clinical history payload returned by the external
  * service.
@@ -9,25 +11,25 @@ import java.io.Serializable;
 public class ClinicalHistoryDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String healthUserId;
-    private String payload;
+    private HealthUserDTO healthUser;
+    private List<ClinicalDocumentDTO> clinicalDocuments;
 
     public ClinicalHistoryDTO() {
     }
 
-    public String getHealthUserId() {
-        return healthUserId;
+    public HealthUserDTO getHealthUser() {
+        return healthUser;
     }
 
-    public void setHealthUserId(String healthUserId) {
-        this.healthUserId = healthUserId;
+    public void setHealthUser(HealthUserDTO healthUser) {
+        this.healthUser = healthUser;
     }
 
-    public String getPayload() {
-        return payload;
+    public List<ClinicalDocumentDTO> getClinicalDocuments() {
+        return clinicalDocuments;
     }
 
-    public void setPayload(String payload) {
-        this.payload = payload;
+    public void setClinicalDocuments(List<ClinicalDocumentDTO> clinicalDocuments) {
+        this.clinicalDocuments = clinicalDocuments;
     }
 }

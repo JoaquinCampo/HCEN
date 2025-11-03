@@ -34,10 +34,15 @@ public class ClinicBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        newProvider = new AddClinicDTO();
-        newProvider.setClinicAdmin(new ClinicAdminDTO());
-        providers = new ArrayList<>();
-        loadAll();
+        try {
+            newProvider = new AddClinicDTO();
+            newProvider.setClinicAdmin(new ClinicAdminDTO());
+            providers = new ArrayList<>();
+            loadAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void loadAll() {
@@ -48,7 +53,11 @@ public class ClinicBean implements Serializable {
         if (searchQuery == null || searchQuery.trim().isEmpty()) {
             loadAll();
         } else {
-            providers = service.findByName(searchQuery.trim());
+            ClinicDTO clinic = service.findByName(searchQuery.trim());
+            providers = new ArrayList<>();
+            if (clinic != null) {
+                providers.add(clinic);
+            }
         }
     }
 
@@ -60,7 +69,8 @@ public class ClinicBean implements Serializable {
                             "Request accepted; the clinic will be created shortly", null));
             newProvider = new AddClinicDTO();
             newProvider.setClinicAdmin(new ClinicAdminDTO());
-            return "list?faces-redirect=true";
+            loadAll();
+            return null;
         } catch (ValidationException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, ex.getMessage(), null));

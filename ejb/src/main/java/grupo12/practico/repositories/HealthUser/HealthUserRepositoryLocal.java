@@ -4,6 +4,7 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
+import grupo12.practico.dtos.HealthUser.ClinicalDocumentDTO;
 import grupo12.practico.models.HealthUser;
 
 @Local
@@ -17,4 +18,6 @@ public interface HealthUserRepositoryLocal {
     HealthUser findByCi(String healthUserCi);
 
     HealthUser findById(String healthUserId);
+
+    List<ClinicalDocumentDTO> findClinicalHistory(String healthUserCi);
 }

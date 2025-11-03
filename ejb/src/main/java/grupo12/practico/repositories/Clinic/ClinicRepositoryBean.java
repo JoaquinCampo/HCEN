@@ -8,7 +8,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,12 +37,14 @@ import grupo12.practico.dtos.Clinic.ClinicDTO;
 public class ClinicRepositoryBean implements ClinicRepositoryRemote {
 
     private static final Logger logger = Logger.getLogger(ClinicRepositoryBean.class.getName());
-    private static final String BASE_URL = "http://localhost:3000/api/clinics";
+    private static final String BASE_URL = "http://host.docker.internal:3000/api/clinics";
 
     private final HttpClient httpClient;
 
     public ClinicRepositoryBean() {
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
     }
 
     @Override
@@ -51,18 +54,38 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
         }
 
         String jsonPayload = Json.createObjectBuilder()
-                .add("name", addClinicDTO.getName())
-                .add("email", addClinicDTO.getEmail())
-                .add("phone", addClinicDTO.getPhone())
-                .add("address", addClinicDTO.getAddress())
+                .add("name", addClinicDTO.getName() != null ? addClinicDTO.getName() : "")
+                .add("email", addClinicDTO.getEmail() != null ? addClinicDTO.getEmail() : "")
+                .add("phone", addClinicDTO.getPhone() != null ? addClinicDTO.getPhone() : "")
+                .add("address", addClinicDTO.getAddress() != null ? addClinicDTO.getAddress() : "")
                 .add("clinicAdmin", Json.createObjectBuilder()
-                        .add("ci", addClinicDTO.getClinicAdmin().getCi())
-                        .add("firstName", addClinicDTO.getClinicAdmin().getFirstName())
-                        .add("lastName", addClinicDTO.getClinicAdmin().getLastName())
-                        .add("email", addClinicDTO.getClinicAdmin().getEmail())
-                        .add("phone", addClinicDTO.getClinicAdmin().getPhone())
-                        .add("address", addClinicDTO.getClinicAdmin().getAddress())
-                        .add("dateOfBirth", addClinicDTO.getClinicAdmin().getDateOfBirth().toString())
+                        .add("ci",
+                                addClinicDTO.getClinicAdmin().getCi() != null ? addClinicDTO.getClinicAdmin().getCi()
+                                        : "")
+                        .add("firstName",
+                                addClinicDTO.getClinicAdmin().getFirstName() != null
+                                        ? addClinicDTO.getClinicAdmin().getFirstName()
+                                        : "")
+                        .add("lastName",
+                                addClinicDTO.getClinicAdmin().getLastName() != null
+                                        ? addClinicDTO.getClinicAdmin().getLastName()
+                                        : "")
+                        .add("email",
+                                addClinicDTO.getClinicAdmin().getEmail() != null
+                                        ? addClinicDTO.getClinicAdmin().getEmail()
+                                        : "")
+                        .add("phone",
+                                addClinicDTO.getClinicAdmin().getPhone() != null
+                                        ? addClinicDTO.getClinicAdmin().getPhone()
+                                        : "")
+                        .add("address",
+                                addClinicDTO.getClinicAdmin().getAddress() != null
+                                        ? addClinicDTO.getClinicAdmin().getAddress()
+                                        : "")
+                        .add("dateOfBirth",
+                                addClinicDTO.getClinicAdmin().getDateOfBirth() != null
+                                        ? addClinicDTO.getClinicAdmin().getDateOfBirth().toString()
+                                        : "")
                         .build())
                 .build()
                 .toString();
@@ -155,6 +178,8 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while fetching clinics data", ex);
         } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Network error connecting to {0}: {1}",
+                    new Object[] { BASE_URL, ex.getMessage() });
             throw new IllegalStateException("Unable to fetch clinics data", ex);
         }
     }
@@ -177,7 +202,8 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             String createdAt = getString(json, "createdAt");
             if (createdAt != null && !createdAt.isBlank()) {
                 try {
-                    dto.setCreatedAt(LocalDate.parse(createdAt));
+                    // Parse ISO 8601 DateTime with timezone and convert to LocalDate
+                    dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneId.systemDefault()).toLocalDate());
                 } catch (DateTimeParseException ex) {
                     logger.log(Level.WARNING, "Invalid createdAt received for clinic: " + createdAt, ex);
                 }
@@ -186,7 +212,8 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             String updatedAt = getString(json, "updatedAt");
             if (updatedAt != null && !updatedAt.isBlank()) {
                 try {
-                    dto.setUpdatedAt(LocalDate.parse(updatedAt));
+                    // Parse ISO 8601 DateTime with timezone and convert to LocalDate
+                    dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneId.systemDefault()).toLocalDate());
                 } catch (DateTimeParseException ex) {
                     logger.log(Level.WARNING, "Invalid updatedAt received for clinic: " + updatedAt, ex);
                 }
@@ -220,7 +247,8 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                     String createdAt = getString(json, "createdAt");
                     if (createdAt != null && !createdAt.isBlank()) {
                         try {
-                            dto.setCreatedAt(LocalDate.parse(createdAt));
+                            // Parse ISO 8601 DateTime with timezone and convert to LocalDate
+                            dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneId.systemDefault()).toLocalDate());
                         } catch (DateTimeParseException ex) {
                             logger.log(Level.WARNING, "Invalid createdAt received for clinic: " + createdAt, ex);
                         }
@@ -229,7 +257,8 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                     String updatedAt = getString(json, "updatedAt");
                     if (updatedAt != null && !updatedAt.isBlank()) {
                         try {
-                            dto.setUpdatedAt(LocalDate.parse(updatedAt));
+                            // Parse ISO 8601 DateTime with timezone and convert to LocalDate
+                            dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneId.systemDefault()).toLocalDate());
                         } catch (DateTimeParseException ex) {
                             logger.log(Level.WARNING, "Invalid updatedAt received for clinic: " + updatedAt, ex);
                         }

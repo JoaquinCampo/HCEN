@@ -35,7 +35,7 @@ public class ClinicRegistrationMDB implements MessageListener {
         try {
             String payload = textMessage.getText();
             AddClinicDTO dto = ClinicRegistrationMessageMapper.fromMessage(payload);
-            clinicService.addClinic(dto);
+            clinicService.create(dto);
             LOGGER.fine(() -> "Processed clinic registration for clinic " + dto.getName());
         } catch (ValidationException ex) {
             LOGGER.log(Level.WARNING, "Invalid clinic registration payload", ex);
