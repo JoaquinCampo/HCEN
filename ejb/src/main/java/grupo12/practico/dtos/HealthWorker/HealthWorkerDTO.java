@@ -1,46 +1,79 @@
 package grupo12.practico.dtos.HealthWorker;
 
-import java.util.Set;
+import java.time.LocalDate;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
 
-import grupo12.practico.dtos.User.UserDTO;
+public class HealthWorkerDTO {
+    private String ci;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
+    private String address;
+    private LocalDate dateOfBirth;
+    private ClinicDTO clinic;
 
-public class HealthWorkerDTO extends UserDTO {
-    private static final long serialVersionUID = 1L;
-
-    private String licenseNumber;
-    private Set<String> clinicIds;
-    private Set<String> specialtyIds;
-    private String bloodType;
-
-    public String getLicenseNumber() {
-        return licenseNumber;
+    public String getCi() {
+        return ci;
     }
 
-    public void setLicenseNumber(String licenseNumber) {
-        this.licenseNumber = licenseNumber;
+    public void setCi(String ci) {
+        this.ci = ci;
     }
 
-    public Set<String> getClinicIds() {
-        return clinicIds;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setClinicIds(Set<String> clinicIds) {
-        this.clinicIds = clinicIds;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public Set<String> getSpecialtyIds() {
-        return specialtyIds;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSpecialtyIds(Set<String> specialtyIds) {
-        this.specialtyIds = specialtyIds;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public String getBloodType() {
-        return bloodType;
+    public String getEmail() {
+        return email;
     }
 
-    public void setBloodType(String bloodType) {
-        this.bloodType = bloodType;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public ClinicDTO getClinic() {
+        return clinic;
+    }
+
+    public void setClinic(ClinicDTO clinic) {
+        this.clinic = clinic;
     }
 }

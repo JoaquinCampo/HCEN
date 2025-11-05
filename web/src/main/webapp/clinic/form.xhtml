@@ -1,19 +1,35 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
-  xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
-  xmlns:ui="http://xmlns.jcp.org/jsf/facelets" template="/WEB-INF/templates/layout.xhtml">
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  template="/WEB-INF/templates/layout.xhtml"
+>
   <ui:define name="title">Create Clinic</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
-        <h:messages id="formMessages" globalOnly="true" styleClass="alert alert-danger" layout="list"
-          infoClass="alert alert-success" warnClass="alert alert-warning" errorClass="alert alert-danger"
-          fatalClass="alert alert-danger" />
+        <h:messages
+          id="formMessages"
+          globalOnly="true"
+          styleClass="alert alert-danger"
+          layout="list"
+          infoClass="alert alert-success"
+          warnClass="alert alert-warning"
+          errorClass="alert alert-danger"
+          fatalClass="alert alert-danger"
+        />
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h2 class="card-title h4 mb-0">Create Clinic</h2>
-            <small class="text-muted">Register a new healthcare organization.</small>
+            <small class="text-muted"
+              >Register a new healthcare organization.</small
+            >
           </div>
-          <h:link outcome="/clinic/list" styleClass="btn btn-outline-secondary">Back to list</h:link>
+          <h:link outcome="/clinic/list" styleClass="btn btn-outline-secondary"
+            >Back to list</h:link
+          >
         </div>
 
         <h:form styleClass="row g-3">
@@ -35,7 +51,11 @@
               <f:ajax event="blur" render="nameMessage" execute="name" />
               <f:validateLength minimum="3" maximum="120" />
             </h:inputText>
-            <h:message id="nameMessage" for="name" styleClass="form-text text-danger" />
+            <h:message
+              id="nameMessage"
+              for="name"
+              styleClass="form-text text-danger"
+            />
           </div>
           <div class="col-sm-6">
             <h:outputLabel for="email" value="Email" styleClass="form-label" />
@@ -59,13 +79,27 @@
           </div>
 
           <div class="col-12">
-            <h:outputLabel for="address" value="Address" styleClass="form-label" />
-            <h:inputText id="address" value="#{clinicBean.newProvider.address}" required="true"
-              requiredMessage="Address is required" styleClass="form-control" p:placeholder="Street, number, city"
-              p:autocomplete="street-address">
+            <h:outputLabel
+              for="address"
+              value="Address"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="address"
+              value="#{clinicBean.newProvider.address}"
+              required="true"
+              requiredMessage="Address is required"
+              styleClass="form-control"
+              p:placeholder="Street, number, city"
+              p:autocomplete="street-address"
+            >
               <f:ajax event="blur" render="addressMessage" execute="address" />
             </h:inputText>
-            <h:message id="addressMessage" for="address" styleClass="form-text text-danger" />
+            <h:message
+              id="addressMessage"
+              for="address"
+              styleClass="form-text text-danger"
+            />
           </div>
 
           <div class="col-md-6">
@@ -83,47 +117,129 @@
             >
               <f:ajax event="blur" render="phoneMessage" execute="phone" />
             </h:inputText>
-            <h:message id="phoneMessage" for="phone" styleClass="form-text text-danger" />
-          </div>
-
-          <div class="col-md-4">
-            <h:outputLabel
-              for="adminName"
-              value="Clinic Admin Name"
-              styleClass="form-label"
-            />
-            <h:inputText
-              id="adminName"
-              value="#{clinicBean.newProvider.clinicAdmin.name}"
-              required="true"
-              requiredMessage="Clinic admin name is required"
-              styleClass="form-control"
-              p:placeholder="Full name"
-            >
-              <f:ajax
-                event="blur"
-                render="adminNameMessage"
-                execute="adminName"
-              />
-            </h:inputText>
             <h:message
-              id="adminNameMessage"
-              for="adminName"
+              id="phoneMessage"
+              for="phone"
               styleClass="form-text text-danger"
             />
           </div>
 
-          <div class="col-md-4">
+          <div class="col-12">
+            <h3 class="h5 mt-4 mb-3">Clinic Administrator</h3>
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel for="adminCi" value="CI" styleClass="form-label" />
+            <h:inputText
+              id="adminCi"
+              value="#{clinicBean.newProvider.clinicAdmin.ci}"
+              required="true"
+              requiredMessage="CI is required"
+              styleClass="form-control"
+              p:placeholder="Enter CI"
+            >
+              <f:ajax event="blur" render="adminCiMessage" execute="adminCi" />
+            </h:inputText>
+            <h:message
+              id="adminCiMessage"
+              for="adminCi"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel
+              for="adminDateOfBirth"
+              value="Date of Birth"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="adminDateOfBirth"
+              value="#{clinicBean.newProvider.clinicAdmin.dateOfBirth}"
+              required="true"
+              requiredMessage="Date of birth is required"
+              styleClass="form-control"
+              p:type="date"
+            >
+              <f:converter converterId="localDateConverter" />
+              <f:ajax
+                event="blur"
+                render="adminDateOfBirthMessage"
+                execute="adminDateOfBirth"
+              />
+            </h:inputText>
+            <h:message
+              id="adminDateOfBirthMessage"
+              for="adminDateOfBirth"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel
+              for="adminFirstName"
+              value="First Name"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="adminFirstName"
+              value="#{clinicBean.newProvider.clinicAdmin.firstName}"
+              required="true"
+              requiredMessage="First name is required"
+              styleClass="form-control"
+              p:placeholder="Enter first name"
+            >
+              <f:ajax
+                event="blur"
+                render="adminFirstNameMessage"
+                execute="adminFirstName"
+              />
+            </h:inputText>
+            <h:message
+              id="adminFirstNameMessage"
+              for="adminFirstName"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel
+              for="adminLastName"
+              value="Last Name"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="adminLastName"
+              value="#{clinicBean.newProvider.clinicAdmin.lastName}"
+              required="true"
+              requiredMessage="Last name is required"
+              styleClass="form-control"
+              p:placeholder="Enter last name"
+            >
+              <f:ajax
+                event="blur"
+                render="adminLastNameMessage"
+                execute="adminLastName"
+              />
+            </h:inputText>
+            <h:message
+              id="adminLastNameMessage"
+              for="adminLastName"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
             <h:outputLabel
               for="adminEmail"
-              value="Clinic Admin Email"
+              value="Email"
               styleClass="form-label"
             />
             <h:inputText
               id="adminEmail"
               value="#{clinicBean.newProvider.clinicAdmin.email}"
               required="true"
-              requiredMessage="Clinic admin email is required"
+              requiredMessage="Email is required"
               styleClass="form-control"
               p:type="email"
               p:placeholder="admin@example.com"
@@ -141,10 +257,10 @@
             />
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <h:outputLabel
               for="adminPhone"
-              value="Clinic Admin Phone"
+              value="Phone"
               styleClass="form-label"
             />
             <h:inputText
@@ -169,10 +285,43 @@
             />
           </div>
 
+          <div class="col-12">
+            <h:outputLabel
+              for="adminAddress"
+              value="Address"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="adminAddress"
+              value="#{clinicBean.newProvider.clinicAdmin.address}"
+              styleClass="form-control"
+              p:placeholder="Optional address"
+            >
+              <f:ajax
+                event="blur"
+                render="adminAddressMessage"
+                execute="adminAddress"
+              />
+            </h:inputText>
+            <h:message
+              id="adminAddressMessage"
+              for="adminAddress"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
           <div class="col-12 d-flex gap-2 mt-3">
-            <h:commandButton value="Save" action="#{clinicBean.save}" styleClass="btn btn-primary" />
-            <h:commandButton value="Reset" actionListener="#{clinicBean.init}" immediate="true"
-              styleClass="btn btn-outline-secondary">
+            <h:commandButton
+              value="Save"
+              action="#{clinicBean.save}"
+              styleClass="btn btn-primary"
+            />
+            <h:commandButton
+              value="Reset"
+              actionListener="#{clinicBean.init}"
+              immediate="true"
+              styleClass="btn btn-outline-secondary"
+            >
               <f:ajax render="@form" />
             </h:commandButton>
           </div>

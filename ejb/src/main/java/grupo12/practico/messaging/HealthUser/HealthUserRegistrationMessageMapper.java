@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
-import grupo12.practico.models.DocumentType;
 import grupo12.practico.models.Gender;
 import jakarta.validation.ValidationException;
 
@@ -28,8 +27,7 @@ public final class HealthUserRegistrationMessageMapper {
         Objects.requireNonNull(dto, "health user dto must not be null");
 
         String[] fields = new String[] {
-                requireNoPipe(dto.getDocument(), "document"),
-                enumToString(dto.getDocumentType(), "documentType"),
+                requireNoPipe(dto.getCi(), "ci"),
                 requireNoPipe(dto.getFirstName(), "firstName"),
                 requireNoPipe(dto.getLastName(), "lastName"),
                 enumToString(dto.getGender(), "gender"),
@@ -37,8 +35,7 @@ public final class HealthUserRegistrationMessageMapper {
                 optionalNoPipe(dto.getPhone()),
                 optionalNoPipe(dto.getAddress()),
                 toDateString(dto.getDateOfBirth()),
-                requireNoPipe(dto.getPassword(), "password"),
-                setToString(dto.getClinicIds())
+                setToString(dto.getClinicNames())
         };
 
         return String.join(HealthUserRegistrationMessaging.FIELD_SEPARATOR, fields);
@@ -55,17 +52,15 @@ public final class HealthUserRegistrationMessageMapper {
         }
 
         AddHealthUserDTO dto = new AddHealthUserDTO();
-        dto.setDocument(requireNotBlank(tokens[0], "document"));
-        dto.setDocumentType(parseDocumentType(tokens[1]));
-        dto.setFirstName(requireNotBlank(tokens[2], "firstName"));
-        dto.setLastName(requireNotBlank(tokens[3], "lastName"));
-        dto.setGender(parseGender(tokens[4]));
-        dto.setEmail(emptyToNull(tokens[5]));
-        dto.setPhone(emptyToNull(tokens[6]));
-        dto.setAddress(emptyToNull(tokens[7]));
-        dto.setDateOfBirth(parseDate(tokens[8]));
-        dto.setPassword(requireNotBlank(tokens[9], "password"));
-        dto.setClinicIds(parseStringSet(tokens[10]));
+        dto.setCi(requireNotBlank(tokens[0], "ci"));
+        dto.setFirstName(requireNotBlank(tokens[1], "firstName"));
+        dto.setLastName(requireNotBlank(tokens[2], "lastName"));
+        dto.setGender(parseGender(tokens[3]));
+        dto.setEmail(emptyToNull(tokens[4]));
+        dto.setPhone(emptyToNull(tokens[5]));
+        dto.setAddress(emptyToNull(tokens[6]));
+        dto.setDateOfBirth(parseDate(tokens[7]));
+        dto.setClinicNames(parseStringSet(tokens[8]));
         return dto;
     }
 
@@ -127,15 +122,6 @@ public final class HealthUserRegistrationMessageMapper {
             return LocalDate.parse(value);
         } catch (Exception ex) {
             throw new ValidationException("Invalid dateOfBirth format: " + value);
-        }
-    }
-
-    private static DocumentType parseDocumentType(String token) {
-        String value = requireNotBlank(token, "documentType");
-        try {
-            return DocumentType.valueOf(value);
-        } catch (Exception ex) {
-            throw new ValidationException("Invalid documentType: " + value);
         }
     }
 

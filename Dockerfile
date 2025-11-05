@@ -11,7 +11,6 @@ COPY pom.xml ./
 COPY ejb/pom.xml ejb/pom.xml
 COPY web/pom.xml web/pom.xml
 COPY ear/pom.xml ear/pom.xml
-COPY console/pom.xml console/pom.xml
 
 # Warm the Maven repository cache
 RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -DskipTests dependency:go-offline

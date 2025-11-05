@@ -2,6 +2,9 @@ package grupo12.practico.dtos.Clinic;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
+
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 
 public class ClinicDTO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -13,6 +16,7 @@ public class ClinicDTO implements Serializable {
     private String address;
     private LocalDate createdAt;
     private LocalDate updatedAt;
+    private List<HealthWorkerDTO> healthWorkers;
 
     public String getId() {
         return id;
@@ -68,5 +72,13 @@ public class ClinicDTO implements Serializable {
 
     public void setUpdatedAt(LocalDate updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<HealthWorkerDTO> getHealthWorkers() {
+        return healthWorkers;
+    }
+
+    public void setHealthWorkers(List<HealthWorkerDTO> healthWorkers) {
+        this.healthWorkers = healthWorkers;
     }
 }

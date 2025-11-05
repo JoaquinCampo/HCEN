@@ -5,40 +5,32 @@ import java.io.Serializable;
 public class AddAccessRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String healthUserId;
-    private String healthWorkerId;
-    private String clinicId;
-    private String specialtyId;
+    private String healthUserCi;
+    private String healthWorkerCi;
+    private String clinicName;
 
-    public String getHealthUserId() {
-        return healthUserId;
+    public String getHealthUserCi() {
+        return healthUserCi;
     }
 
-    public void setHealthUserId(String healthUserId) {
-        this.healthUserId = healthUserId;
+    public void setHealthUserCi(String healthUserCi) {
+        this.healthUserCi = healthUserCi;
     }
 
-    public String getHealthWorkerId() {
-        return healthWorkerId;
+    public String getHealthWorkerCi() {
+        return healthWorkerCi;
     }
 
-    public void setHealthWorkerId(String healthWorkerId) {
-        this.healthWorkerId = healthWorkerId;
+    public void setHealthWorkerCi(String healthWorkerCi) {
+        this.healthWorkerCi = healthWorkerCi;
     }
 
-    public String getClinicId() {
-        return clinicId;
+    public String getClinicName() {
+        return clinicName;
     }
 
-    public void setClinicId(String clinicId) {
-        this.clinicId = clinicId;
+    public void setClinicName(String clinicName) {
+        this.clinicName = clinicName;
     }
 
-    public String getSpecialtyId() {
-        return specialtyId;
-    }
-
-    public void setSpecialtyId(String specialtyId) {
-        this.specialtyId = specialtyId;
-    }
 }

@@ -1,19 +1,16 @@
 package grupo12.practico.services.HealthWorker;
 
-import jakarta.ejb.Local;
-
 import java.util.List;
 
-import grupo12.practico.dtos.HealthWorker.AddHealthWorkerDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 
-@Local
 public interface HealthWorkerServiceLocal {
-    HealthWorkerDTO add(AddHealthWorkerDTO healthWorkerDTO);
-
     List<HealthWorkerDTO> findAll();
+
+    HealthWorkerDTO findById(String id);
 
     List<HealthWorkerDTO> findByName(String name);
 
-    HealthWorkerDTO findById(String id);
+    HealthWorkerDTO findByClinicAndCi(String clinicName, String healthWorkerCi);
 }
+

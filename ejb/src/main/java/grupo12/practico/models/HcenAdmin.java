@@ -14,15 +14,14 @@ public class HcenAdmin extends User {
     public HcenAdminDTO toDto() {
         HcenAdminDTO dto = new HcenAdminDTO();
         dto.setId(getId());
-        dto.setDocument(getDocument());
-        dto.setDocumentType(getDocumentType());
+        dto.setCi(getCi());
         dto.setFirstName(getFirstName());
         dto.setLastName(getLastName());
         dto.setGender(getGender());
         dto.setEmail(getEmail());
         dto.setPhone(getPhone());
-        dto.setImageUrl(getImageUrl());
         dto.setAddress(getAddress());
+        dto.setDateOfBirth(getDateOfBirth());
         dto.setCreatedAt(getCreatedAt());
         dto.setUpdatedAt(getUpdatedAt());
         return dto;

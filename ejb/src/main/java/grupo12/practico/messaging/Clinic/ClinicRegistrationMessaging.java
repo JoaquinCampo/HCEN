@@ -22,9 +22,13 @@ public final class ClinicRegistrationMessaging {
             "email",
             "phone",
             "address",
-            "adminName",
+            "adminCi",
+            "adminFirstName",
+            "adminLastName",
             "adminEmail",
-            "adminPhone"
+            "adminPhone",
+            "adminAddress",
+            "adminDateOfBirth"
     };
 
     /**

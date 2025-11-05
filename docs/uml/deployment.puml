@@ -41,16 +41,11 @@ rectangle "Access Channels" as Access {
     artifact "Admin HCEN Portal\n<<web application>>" as PortalAdmin
   }
 
-  node "Ops Desktop" <<device>> as OpsDesktop {
-    artifact "Console CLI\n<<ops tool>>" as ConsoleCli
-  }
-
   ActorHealth --> MobileApp : Touch UI
   ActorHealth --> PortalUser : Web UI
   ActorWorker --> PortalWorker : Web UI
   ActorClinicAdmin --> PortalClinic : Web UI
   ActorHcenAdmin --> PortalAdmin : Web UI
-  ActorHcenAdmin --> ConsoleCli : Shell access
 }
 
 cloud "Elastic Cloud (ANTEL)" <<cloud>> as Central {
@@ -111,8 +106,6 @@ PortalUser --> JsfUi : HTTPS / JSF
 PortalWorker --> JsfUi : HTTPS / JSF
 PortalClinic --> JsfUi : HTTPS / JSF
 PortalAdmin --> JsfUi : HTTPS / JSF
-ConsoleCli --> Services : Remote EJB / IIOP
-ConsoleCli --> Artemis : JMS / JNDI commands
 
 JsfUi --> Services : Local EJB invocation
 Api --> Services : Local EJB invocation

@@ -1,9 +1,10 @@
 package grupo12.practico.messaging.Clinic;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
-import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminDTO;
 import jakarta.validation.ValidationException;
 
 /**
@@ -21,16 +22,20 @@ public final class ClinicRegistrationMessageMapper {
     public static String toMessage(AddClinicDTO dto) {
         Objects.requireNonNull(dto, "clinic dto must not be null");
 
-        ClinicAdminInfoDTO admin = dto.getClinicAdmin() != null ? dto.getClinicAdmin() : new ClinicAdminInfoDTO();
+        ClinicAdminDTO admin = dto.getClinicAdmin() != null ? dto.getClinicAdmin() : new ClinicAdminDTO();
 
         String[] fields = new String[] {
                 requireNoPipe(dto.getName(), "name"),
                 requireNoPipe(dto.getEmail(), "email"),
                 requireNoPipe(dto.getPhone(), "phone"),
                 requireNoPipe(dto.getAddress(), "address"),
-                requireNoPipe(admin.getName(), "clinicAdmin.name"),
+                requireNoPipe(admin.getCi(), "clinicAdmin.ci"),
+                requireNoPipe(admin.getFirstName(), "clinicAdmin.firstName"),
+                requireNoPipe(admin.getLastName(), "clinicAdmin.lastName"),
                 requireNoPipe(admin.getEmail(), "clinicAdmin.email"),
                 optionalNoPipe(admin.getPhone()),
+                optionalNoPipe(admin.getAddress()),
+                toDateString(admin.getDateOfBirth())
         };
 
         return String.join(ClinicRegistrationMessaging.FIELD_SEPARATOR, fields);
@@ -52,10 +57,14 @@ public final class ClinicRegistrationMessageMapper {
         dto.setPhone(requireNotBlank(tokens[2], "phone"));
         dto.setAddress(requireNotBlank(tokens[3], "address"));
 
-        ClinicAdminInfoDTO admin = new ClinicAdminInfoDTO();
-        admin.setName(requireNotBlank(tokens[4], "clinicAdmin.name"));
-        admin.setEmail(requireNotBlank(tokens[5], "clinicAdmin.email"));
-        admin.setPhone(emptyToNull(tokens[6]));
+        ClinicAdminDTO admin = new ClinicAdminDTO();
+        admin.setCi(requireNotBlank(tokens[4], "clinicAdmin.ci"));
+        admin.setFirstName(requireNotBlank(tokens[5], "clinicAdmin.firstName"));
+        admin.setLastName(requireNotBlank(tokens[6], "clinicAdmin.lastName"));
+        admin.setEmail(requireNotBlank(tokens[7], "clinicAdmin.email"));
+        admin.setPhone(emptyToNull(tokens[8]));
+        admin.setAddress(emptyToNull(tokens[9]));
+        admin.setDateOfBirth(parseDate(tokens[10]));
         dto.setClinicAdmin(admin);
         return dto;
     }
@@ -96,5 +105,24 @@ public final class ClinicRegistrationMessageMapper {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private static String toDateString(LocalDate date) {
+        if (date == null) {
+            return "";
+        }
+        return date.toString();
+    }
+
+    private static LocalDate parseDate(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+        String value = token.trim();
+        try {
+            return LocalDate.parse(value);
+        } catch (Exception ex) {
+            throw new ValidationException("Invalid dateOfBirth format: " + value);
+        }
     }
 }

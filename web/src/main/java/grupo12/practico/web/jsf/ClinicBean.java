@@ -1,7 +1,7 @@
 package grupo12.practico.web.jsf;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
-import grupo12.practico.dtos.Clinic.ClinicAdminInfoDTO;
+import grupo12.practico.dtos.Clinic.ClinicAdminDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.messaging.Clinic.ClinicRegistrationProducerLocal;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
@@ -34,10 +34,15 @@ public class ClinicBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        newProvider = new AddClinicDTO();
-        newProvider.setClinicAdmin(new ClinicAdminInfoDTO());
-        providers = new ArrayList<>();
-        loadAll();
+        try {
+            newProvider = new AddClinicDTO();
+            newProvider.setClinicAdmin(new ClinicAdminDTO());
+            providers = new ArrayList<>();
+            loadAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void loadAll() {
@@ -48,7 +53,11 @@ public class ClinicBean implements Serializable {
         if (searchQuery == null || searchQuery.trim().isEmpty()) {
             loadAll();
         } else {
-            providers = service.findByName(searchQuery.trim());
+            ClinicDTO clinic = service.findByName(searchQuery.trim());
+            providers = new ArrayList<>();
+            if (clinic != null) {
+                providers.add(clinic);
+            }
         }
     }
 
@@ -59,8 +68,9 @@ public class ClinicBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Request accepted; the clinic will be created shortly", null));
             newProvider = new AddClinicDTO();
-            newProvider.setClinicAdmin(new ClinicAdminInfoDTO());
-            return "list?faces-redirect=true";
+            newProvider.setClinicAdmin(new ClinicAdminDTO());
+            loadAll();
+            return null;
         } catch (ValidationException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, ex.getMessage(), null));
@@ -85,7 +95,7 @@ public class ClinicBean implements Serializable {
     public void setNewProvider(AddClinicDTO hp) {
         this.newProvider = hp;
         if (this.newProvider != null && this.newProvider.getClinicAdmin() == null) {
-            this.newProvider.setClinicAdmin(new ClinicAdminInfoDTO());
+            this.newProvider.setClinicAdmin(new ClinicAdminDTO());
         }
     }
 

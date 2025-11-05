@@ -4,16 +4,6 @@ skinparam wrapWidth 200
 skinparam maxMessageSize 200
 skinparam packageStyle rectangle
 
-package "Console Module" as Console {
-  component "Main" as ConsoleMain
-  component "ServiceLocator" as ConsoleLocator
-  component "JMS Producers\n(Remote)" as ConsoleJms
-}
-
-note right of Console
-  Standalone CLI packaged outside the EAR
-end note
-
 package "Web Module" as Web {
   component "REST API\n(HealthUserResource, etc.)" as RestApi
   component "SOAP Services" as SoapServices
@@ -31,11 +21,6 @@ package "EJB Module" as Ejb {
 database "PostgreSQL DB" as Database
 queue "JMS Queue\n(queue_alta_health_user, queue_alta_health_worker)" as Queue
 component "EAR Packaging\n(practico-ear)" as Ear
-
-ConsoleMain --> ConsoleLocator : Remote lookup (JNDI)
-ConsoleLocator --> EjbServices : invoke *Remote* interfaces
-ConsoleMain --> ConsoleJms : enqueue DTOs
-ConsoleJms --> Queue : send JMS messages
 
 RestApi --> EjbServices : invoke *Local* interfaces
 SoapServices --> EjbServices
