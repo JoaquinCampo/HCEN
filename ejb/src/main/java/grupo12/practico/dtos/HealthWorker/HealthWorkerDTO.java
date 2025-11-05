@@ -1,7 +1,7 @@
 package grupo12.practico.dtos.HealthWorker;
 
 import java.time.LocalDate;
-import grupo12.practico.dtos.Clinic.ClinicDTO;
+import java.util.List;
 
 public class HealthWorkerDTO {
     private String ci;
@@ -11,7 +11,7 @@ public class HealthWorkerDTO {
     private String phone;
     private String address;
     private LocalDate dateOfBirth;
-    private ClinicDTO clinic;
+    private List<String> clinicNames;
 
     public String getCi() {
         return ci;
@@ -69,11 +69,11 @@ public class HealthWorkerDTO {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public ClinicDTO getClinic() {
-        return clinic;
+    public List<String> getClinicNames() {
+        return clinicNames;
     }
 
-    public void setClinic(ClinicDTO clinic) {
-        this.clinic = clinic;
+    public void setClinicNames(List<String> clinicNames) {
+        this.clinicNames = clinicNames;
     }
 }
