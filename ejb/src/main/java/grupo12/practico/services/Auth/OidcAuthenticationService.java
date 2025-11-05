@@ -42,6 +42,7 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
     private static final Logger LOGGER = Logger.getLogger(OidcAuthenticationService.class.getName());
     private static final Map<String, String> STATE_STORE = new ConcurrentHashMap<>();
     private static final Map<String, String> NONCE_STORE = new ConcurrentHashMap<>();
+    private static final Map<String, String> CODE_VERIFIER_STORE = new ConcurrentHashMap<>();
 
     @EJB
     private OidcConfigurationService config;
@@ -56,6 +57,8 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
         // Generate state and nonce for CSRF protection and replay attack prevention
         String state = generateRandomString(32);
         String nonce = generateRandomString(32);
+        String codeVerifier = generateRandomString(64);
+        String codeChallenge = pkceS256(codeVerifier);
 
         // Store state and nonce for validation in callback
         STATE_STORE.put(state, state);
@@ -69,8 +72,17 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
         authUrl.append("&scope=").append(urlEncode(config.getScope()));
         authUrl.append("&state=").append(urlEncode(state));
         authUrl.append("&nonce=").append(urlEncode(nonce));
+        authUrl.append("&code_challenge=").append(urlEncode(codeChallenge));
+        authUrl.append("&code_challenge_method=S256");
+        if (config.getAcrValues() != null && !config.getAcrValues().isEmpty()) {
+            authUrl.append("&acr_values=").append(urlEncode(config.getAcrValues()));
+        }
 
         LOGGER.info("Authorization URL created for state: " + state);
+        LOGGER.info("Authorize URL: " + authUrl);
+
+        // store verifier for later exchange
+        CODE_VERIFIER_STORE.put(state, codeVerifier);
 
         return new OidcAuthorizationResponseDTO(authUrl.toString(), state);
     }
@@ -85,7 +97,8 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
         String expectedNonce = NONCE_STORE.get(state);
 
         // Exchange authorization code for tokens
-        OidcTokenResponseDTO tokenResponse = exchangeCodeForToken(code);
+        String codeVerifier = CODE_VERIFIER_STORE.get(state);
+        OidcTokenResponseDTO tokenResponse = exchangeCodeForToken(code, codeVerifier);
 
         // Verify ID Token signature and claims via JWKS
         JWTClaimsSet idTokenClaims = verifyIdToken(tokenResponse.getIdToken(), expectedNonce);
@@ -93,6 +106,8 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
         // After successful verification, clean up state and nonce
         STATE_STORE.remove(state);
         NONCE_STORE.remove(state);
+        if (codeVerifier != null)
+            CODE_VERIFIER_STORE.remove(state);
 
         // Get user info
         OidcUserInfoDTO userInfo = getUserInfoDTO(tokenResponse.getAccessToken());
@@ -128,7 +143,7 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
         return result;
     }
 
-    private OidcTokenResponseDTO exchangeCodeForToken(String code) throws Exception {
+    private OidcTokenResponseDTO exchangeCodeForToken(String code, String codeVerifier) throws Exception {
         Client client = ClientBuilder.newClient();
 
         try {
@@ -136,6 +151,9 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
             form.param("grant_type", "authorization_code");
             form.param("code", code);
             form.param("redirect_uri", config.getRedirectUri());
+            if (codeVerifier != null && !codeVerifier.isEmpty()) {
+                form.param("code_verifier", codeVerifier);
+            }
 
             LOGGER.info("Exchanging code for token at: " + config.getTokenUrl());
 
@@ -215,6 +233,19 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
         }
     }
 
+    /**
+     * Creates a PKCE S256 code challenge from the given verifier
+     */
+    private String pkceS256(String verifier) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(verifier.getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create PKCE challenge", e);
+        }
+    }
+
     private ConfigurableJWTProcessor<com.nimbusds.jose.proc.SecurityContext> jwtProcessor;
 
     public void initJwtProcessor() throws Exception {
@@ -272,14 +303,14 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
             client.close();
         }
 
-        Map jwksMap = objectMapper.readValue(jwksJson, Map.class);
+        Map<String, Object> jwksMap = objectMapper.readValue(jwksJson, Map.class);
         Object keysObj = jwksMap.get("keys");
         java.util.List<JWK> jwkList = new java.util.ArrayList<>();
         if (keysObj instanceof java.util.List) {
             for (Object k : (java.util.List<?>) keysObj) {
                 if (!(k instanceof Map))
                     continue;
-                Map keyMap = (Map) k;
+                Map<String, Object> keyMap = (Map<String, Object>) k;
                 Object kty = keyMap.get("kty");
                 if (kty == null || !"RSA".equalsIgnoreCase(kty.toString()))
                     continue;

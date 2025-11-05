@@ -117,6 +117,19 @@ public class AuthenticationResource {
             LOGGER.info("Authentication successful; session created with user "
                     + (authResult.getUserInfo() != null ? authResult.getUserInfo().getEmail() : "unknown"));
 
+            // If request is coming from a browser (default), redirect to home instead of
+            // returning JSON
+            String accept = request.getHeader("Accept");
+            boolean wantsJson = accept != null && accept.contains("application/json") && !accept.contains("text/html");
+
+            if (!wantsJson) {
+                String context = request.getContextPath();
+                String path = (context == null || context.isEmpty()) ? "/" : context + "/";
+                String absolute = request.getScheme() + "://" + request.getServerName()
+                        + ":" + request.getServerPort() + path;
+                return Response.seeOther(java.net.URI.create(absolute)).build();
+            }
+
             return Response.ok(authResult).build();
 
         } catch (IllegalArgumentException e) {

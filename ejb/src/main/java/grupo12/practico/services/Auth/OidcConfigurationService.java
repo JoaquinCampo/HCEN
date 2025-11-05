@@ -26,6 +26,7 @@ public class OidcConfigurationService {
     private String issuer;
     private String logoutUrl;
     private String postLogoutRedirectUri;
+    private String acrValues;
 
     @PostConstruct
     public void init() {
@@ -33,7 +34,7 @@ public class OidcConfigurationService {
         tokenUrl = getEnvOrDefault("OIDC_TOKEN_URL", "https://auth.gub.uy/oidc/v1/token");
         userinfoUrl = getEnvOrDefault("OIDC_USERINFO_URL", "https://auth.gub.uy/oidc/v1/userinfo");
         // JWKS URL can be provided as OIDC_JWKS_URL or OIDC_JWT_VERIFY_URL
-        jwksUrl = getFirstEnvPresent(new String[]{"OIDC_JWKS_URL", "OIDC_JWT_VERIFY_URL"},
+        jwksUrl = getFirstEnvPresent(new String[] { "OIDC_JWKS_URL", "OIDC_JWT_VERIFY_URL" },
                 "https://auth.gub.uy/oidc/v1/jwks");
         clientId = getEnvOrDefault("OIDC_CLIENT_ID", "");
         clientSecret = getEnvOrDefault("OIDC_CLIENT_SECRET", "");
@@ -43,6 +44,7 @@ public class OidcConfigurationService {
         // Logout endpoint can vary (logout / end_session). Allow override.
         logoutUrl = getEnvOrDefault("OIDC_LOGOUT_URL", "https://auth.gub.uy/oidc/v1/logout");
         postLogoutRedirectUri = getEnvOrDefault("OIDC_POST_LOGOUT_REDIRECT_URI", redirectUri);
+        acrValues = getEnvOrDefault("OIDC_ACR_VALUES", "");
 
         LOGGER.info("OIDC Configuration loaded:");
         LOGGER.info("  Authorize URL: " + authorizeUrl);
@@ -55,17 +57,21 @@ public class OidcConfigurationService {
         LOGGER.info("  Issuer: " + (issuer.isEmpty() ? "NOT SET" : issuer));
         LOGGER.info("  Logout URL: " + logoutUrl);
         LOGGER.info("  Post-logout Redirect URI: " + postLogoutRedirectUri);
+        if (acrValues != null && !acrValues.isEmpty()) {
+            LOGGER.info("  ACR Values: " + acrValues);
+        }
     }
 
     private String getEnvOrDefault(String key, String defaultValue) {
         String value = System.getenv(key);
         return value != null ? value : defaultValue;
     }
-    
+
     private String getFirstEnvPresent(String[] keys, String defaultValue) {
         for (String k : keys) {
             String v = System.getenv(k);
-            if (v != null && !v.isEmpty()) return v;
+            if (v != null && !v.isEmpty())
+                return v;
         }
         return defaultValue;
     }
@@ -81,7 +87,7 @@ public class OidcConfigurationService {
     public String getUserinfoUrl() {
         return userinfoUrl;
     }
-    
+
     public String getJwksUrl() {
         return jwksUrl;
     }
@@ -117,5 +123,9 @@ public class OidcConfigurationService {
 
     public String getPostLogoutRedirectUri() {
         return postLogoutRedirectUri;
+    }
+
+    public String getAcrValues() {
+        return acrValues;
     }
 }

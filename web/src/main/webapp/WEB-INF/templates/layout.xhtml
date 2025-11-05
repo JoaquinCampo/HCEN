@@ -54,11 +54,21 @@
             </li>
           </ul>
           <div class="d-flex align-items-center gap-3">
-            <h:link
-              outcome="/auth/login"
-              value="Login with gub.uy"
-              styleClass="btn btn-sm btn-outline-light"
-            />
+            <ui:fragment rendered="#{not userSession.authenticated}">
+              <h:link
+                outcome="/auth/login"
+                value="Login with gub.uy"
+                styleClass="btn btn-sm btn-outline-light"
+              />
+            </ui:fragment>
+            <ui:fragment rendered="#{userSession.authenticated}">
+              <span class="navbar-text small text-truncate" style="max-width: 240px;">
+                #{userSession.displayName}
+              </span>
+              <h:outputLink value="#{userSession.logoutHref}" styleClass="btn btn-sm btn-outline-light">
+                Salir
+              </h:outputLink>
+            </ui:fragment>
             <span class="navbar-text small">JSF 4 • Jakarta EE</span>
           </div>
         </div>
