@@ -45,7 +45,7 @@ public class HealthUser extends User {
         dto.setDateOfBirth(getDateOfBirth());
         dto.setCreatedAt(getCreatedAt());
         dto.setUpdatedAt(getUpdatedAt());
-        dto.setClinicNames(clinicNames);
+        dto.setClinicNames(clinicNames == null ? new HashSet<>() : new HashSet<>(clinicNames));
         return dto;
     }
 }
