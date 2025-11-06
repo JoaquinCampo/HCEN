@@ -35,10 +35,10 @@ public class NotificationTokenResource {
     }
 
     @DELETE
-    @Path("/{userId}/{token}")
-    public Response unregister(@PathParam("userId") String userId, @PathParam("token") String token) {
+    @Path("/{userCi}/{token}")
+    public Response unregister(@PathParam("userCi") String userCi, @PathParam("token") String token) {
         NotificationTokenDTO dto = new NotificationTokenDTO();
-        dto.setUserId(userId);
+        dto.setUserCi(userCi);
         dto.setToken(token);
         notificationTokenService.delete(dto);
         return Response.noContent().build();
@@ -47,13 +47,31 @@ public class NotificationTokenResource {
     @POST
     @Path("/unsubscribe")
     public Response unsubscribe(NotificationUnsubscribeRequest request) {
-        if (request == null || request.getUserId() == null || request.getUserId().trim().isEmpty()) {
+        if (request == null || request.getUserCi() == null || request.getUserCi().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"userCi is required\"}")
+                    .build();
+        }
+        try {
+            notificationTokenService.unsubscribe(request.getUserCi());
+            return Response.noContent().build();
+        } catch (ValidationException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/subscribe")
+    public Response subscribe(NotificationUnsubscribeRequest request) {
+        if (request == null || request.getUserCi() == null || request.getUserCi().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\":\"userId is required\"}")
                     .build();
         }
         try {
-            notificationTokenService.unsubscribe(request.getUserId());
+            notificationTokenService.subscribe(request.getUserCi());
             return Response.noContent().build();
         } catch (ValidationException ex) {
             return Response.status(Response.Status.BAD_REQUEST)

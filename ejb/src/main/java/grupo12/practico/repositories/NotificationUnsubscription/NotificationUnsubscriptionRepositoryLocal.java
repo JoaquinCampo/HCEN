@@ -7,5 +7,7 @@ import jakarta.ejb.Local;
 public interface NotificationUnsubscriptionRepositoryLocal {
     NotificationUnsubscription add(NotificationUnsubscription entity);
 
+    NotificationUnsubscription remove(String userId);
+
     boolean existsByUserId(String userId);
 }

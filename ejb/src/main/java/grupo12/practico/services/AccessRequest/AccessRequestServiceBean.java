@@ -11,7 +11,9 @@ import grupo12.practico.repositories.AccessRequest.AccessRequestRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
+import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
 import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
@@ -37,6 +39,9 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
     @EJB
     private HealthUserRepositoryLocal healthUserRepository;
+
+    @EJB
+    private HealthUserServiceLocal healthUserService;
 
     @EJB
     private HealthWorkerServiceLocal healthWorkerService;
@@ -141,7 +146,16 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
     }
 
     @Override
-    public List<AccessRequestDTO> findAll(String healthUserId, String healthWorkerCi, String clinicName) {
+    public List<AccessRequestDTO> findAll(String healthUserCi, String healthWorkerCi, String clinicName) {
+        HealthUserDTO healthUser = null;
+        if (healthUserCi != null && !healthUserCi.trim().isEmpty()) {
+            healthUser = healthUserService.findByCi(healthUserCi);
+            if (healthUser == null) {
+                throw new ValidationException("Health user not found with CI: " + healthUserCi);
+            }
+        }
+
+        String healthUserId = healthUser != null ? healthUser.getId() : null;
         List<AccessRequest> accessRequests = accessRequestRepository.findAll(healthUserId, healthWorkerCi, clinicName);
 
         return accessRequests.stream().map(accessRequest -> {

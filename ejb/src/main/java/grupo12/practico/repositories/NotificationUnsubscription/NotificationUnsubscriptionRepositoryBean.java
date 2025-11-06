@@ -8,6 +8,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
+import java.util.List;
+
 @Stateless
 @Local(NotificationUnsubscriptionRepositoryLocal.class)
 @Remote(NotificationUnsubscriptionRepositoryRemote.class)
@@ -20,6 +22,24 @@ public class NotificationUnsubscriptionRepositoryBean implements NotificationUns
     public NotificationUnsubscription add(NotificationUnsubscription entity) {
         em.persist(entity);
         return entity;
+    }
+
+    @Override
+    public NotificationUnsubscription remove(String userId) {
+        if (userId == null || userId.trim().isEmpty()) {
+            return null;
+        }
+        TypedQuery<NotificationUnsubscription> query = em.createQuery(
+                "SELECT u FROM NotificationUnsubscription u WHERE u.user.id = :userId",
+                NotificationUnsubscription.class);
+        query.setParameter("userId", userId.trim());
+        List<NotificationUnsubscription> results = query.getResultList();
+        if (!results.isEmpty()) {
+            NotificationUnsubscription entity = results.get(0);
+            em.remove(entity);
+            return entity;
+        }
+        return null;
     }
 
     @Override

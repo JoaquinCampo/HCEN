@@ -1,13 +1,13 @@
 package grupo12.practico.rest.dto;
 
 public class NotificationUnsubscribeRequest {
-    private String userId;
+    private String userCi;
 
-    public String getUserId() {
-        return userId;
+    public String getUserCi() {
+        return userCi;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserCi(String userCi) {
+        this.userCi = userCi;
     }
 }
