@@ -9,7 +9,11 @@ import jakarta.ejb.Local;
 public interface NotificationTokenServiceLocal {
     NotificationTokenDTO add(NotificationTokenDTO token);
 
-    List<NotificationTokenDTO> findByUserId(String userId);
+    List<NotificationTokenDTO> findByUserCi(String userCi);
 
     void delete(NotificationTokenDTO token);
+
+    void unsubscribe(String userCi);
+
+    void subscribe(String userCi);
 }

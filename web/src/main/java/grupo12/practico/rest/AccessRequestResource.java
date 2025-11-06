@@ -32,10 +32,10 @@ public class AccessRequestResource {
 
     @GET
     public Response findAll(
-            @QueryParam("healthUserId") String healthUserId,
+            @QueryParam("healthUserCi") String healthUserCi,
             @QueryParam("healthWorkerCi") String healthWorkerCi,
             @QueryParam("clinicName") String clinicName) {
-        List<AccessRequestDTO> requests = accessRequestService.findAll(healthUserId, healthWorkerCi, clinicName);
+        List<AccessRequestDTO> requests = accessRequestService.findAll(healthUserCi, healthWorkerCi, clinicName);
         return Response.ok(requests).build();
     }
 

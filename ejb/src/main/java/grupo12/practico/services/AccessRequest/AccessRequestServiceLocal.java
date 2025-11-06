@@ -11,7 +11,7 @@ public interface AccessRequestServiceLocal {
 
     AccessRequestDTO findById(String id);
 
-    List<AccessRequestDTO> findAll(String healthUserId, String healthWorkerCi, String clinicName);
+    List<AccessRequestDTO> findAll(String healthUserCi, String healthWorkerCi, String clinicName);
 
     void delete(String accessRequestId);
 }

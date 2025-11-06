@@ -6,7 +6,7 @@ public class NotificationTokenDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String id;
-    private String userId;
+    private String userCi;
     private String token;
 
     public String getId() {
@@ -17,12 +17,12 @@ public class NotificationTokenDTO implements Serializable {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUserCi() {
+        return userCi;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserCi(String userCi) {
+        this.userCi = userCi;
     }
 
     public String getToken() {
