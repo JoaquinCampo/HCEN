@@ -8,7 +8,6 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.context.ExternalContext;
 import jakarta.inject.Named;
 
 import java.io.IOException;
@@ -42,23 +41,8 @@ public class AuthenticationBean implements Serializable {
      * Checks for error parameters in the request URL
      */
     private void checkForErrorParameters() {
-        try {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            if (facesContext != null) {
-                ExternalContext externalContext = facesContext.getExternalContext();
-                String error = externalContext.getRequestParameterMap().get("error");
-
-                if ("hcen_admin_required".equals(error)) {
-                    showHcenAdminError = true;
-                    errorMessage = "Hcen admin no registrado. El usuario no está registrado como administrador del sistema HCEN.";
-                    LOGGER.info("HcenAdmin access denied message displayed to user");
-                } else {
-                    showHcenAdminError = false;
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.warning("Error checking for error parameters: " + e.getMessage());
-        }
+        // Login is now optional - no HcenAdmin errors to check
+        showHcenAdminError = false;
     }
 
     /**

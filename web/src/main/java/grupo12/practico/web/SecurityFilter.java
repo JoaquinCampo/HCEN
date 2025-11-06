@@ -4,7 +4,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebFilter("/*")
@@ -38,15 +37,9 @@ public class SecurityFilter implements Filter {
             return;
         }
 
-        HttpSession session = req.getSession(false);
-        boolean authenticated = session != null && Boolean.TRUE.equals(session.getAttribute("authenticated"));
-
-        if (!authenticated) {
-            // redirect to JSF login page
-            res.sendRedirect(req.getContextPath() + "/auth/login.xhtml");
-            return;
-        }
-
+        // Allow access regardless of authentication status - login is now optional
+        // Users can access the app without logging in, but authenticated users get
+        // additional features
         chain.doFilter(request, response);
     }
 

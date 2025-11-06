@@ -109,30 +109,10 @@ public class AuthenticationResource {
         try {
             OidcAuthResultDTO authResult = oidcAuthenticationService.handleCallback(code, state);
 
-            // Check if user is a registered HcenAdmin
-            String userCi = authResult.getUserInfo() != null ? authResult.getUserInfo().getId() : null;
-            if (userCi == null || userCi.trim().isEmpty()) {
-                LOGGER.warning("No CI found in user info from gub.uy");
-                return Response.status(Response.Status.FORBIDDEN)
-                        .entity("{\"error\":\"Hcen admin no registrado\",\"description\":\"No se pudo obtener la cédula del usuario\"}")
-                        .build();
-            }
+            // Login is now optional - no need to check HcenAdmin status
+            // All users can authenticate with gub.uy
 
-            boolean isHcenAdmin = hcenAdminService.isHcenAdmin(userCi.trim());
-            if (!isHcenAdmin) {
-                LOGGER.warning("User with CI " + userCi
-                        + " is not a registered HcenAdmin, redirecting to login with error message");
-
-                // Redirect to login page with error message
-                String context = request.getContextPath();
-                String loginPath = (context == null || context.isEmpty()) ? "/auth/login.xhtml"
-                        : context + "/auth/login.xhtml";
-                String loginUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
-                        + loginPath + "?error=hcen_admin_required";
-                return Response.seeOther(java.net.URI.create(loginUrl)).build();
-            }
-
-            LOGGER.info("User with CI " + userCi + " successfully authenticated as HcenAdmin");
+            LOGGER.info("User successfully authenticated with gub.uy");
 
             // Persist minimal auth context into session
             HttpSession session = request.getSession(true);

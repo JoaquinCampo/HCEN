@@ -14,25 +14,9 @@
             <div class="text-center mb-4">
               <h2 class="card-title h3 mb-3">Welcome to Practico</h2>
               <p class="text-muted">
-                Sign in with your gub.uy account to access the platform
+                Sign in with your gub.uy account to access additional features, or continue as a guest.
               </p>
             </div>
-
-            <h:panelGroup rendered="#{authBean.showHcenAdminError}">
-              <div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading">
-                  <i class="bi bi-shield-x"></i>
-                  Acceso Denegado
-                </h4>
-                <p>
-                  #{authBean.errorMessage}
-                </p>
-                <hr />
-                <p class="mb-0">
-                  <small>Solo los administradores registrados del sistema HCEN pueden acceder a esta plataforma.</small>
-                </p>
-              </div>
-            </h:panelGroup>
 
             <h:form>
               <h:panelGroup rendered="#{authBean.configured}">
@@ -44,6 +28,10 @@
                   >
                     <f:ajax render="@form" />
                   </h:commandButton>
+
+                  <h:link outcome="/index" styleClass="btn btn-outline-secondary btn-lg">
+                    Continue as Guest
+                  </h:link>
 
                   <div class="text-center">
                     <small class="text-muted">
