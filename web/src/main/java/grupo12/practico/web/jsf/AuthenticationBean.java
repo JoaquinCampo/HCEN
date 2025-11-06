@@ -8,6 +8,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ExternalContext;
 import jakarta.inject.Named;
 
 import java.io.IOException;
@@ -29,10 +30,35 @@ public class AuthenticationBean implements Serializable {
 
     private boolean configured;
     private String errorMessage;
+    private boolean showHcenAdminError;
 
     @PostConstruct
     public void init() {
         checkConfiguration();
+        checkForErrorParameters();
+    }
+
+    /**
+     * Checks for error parameters in the request URL
+     */
+    private void checkForErrorParameters() {
+        try {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                ExternalContext externalContext = facesContext.getExternalContext();
+                String error = externalContext.getRequestParameterMap().get("error");
+
+                if ("hcen_admin_required".equals(error)) {
+                    showHcenAdminError = true;
+                    errorMessage = "Hcen admin no registrado. El usuario no está registrado como administrador del sistema HCEN.";
+                    LOGGER.info("HcenAdmin access denied message displayed to user");
+                } else {
+                    showHcenAdminError = false;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warning("Error checking for error parameters: " + e.getMessage());
+        }
     }
 
     /**
@@ -115,8 +141,16 @@ public class AuthenticationBean implements Serializable {
     }
 
     /**
+     * Returns whether to show the HcenAdmin error message
+     */
+    public boolean isShowHcenAdminError() {
+        return showHcenAdminError;
+    }
+
+    /**
      * Logs out the current user by invalidating the session and redirecting to the
-     * identity provider logout endpoint if available in session (set by REST callback).
+     * identity provider logout endpoint if available in session (set by REST
+     * callback).
      */
     public void logout() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
