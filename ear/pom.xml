@@ -56,7 +56,7 @@
                     <webModule>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>practico-web</artifactId>
-                        <contextRoot>/practico</contextRoot>
+                        <contextRoot>/</contextRoot>
                     </webModule>
                     </modules>
                     <outputFileNameMapping>@{artifactId}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>

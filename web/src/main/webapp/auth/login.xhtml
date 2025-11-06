@@ -1,0 +1,104 @@
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+  template="/WEB-INF/templates/layout.xhtml"
+>
+  <ui:define name="title">Login with gub.uy</ui:define>
+  <ui:define name="content">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body p-5">
+            <div class="text-center mb-4">
+              <h2 class="card-title h3 mb-3">Welcome to Practico</h2>
+              <p class="text-muted">
+                Sign in with your gub.uy account to access the platform
+              </p>
+            </div>
+
+            <h:panelGroup rendered="#{authBean.showHcenAdminError}">
+              <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">
+                  <i class="bi bi-shield-x"></i>
+                  Acceso Denegado
+                </h4>
+                <p>
+                  #{authBean.errorMessage}
+                </p>
+                <hr />
+                <p class="mb-0">
+                  <small>Solo los administradores registrados del sistema HCEN pueden acceder a esta plataforma.</small>
+                </p>
+              </div>
+            </h:panelGroup>
+
+            <h:form>
+              <h:panelGroup rendered="#{authBean.configured}">
+                <div class="d-grid gap-3">
+                  <h:commandButton
+                    value="Sign in with gub.uy"
+                    action="#{authBean.loginWithGubUy}"
+                    styleClass="btn btn-primary btn-lg"
+                  >
+                    <f:ajax render="@form" />
+                  </h:commandButton>
+
+                  <div class="text-center">
+                    <small class="text-muted">
+                      You will be redirected to gub.uy to complete the authentication
+                    </small>
+                  </div>
+                </div>
+              </h:panelGroup>
+
+              <h:panelGroup rendered="#{!authBean.configured}">
+                <div class="alert alert-warning" role="alert">
+                  <h4 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Configuration Required
+                  </h4>
+                  <p>
+                    OIDC authentication with gub.uy is not configured.
+                  </p>
+                  <hr />
+                  <p class="mb-0">
+                    <strong>Error:</strong> #{authBean.errorMessage}
+                  </p>
+                  <small class="d-block mt-2 text-muted">
+                    Please contact your system administrator to configure OIDC credentials.
+                  </small>
+                </div>
+              </h:panelGroup>
+            </h:form>
+
+            <hr class="my-4" />
+
+            <div class="text-center">
+              <h:link outcome="/index" styleClass="btn btn-link">
+                <i class="bi bi-arrow-left"></i> Back to Home
+              </h:link>
+            </div>
+
+            <div class="mt-4 p-3 bg-light rounded">
+              <h6 class="fw-bold mb-2">About gub.uy Authentication</h6>
+              <p class="small text-muted mb-0">
+                gub.uy is Uruguay's official digital identity platform.
+                By signing in with gub.uy, you can securely access government
+                and private services using your verified identity.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            Powered by OpenID Connect
+          </small>
+        </div>
+      </div>
+    </div>
+  </ui:define>
+</ui:composition>
+
