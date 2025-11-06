@@ -183,12 +183,15 @@ public class AuthenticationResource {
             logoutUrl = oidcAuthenticationService.buildLogoutUrl(idToken);
         }
 
-        if (logoutUrl == null) {
-            // No session or id_token: just 204
-            return Response.noContent().build();
+        if (logoutUrl != null) {
+            return Response.seeOther(java.net.URI.create(logoutUrl)).build();
         }
 
-        return Response.seeOther(java.net.URI.create(logoutUrl)).build();
+        String context = request.getContextPath();
+        String path = (context == null || context.isEmpty()) ? "/" : context + "/";
+        String absolute = request.getScheme() + "://" + request.getServerName()
+                + ":" + request.getServerPort() + path;
+        return Response.seeOther(java.net.URI.create(absolute)).build();
     }
 
 }

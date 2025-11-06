@@ -61,7 +61,8 @@ public class SecurityFilter implements Filter {
         if (p.contains("/javax.faces.resource/") || p.contains("/jakarta.faces.resource/"))
             return true;
         // Auth pages and OIDC redirect landing
-        if (p.endsWith("/auth/login.xhtml") || p.endsWith("/auth/callback.xhtml") || p.endsWith("/callback"))
+        if (p.endsWith("/auth/login.xhtml") || p.endsWith("/auth/callback.xhtml") || p.endsWith("/callback")
+                || p.equals("/logout"))
             return true;
         // Root and index (root may receive OIDC code; handled above)
         if (p.equals("/") || p.endsWith("/index.xhtml") || p.endsWith("/index.jsf"))
