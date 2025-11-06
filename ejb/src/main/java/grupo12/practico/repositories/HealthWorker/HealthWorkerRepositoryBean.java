@@ -31,7 +31,13 @@ import jakarta.validation.ValidationException;
 public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote {
 
     private static final Logger logger = Logger.getLogger(HealthWorkerRepositoryBean.class.getName());
-    private static final String BASE_URL = "http://host.docker.internal:3000/api/clinics";
+    private static final String BASE_URL = getEnvOrDefault("app.external.clinicApiUrl",
+            "http://host.docker.internal:3000/api/clinics");
+
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getProperty(key);
+        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
+    }
 
     private final HttpClient httpClient;
 

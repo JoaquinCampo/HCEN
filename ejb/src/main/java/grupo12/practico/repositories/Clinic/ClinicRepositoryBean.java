@@ -37,7 +37,13 @@ import grupo12.practico.dtos.Clinic.ClinicDTO;
 public class ClinicRepositoryBean implements ClinicRepositoryRemote {
 
     private static final Logger logger = Logger.getLogger(ClinicRepositoryBean.class.getName());
-    private static final String BASE_URL = "http://host.docker.internal:3000/api/clinics";
+    private static final String BASE_URL = getEnvOrDefault("app.external.clinicApiUrl",
+            "http://host.docker.internal:3000/api/clinics");
+
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getProperty(key);
+        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
+    }
 
     private final HttpClient httpClient;
 

@@ -30,7 +30,6 @@ services:
       - "8443:8443"
     env_file:
       - .env
-    extra_hosts: ["host.docker.internal:host-gateway"]
     environment:
       DB_HOST: postgres
       DB_PORT: "5432"
@@ -41,6 +40,15 @@ services:
       JPA_DDL: ${JPA_DDL:-drop-and-create}
       SEED: ${SEED:-false}
       GOOGLE_APPLICATION_CREDENTIALS: /opt/secrets/firebase-sa.json
+      # OpenID Connect (gub.uy) Configuration
+      OIDC_AUTHORIZE_URL: ${OIDC_AUTHORIZE_URL}
+      OIDC_TOKEN_URL: ${OIDC_TOKEN_URL}
+      OIDC_USERINFO_URL: ${OIDC_USERINFO_URL}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_REDIRECT_URI: ${OIDC_REDIRECT_URI}
+      OIDC_SCOPE: ${OIDC_SCOPE}
+      JAVA_OPTS: -Dapp.external.clinicApiUrl=https://nodos-perifericos-wheat.vercel.app/api/clinics -Dapp.external.clinicalHistoryApiUrl=https://nodos-perifericos-wheat.vercel.app/api/clinical-history
     volumes:
       - ./FIREBASE_PK.json:/opt/secrets/firebase-sa.json:ro
     restart: unless-stopped

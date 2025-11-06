@@ -42,7 +42,13 @@ import jakarta.validation.ValidationException;
 public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
 
     private static final Logger logger = Logger.getLogger(HealthUserRepositoryBean.class.getName());
-    private static final String CLINICAL_HISTORY_BASE_URL = "http://host.docker.internal:3000/api/clinical-history";
+    private static final String CLINICAL_HISTORY_BASE_URL = getEnvOrDefault("app.external.clinicalHistoryApiUrl",
+            "http://host.docker.internal:3000/api/clinical-history");
+
+    private static String getEnvOrDefault(String key, String defaultValue) {
+        String value = System.getProperty(key);
+        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
+    }
 
     @PersistenceContext(unitName = "practicoPersistenceUnit")
     private EntityManager em;
