@@ -1,6 +1,7 @@
 package grupo12.practico.services.HealthUser;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.ClinicalDocumentDTO;
@@ -15,13 +16,14 @@ import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 
-
 @Stateless
 @Local(HealthUserServiceLocal.class)
 @Remote(HealthUserServiceRemote.class)
 public class HealthUserServiceBean implements HealthUserServiceRemote {
     public HealthUserServiceBean() {
     }
+
+    private static final Logger logger = Logger.getLogger(HealthUserServiceBean.class.getName());
 
     @EJB
     private HealthUserRepositoryLocal healthUserRepository;
@@ -38,6 +40,8 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
     @Override
     public HealthUserDTO create(AddHealthUserDTO addHealthUserDTO) {
+        logger.info("HealthUserServiceBean.create called with CI="
+                + (addHealthUserDTO != null ? addHealthUserDTO.getCi() : "<null>"));
         validateCreateUserDTO(addHealthUserDTO);
 
         HealthUser healthUser = new HealthUser();
@@ -51,7 +55,9 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         healthUser.setDateOfBirth(addHealthUserDTO.getDateOfBirth());
         healthUser.setClinicNames(addHealthUserDTO.getClinicNames());
 
-        return healthUserRepository.create(healthUser).toDto();
+        HealthUser created = healthUserRepository.create(healthUser);
+        logger.info("Health user persisted with id=" + (created != null ? created.getId() : "<null>"));
+        return created.toDto();
     }
 
     @Override
@@ -99,25 +105,26 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         }
 
         boolean hasClinicPolicy = accessPolicyRepository
-                        .findAllClinicAccessPolicies(healthUser.getId())
-                        .stream()
-                        .anyMatch(policy -> policy.getClinicName().equals(clinicName));
+                .findAllClinicAccessPolicies(healthUser.getId())
+                .stream()
+                .anyMatch(policy -> policy.getClinicName().equals(clinicName));
 
         boolean hasHealthWorkerPolicy = accessPolicyRepository
-                        .findAllHealthWorkerAccessPolicies(healthUser.getId())
-                        .stream()
-                        .anyMatch(policy -> policy.getHealthWorkerCi().equals(healthWorkerCi) && policy.getClinicName().equals(clinicName));
-        
+                .findAllHealthWorkerAccessPolicies(healthUser.getId())
+                .stream()
+                .anyMatch(policy -> policy.getHealthWorkerCi().equals(healthWorkerCi)
+                        && policy.getClinicName().equals(clinicName));
+
         if (!hasClinicPolicy && !hasHealthWorkerPolicy) {
             throw new ValidationException("Access denied to clinical history");
         }
 
         List<ClinicalDocumentDTO> clinicalDocuments = healthUserRepository.findClinicalHistory(healthUserCi);
-        
+
         ClinicalHistoryDTO dto = new ClinicalHistoryDTO();
         dto.setHealthUser(healthUser.toDto());
         dto.setClinicalDocuments(clinicalDocuments);
-        
+
         return dto;
     }
 

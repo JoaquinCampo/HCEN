@@ -164,6 +164,7 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
         if (healthUser == null) {
             throw new ValidationException("HealthUser must not be null");
         }
+        logger.info("Persisting HealthUser with CI=" + healthUser.getCi());
         em.persist(healthUser);
         return healthUser;
     }

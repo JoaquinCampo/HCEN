@@ -1,5 +1,6 @@
 package grupo12.practico.rest;
 
+import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
@@ -41,6 +42,19 @@ public class HealthUserResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response create(AddHealthUserDTO addHealthUserDTO) {
+        try {
+            HealthUserDTO createdUser = healthUserService.create(addHealthUserDTO);
+            return Response.status(Response.Status.CREATED).entity(createdUser).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
+    @POST
     @Path("/{healthUserId}/link-clinic")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response linkClinicToHealthUser(
@@ -56,7 +70,8 @@ public class HealthUserResource {
             @PathParam("healthUserCi") String healthUserCi,
             @QueryParam("clinicName") String clinicName,
             @QueryParam("healthWorkerCi") String healthWorkerCi) {
-        ClinicalHistoryDTO clinicalHistory = healthUserService.findClinicalHistory(healthUserCi, clinicName, healthWorkerCi);
+        ClinicalHistoryDTO clinicalHistory = healthUserService.findClinicalHistory(healthUserCi, clinicName,
+                healthWorkerCi);
         return Response.ok(clinicalHistory).build();
     }
 }
