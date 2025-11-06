@@ -4,6 +4,7 @@ public class AddHealthWorkerAccessPolicyDTO {
     private String healthUserId;
     private String healthWorkerCi;
     private String clinicName;
+    private String accessRequestId;
 
     public String getHealthUserId() {
         return healthUserId;
@@ -27,5 +28,13 @@ public class AddHealthWorkerAccessPolicyDTO {
 
     public void setClinicName(String clinicName) {
         this.clinicName = clinicName;
+    }
+
+    public String getAccessRequestId() {
+        return accessRequestId;
+    }
+
+    public void setAccessRequestId(String accessRequestId) {
+        this.accessRequestId = accessRequestId;
     }
 }

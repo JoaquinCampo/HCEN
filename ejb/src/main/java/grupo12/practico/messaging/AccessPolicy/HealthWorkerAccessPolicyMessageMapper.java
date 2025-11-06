@@ -6,7 +6,8 @@ import grupo12.practico.dtos.AccessPolicy.AddHealthWorkerAccessPolicyDTO;
 import jakarta.validation.ValidationException;
 
 /**
- * Converts between {@link AddHealthWorkerAccessPolicyDTO} instances and the pipe-separated
+ * Converts between {@link AddHealthWorkerAccessPolicyDTO} instances and the
+ * pipe-separated
  * payload used on the JMS queue.
  */
 public final class HealthWorkerAccessPolicyMessageMapper {
@@ -23,7 +24,8 @@ public final class HealthWorkerAccessPolicyMessageMapper {
         String[] fields = new String[] {
                 requireNoPipe(dto.getHealthUserId(), "healthUserId"),
                 requireNoPipe(dto.getHealthWorkerCi(), "healthWorkerCi"),
-                requireNoPipe(dto.getClinicName(), "clinicName")
+                requireNoPipe(dto.getClinicName(), "clinicName"),
+                dto.getAccessRequestId() != null ? requireNoPipe(dto.getAccessRequestId(), "accessRequestId") : ""
         };
 
         return String.join(HealthWorkerAccessPolicyMessaging.FIELD_SEPARATOR, fields);
@@ -43,6 +45,8 @@ public final class HealthWorkerAccessPolicyMessageMapper {
         dto.setHealthUserId(requireNotBlank(tokens[0], "healthUserId"));
         dto.setHealthWorkerCi(requireNotBlank(tokens[1], "healthWorkerCi"));
         dto.setClinicName(requireNotBlank(tokens[2], "clinicName"));
+        String accessRequestId = tokens[3];
+        dto.setAccessRequestId(accessRequestId != null && !accessRequestId.trim().isEmpty() ? accessRequestId : null);
         return dto;
     }
 
@@ -65,4 +69,3 @@ public final class HealthWorkerAccessPolicyMessageMapper {
         return trimmed;
     }
 }
-

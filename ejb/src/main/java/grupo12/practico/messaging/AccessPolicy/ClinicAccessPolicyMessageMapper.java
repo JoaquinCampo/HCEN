@@ -6,7 +6,8 @@ import grupo12.practico.dtos.AccessPolicy.AddClinicAccessPolicyDTO;
 import jakarta.validation.ValidationException;
 
 /**
- * Converts between {@link AddClinicAccessPolicyDTO} instances and the pipe-separated
+ * Converts between {@link AddClinicAccessPolicyDTO} instances and the
+ * pipe-separated
  * payload used on the JMS queue.
  */
 public final class ClinicAccessPolicyMessageMapper {
@@ -22,7 +23,8 @@ public final class ClinicAccessPolicyMessageMapper {
 
         String[] fields = new String[] {
                 requireNoPipe(dto.getHealthUserId(), "healthUserId"),
-                requireNoPipe(dto.getClinicName(), "clinicName")
+                requireNoPipe(dto.getClinicName(), "clinicName"),
+                requireNoPipe(dto.getAccessRequestId(), "accessRequestId")
         };
 
         return String.join(ClinicAccessPolicyMessaging.FIELD_SEPARATOR, fields);
@@ -41,6 +43,7 @@ public final class ClinicAccessPolicyMessageMapper {
         AddClinicAccessPolicyDTO dto = new AddClinicAccessPolicyDTO();
         dto.setHealthUserId(requireNotBlank(tokens[0], "healthUserId"));
         dto.setClinicName(requireNotBlank(tokens[1], "clinicName"));
+        dto.setAccessRequestId(requireNotBlank(tokens[2], "accessRequestId"));
         return dto;
     }
 
@@ -63,4 +66,3 @@ public final class ClinicAccessPolicyMessageMapper {
         return trimmed;
     }
 }
-

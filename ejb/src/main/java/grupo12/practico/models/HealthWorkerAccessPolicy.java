@@ -17,7 +17,8 @@ import jakarta.persistence.UniqueConstraint;
 @Table(name = "health_worker_access_policies", uniqueConstraints = {
         @UniqueConstraint(name = "uq_health_user_health_worker_policy", columnNames = {
                 "health_user_id",
-                "health_worker_id"
+                "health_worker_ci",
+                "clinic_name"
         })
 })
 public class HealthWorkerAccessPolicy {
@@ -33,7 +34,7 @@ public class HealthWorkerAccessPolicy {
     @Column(name = "health_worker_ci", nullable = false)
     private String healthWorkerCi;
 
-    @Column(name = "health_worker_clinic", nullable = false)
+    @Column(name = "clinic_name", nullable = false)
     private String clinicName;
 
     @Column(name = "created_at", nullable = false)

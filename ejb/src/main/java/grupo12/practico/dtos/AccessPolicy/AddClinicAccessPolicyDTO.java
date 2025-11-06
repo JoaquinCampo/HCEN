@@ -7,6 +7,7 @@ public class AddClinicAccessPolicyDTO implements Serializable {
 
     private String healthUserId;
     private String clinicName;
+    private String accessRequestId;
 
     public String getHealthUserId() {
         return healthUserId;
@@ -22,5 +23,13 @@ public class AddClinicAccessPolicyDTO implements Serializable {
 
     public void setClinicName(String clinicName) {
         this.clinicName = clinicName;
+    }
+
+    public String getAccessRequestId() {
+        return accessRequestId;
+    }
+
+    public void setAccessRequestId(String accessRequestId) {
+        this.accessRequestId = accessRequestId;
     }
 }

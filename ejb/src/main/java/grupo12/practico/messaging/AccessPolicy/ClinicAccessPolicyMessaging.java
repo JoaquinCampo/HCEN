@@ -19,7 +19,8 @@ public final class ClinicAccessPolicyMessaging {
      */
     public static final String[] PAYLOAD_FIELDS = {
             "healthUserId",
-            "clinicName"
+            "clinicName",
+            "accessRequestId"
     };
 
     /**
@@ -27,4 +28,3 @@ public final class ClinicAccessPolicyMessaging {
      */
     public static final String FIELD_SEPARATOR = "|";
 }
-

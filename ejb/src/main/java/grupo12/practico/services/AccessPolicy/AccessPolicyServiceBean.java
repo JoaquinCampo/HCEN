@@ -14,6 +14,7 @@ import grupo12.practico.repositories.AccessPolicy.AccessPolicyRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.services.AccessRequest.AccessRequestServiceLocal;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
@@ -21,11 +22,15 @@ import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Stateless
 @Local(AccessPolicyServiceLocal.class)
 @Remote(AccessPolicyServiceRemote.class)
 public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
+
+    private static final Logger LOGGER = Logger.getLogger(AccessPolicyServiceBean.class.getName());
 
     @EJB
     private HealthUserRepositoryLocal healthUserRepository;
@@ -38,6 +43,9 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
 
     @EJB
     private ClinicServiceLocal clinicService;
+
+    @EJB
+    private AccessRequestServiceLocal accessRequestService;
 
     @Override
     public ClinicAccessPolicyDTO createClinicAccessPolicy(AddClinicAccessPolicyDTO dto) {
@@ -70,6 +78,19 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         result.setHealthUserId(healthUser.getId());
         result.setClinic(clinicDTO);
 
+        // Delete the related access request if provided
+        if (!isBlank(dto.getAccessRequestId())) {
+            try {
+                accessRequestService.delete(dto.getAccessRequestId());
+                LOGGER.info(
+                        "Deleted access request " + dto.getAccessRequestId() + " after creating clinic access policy");
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING,
+                        "Failed to delete access request after creating clinic policy: " + e.getMessage(), e);
+                // Don't fail the policy creation if access request deletion fails
+            }
+        }
+
         return result;
     }
 
@@ -93,6 +114,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         HealthWorkerAccessPolicy healthWorkerAccessPolicy = new HealthWorkerAccessPolicy();
         healthWorkerAccessPolicy.setHealthUser(healthUser);
         healthWorkerAccessPolicy.setHealthWorkerCi(dto.getHealthWorkerCi());
+        healthWorkerAccessPolicy.setClinicName(dto.getClinicName());
 
         HealthWorkerAccessPolicy createdHealthWorkerPolicy = accessPolicyRepository
                 .createHealthWorkerAccessPolicy(healthWorkerAccessPolicy);
@@ -104,6 +126,20 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         result.setId(createdHealthWorkerPolicy.getId());
         result.setHealthUserId(healthUser.getId());
         result.setHealthWorker(healthWorkerDTO);
+        result.setClinic(clinicService.findByName(dto.getClinicName()));
+
+        // Delete the related access request if provided
+        if (!isBlank(dto.getAccessRequestId())) {
+            try {
+                accessRequestService.delete(dto.getAccessRequestId());
+                LOGGER.info("Deleted access request " + dto.getAccessRequestId()
+                        + " after creating health worker access policy");
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING,
+                        "Failed to delete access request after creating health worker policy: " + e.getMessage(), e);
+                // Don't fail the policy creation if access request deletion fails
+            }
+        }
 
         return result;
     }
