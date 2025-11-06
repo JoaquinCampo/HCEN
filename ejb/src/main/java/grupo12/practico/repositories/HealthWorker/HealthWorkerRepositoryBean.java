@@ -58,7 +58,7 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
 
         String encodedClinic = encodePathSegment(clinicName);
         String encodedCi = encodePathSegment(healthWorkerCi);
-        URI uri = URI.create(BASE_URL + "/" + encodedClinic + "/healthWorker/" + encodedCi);
+        URI uri = URI.create(BASE_URL + "/" + encodedClinic + "/health-worker/" + encodedCi);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
