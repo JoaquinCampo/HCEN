@@ -47,16 +47,17 @@ public class AccessPolicyResource {
     }
 
     @GET
-    @Path("/clinic/health-user/{healthUserId}")
-    public Response findAllClinicAccessPolicies(@PathParam("healthUserId") String healthUserId) {
-        List<ClinicAccessPolicyDTO> policies = accessPolicyService.findAllClinicAccessPolicies(healthUserId);
+    @Path("/clinic/health-user/{healthUserCi}")
+    public Response findAllClinicAccessPolicies(@PathParam("healthUserCi") String healthUserCi) {
+        List<ClinicAccessPolicyDTO> policies = accessPolicyService.findAllClinicAccessPolicies(healthUserCi);
         return Response.ok(policies).build();
     }
 
     @GET
-    @Path("/health-worker/health-user/{healthUserId}")
-    public Response findAllHealthWorkerAccessPolicies(@PathParam("healthUserId") String healthUserId) {
-        List<HealthWorkerAccessPolicyDTO> policies = accessPolicyService.findAllHealthWorkerAccessPolicies(healthUserId);
+    @Path("/health-worker/health-user/{healthUserCi}")
+    public Response findAllHealthWorkerAccessPolicies(@PathParam("healthUserCi") String healthUserCi) {
+        List<HealthWorkerAccessPolicyDTO> policies = accessPolicyService
+                .findAllHealthWorkerAccessPolicies(healthUserCi);
         return Response.ok(policies).build();
     }
 
@@ -71,11 +72,11 @@ public class AccessPolicyResource {
 
     @DELETE
     @Path("/health-worker/{healthWorkerAccessPolicyId}")
-    public Response deleteHealthWorkerAccessPolicy(@PathParam("healthWorkerAccessPolicyId") String healthWorkerAccessPolicyId) {
+    public Response deleteHealthWorkerAccessPolicy(
+            @PathParam("healthWorkerAccessPolicyId") String healthWorkerAccessPolicyId) {
         accessPolicyService.deleteHealthWorkerAccessPolicy(healthWorkerAccessPolicyId);
         return Response.ok()
                 .entity("{\"message\":\"Health worker access policy deleted successfully\"}")
                 .build();
     }
 }
-

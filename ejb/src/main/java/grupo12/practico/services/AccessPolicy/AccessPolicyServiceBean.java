@@ -145,11 +145,15 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
     }
 
     @Override
-    public List<ClinicAccessPolicyDTO> findAllClinicAccessPolicies(String healthUserId) {
-        if (isBlank(healthUserId)) {
+    public List<ClinicAccessPolicyDTO> findAllClinicAccessPolicies(String healthUserCi) {
+        if (isBlank(healthUserCi)) {
             throw new ValidationException("Health user id is required");
         }
-
+        HealthUser healthUser = healthUserRepository.findByCi(healthUserCi);
+        if (healthUser == null) {
+            throw new ValidationException("Health user not found");
+        }
+        String healthUserId = healthUser.getId();
         List<ClinicAccessPolicy> clinicAccessPolicies = accessPolicyRepository
                 .findAllClinicAccessPolicies(healthUserId);
 
@@ -166,10 +170,16 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
     }
 
     @Override
-    public List<HealthWorkerAccessPolicyDTO> findAllHealthWorkerAccessPolicies(String healthUserId) {
-        if (isBlank(healthUserId)) {
+    public List<HealthWorkerAccessPolicyDTO> findAllHealthWorkerAccessPolicies(String healthUserCi) {
+        if (isBlank(healthUserCi)) {
             throw new ValidationException("Health user id is required");
         }
+
+        HealthUser healthUser = healthUserRepository.findByCi(healthUserCi);
+        if (healthUser == null) {
+            throw new ValidationException("Health user not found");
+        }
+        String healthUserId = healthUser.getId();
 
         List<HealthWorkerAccessPolicy> healthWorkerAccessPolicies = accessPolicyRepository
                 .findAllHealthWorkerAccessPolicies(healthUserId);

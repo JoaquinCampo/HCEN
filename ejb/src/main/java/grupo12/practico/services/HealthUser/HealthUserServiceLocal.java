@@ -9,7 +9,8 @@ import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 
 @Local
 public interface HealthUserServiceLocal {
-    PaginationDTO<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize);
+    PaginationDTO<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex,
+            Integer pageSize);
 
     HealthUserDTO create(AddHealthUserDTO addHealthUserDTO);
 
@@ -19,5 +20,5 @@ public interface HealthUserServiceLocal {
 
     HealthUserDTO linkClinicToHealthUser(String healthUserId, String clinicName);
 
-    ClinicalHistoryDTO findClinicalHistory(String healthUserId, String clinicName, String healthWorkerCi);
+    ClinicalHistoryDTO findClinicalHistory(String healthUserCi, String clinicName, String healthWorkerCi);
 }

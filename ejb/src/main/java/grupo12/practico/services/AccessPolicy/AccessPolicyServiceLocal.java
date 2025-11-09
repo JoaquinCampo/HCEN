@@ -13,9 +13,11 @@ public interface AccessPolicyServiceLocal {
 
     HealthWorkerAccessPolicyDTO createHealthWorkerAccessPolicy(AddHealthWorkerAccessPolicyDTO dto);
 
-    List<ClinicAccessPolicyDTO> findAllClinicAccessPolicies(String healthUserId);
-    List<HealthWorkerAccessPolicyDTO> findAllHealthWorkerAccessPolicies(String healthUserId);
+    List<ClinicAccessPolicyDTO> findAllClinicAccessPolicies(String healthUserCi);
+
+    List<HealthWorkerAccessPolicyDTO> findAllHealthWorkerAccessPolicies(String healthUserCi);
 
     void deleteClinicAccessPolicy(String clinicAccessPolicyId);
+
     void deleteHealthWorkerAccessPolicy(String healthWorkerAccessPolicyId);
 }
