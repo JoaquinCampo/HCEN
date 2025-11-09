@@ -61,7 +61,7 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
 
     @Override
     public List<HealthUser> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize) {
-        if (clinicName.isEmpty() && name.isEmpty() && ci.isEmpty()) {
+        if (clinicName == null && name == null && ci == null) {
             TypedQuery<HealthUser> query = em.createQuery(
                     "SELECT h FROM HealthUser h ORDER BY h.lastName ASC, h.firstName ASC, h.id ASC",
                     HealthUser.class);
