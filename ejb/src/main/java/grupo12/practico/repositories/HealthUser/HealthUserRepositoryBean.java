@@ -257,6 +257,7 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
         URI uri = URI.create(CLINICAL_HISTORY_BASE_URL + "/" + encodedHealthUserCi);
 
         HttpRequest request = HttpRequest.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
                 .uri(uri)
                 .header("Accept", "application/json")
                 .GET()
