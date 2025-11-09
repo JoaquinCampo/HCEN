@@ -1,0 +1,230 @@
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://xmlns.jcp.org/jsf/html"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  template="/WEB-INF/templates/layout.xhtml"
+>
+  <ui:define name="title">Create HCEN Admin</ui:define>
+  <ui:define name="content">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h:messages
+          id="formMessages"
+          globalOnly="true"
+          styleClass="alert alert-danger"
+          layout="list"
+          infoClass="alert alert-success"
+          warnClass="alert alert-warning"
+          errorClass="alert alert-danger"
+          fatalClass="alert alert-danger"
+        />
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="card-title h4 mb-0">Create HCEN Admin</h2>
+            <small class="text-muted"
+              >Register a new HCEN administrator.</small
+            >
+          </div>
+          <h:link outcome="/admin/list" styleClass="btn btn-outline-secondary"
+            >Back to list</h:link
+          >
+        </div>
+
+        <h:form styleClass="row g-3">
+          <div class="col-md-6">
+            <h:outputLabel
+              for="ci"
+              value="CI (Document)"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="ci"
+              value="#{hcenAdminBean.newAdmin.ci}"
+              required="true"
+              requiredMessage="CI is required"
+              styleClass="form-control"
+              p:placeholder="Enter CI"
+              p:autocomplete="username"
+            >
+              <f:ajax event="blur" render="ciMessage" execute="ci" />
+              <f:validateLength minimum="7" maximum="12" />
+            </h:inputText>
+            <h:message
+              id="ciMessage"
+              for="ci"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel for="firstName" value="First Name" styleClass="form-label" />
+            <h:inputText
+              id="firstName"
+              value="#{hcenAdminBean.newAdmin.firstName}"
+              required="true"
+              requiredMessage="First name is required"
+              styleClass="form-control"
+              p:placeholder="Enter first name"
+              p:autocomplete="given-name"
+            >
+              <f:ajax event="blur" render="firstNameMessage" execute="firstName" />
+              <f:validateLength minimum="2" maximum="50" />
+            </h:inputText>
+            <h:message
+              id="firstNameMessage"
+              for="firstName"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel for="lastName" value="Last Name" styleClass="form-label" />
+            <h:inputText
+              id="lastName"
+              value="#{hcenAdminBean.newAdmin.lastName}"
+              required="true"
+              requiredMessage="Last name is required"
+              styleClass="form-control"
+              p:placeholder="Enter last name"
+              p:autocomplete="family-name"
+            >
+              <f:ajax event="blur" render="lastNameMessage" execute="lastName" />
+              <f:validateLength minimum="2" maximum="50" />
+            </h:inputText>
+            <h:message
+              id="lastNameMessage"
+              for="lastName"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel for="gender" value="Gender" styleClass="form-label" />
+            <h:selectOneMenu
+              id="gender"
+              value="#{hcenAdminBean.newAdmin.gender}"
+              required="true"
+              requiredMessage="Gender is required"
+              styleClass="form-select"
+            >
+              <f:selectItem itemLabel="Select gender" itemValue="" />
+              <f:selectItem itemLabel="Male" itemValue="MALE" />
+              <f:selectItem itemLabel="Female" itemValue="FEMALE" />
+              <f:selectItem itemLabel="Other" itemValue="OTHER" />
+            </h:selectOneMenu>
+            <h:message
+              id="genderMessage"
+              for="gender"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel for="email" value="Email" styleClass="form-label" />
+            <h:inputText
+              id="email"
+              value="#{hcenAdminBean.newAdmin.email}"
+              required="true"
+              requiredMessage="Email is required"
+              styleClass="form-control"
+              p:type="email"
+              p:placeholder="admin@example.com"
+              p:autocomplete="email"
+            >
+              <f:ajax event="blur" render="emailMessage" execute="email" />
+            </h:inputText>
+            <h:message
+              id="emailMessage"
+              for="email"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel for="phone" value="Phone" styleClass="form-label" />
+            <h:inputText
+              id="phone"
+              value="#{hcenAdminBean.newAdmin.phone}"
+              required="true"
+              requiredMessage="Phone is required"
+              styleClass="form-control"
+              p:type="tel"
+              p:inputmode="tel"
+              p:placeholder="e.g. +598123456"
+              p:pattern="^[+0-9 ()-]{7,20}$"
+            >
+              <f:ajax event="blur" render="phoneMessage" execute="phone" />
+            </h:inputText>
+            <h:message
+              id="phoneMessage"
+              for="phone"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-12">
+            <h:outputLabel
+              for="address"
+              value="Address"
+              styleClass="form-label"
+            />
+            <h:inputText
+              id="address"
+              value="#{hcenAdminBean.newAdmin.address}"
+              required="true"
+              requiredMessage="Address is required"
+              styleClass="form-control"
+              p:placeholder="Street, number, city"
+              p:autocomplete="street-address"
+            >
+              <f:ajax event="blur" render="addressMessage" execute="address" />
+            </h:inputText>
+            <h:message
+              id="addressMessage"
+              for="address"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-md-6">
+            <h:outputLabel for="dateOfBirth" value="Date of Birth" styleClass="form-label" />
+            <h:inputText
+              id="dateOfBirth"
+              value="#{hcenAdminBean.newAdmin.dateOfBirth}"
+              required="true"
+              requiredMessage="Date of birth is required"
+              styleClass="form-control"
+              p:type="date"
+            >
+              <f:ajax event="blur" render="dateOfBirthMessage" execute="dateOfBirth" />
+              <f:converter converterId="localDateConverter" />
+            </h:inputText>
+            <h:message
+              id="dateOfBirthMessage"
+              for="dateOfBirth"
+              styleClass="form-text text-danger"
+            />
+          </div>
+
+          <div class="col-12 d-flex gap-2 mt-3">
+            <h:commandButton
+              value="Create Admin"
+              action="#{hcenAdminBean.save}"
+              styleClass="btn btn-primary"
+            />
+            <h:commandButton
+              value="Reset"
+              actionListener="#{hcenAdminBean.init}"
+              immediate="true"
+              styleClass="btn btn-outline-secondary"
+            >
+              <f:ajax render="@form" />
+            </h:commandButton>
+          </div>
+        </h:form>
+      </div>
+    </div>
+  </ui:define>
+</ui:composition>

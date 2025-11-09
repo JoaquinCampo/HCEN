@@ -1,7 +1,9 @@
 package grupo12.practico.services.HcenAdmin;
 
-import grupo12.practico.models.HcenAdmin;
+import grupo12.practico.dtos.HcenAdmin.AddHcenAdminDTO;
+import grupo12.practico.dtos.HcenAdmin.HcenAdminDTO;
 import jakarta.ejb.Local;
+import java.util.List;
 
 /**
  * Local interface for HcenAdmin services
@@ -9,13 +11,17 @@ import jakarta.ejb.Local;
 @Local
 public interface HcenAdminServiceLocal {
 
+    HcenAdminDTO create(AddHcenAdminDTO addHcenAdminDTO);
+
+    List<HcenAdminDTO> findAll();
+
     /**
      * Find HcenAdmin by CI (document)
      * 
      * @param ci The CI to search for
-     * @return HcenAdmin if found, null otherwise
+     * @return HcenAdminDTO if found, null otherwise
      */
-    HcenAdmin findByCi(String ci);
+    HcenAdminDTO findByCi(String ci);
 
     /**
      * Check if a user with the given CI is an HcenAdmin

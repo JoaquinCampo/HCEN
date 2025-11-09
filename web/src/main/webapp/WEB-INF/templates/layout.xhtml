@@ -52,6 +52,20 @@
                 styleClass="nav-link"
               />
             </li>
+            <li class="nav-item">
+              <h:link
+                outcome="/admin/list"
+                value="HCEN Admins"
+                styleClass="nav-link"
+              />
+            </li>
+            <li class="nav-item">
+              <h:link
+                outcome="/admin/form"
+                value="Create Admin"
+                styleClass="nav-link"
+              />
+            </li>
           </ul>
           <div class="d-flex align-items-center gap-3">
             <ui:fragment rendered="#{not userSession.authenticated}">
