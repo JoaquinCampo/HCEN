@@ -35,7 +35,8 @@ public final class ClinicRegistrationMessageMapper {
                 requireNoPipe(admin.getEmail(), "clinicAdmin.email"),
                 optionalNoPipe(admin.getPhone()),
                 optionalNoPipe(admin.getAddress()),
-                toDateString(admin.getDateOfBirth())
+                toDateString(admin.getDateOfBirth()),
+                optionalNoPipe(dto.getProviderName())
         };
 
         return String.join(ClinicRegistrationMessaging.FIELD_SEPARATOR, fields);
@@ -66,6 +67,7 @@ public final class ClinicRegistrationMessageMapper {
         admin.setAddress(emptyToNull(tokens[9]));
         admin.setDateOfBirth(parseDate(tokens[10]));
         dto.setClinicAdmin(admin);
+        dto.setProviderName(emptyToNull(tokens[11]));
         return dto;
     }
 

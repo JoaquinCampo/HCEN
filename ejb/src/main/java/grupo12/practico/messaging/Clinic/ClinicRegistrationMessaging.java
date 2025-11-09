@@ -28,7 +28,8 @@ public final class ClinicRegistrationMessaging {
             "adminEmail",
             "adminPhone",
             "adminAddress",
-            "adminDateOfBirth"
+            "adminDateOfBirth",
+            "providerName"
     };
 
     /**

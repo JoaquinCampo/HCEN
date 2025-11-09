@@ -28,48 +28,66 @@ public class ClinicBean implements Serializable {
     @EJB
     private ClinicRegistrationProducerLocal registrationProducer;
 
-    private List<ClinicDTO> providers;
-    private AddClinicDTO newProvider;
+    private List<ClinicDTO> clinics;
+    private AddClinicDTO newClinic;
     private String searchQuery;
+    private String providerName;
 
     @PostConstruct
     public void init() {
         try {
-            newProvider = new AddClinicDTO();
-            newProvider.setClinicAdmin(new ClinicAdminDTO());
-            providers = new ArrayList<>();
-            loadAll();
+            newClinic = new AddClinicDTO();
+            newClinic.setClinicAdmin(new ClinicAdminDTO());
+            newClinic.setProviderName(providerName);
+            clinics = new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    public void loadClinics() {
+        if (providerName != null && !providerName.trim().isEmpty()) {
+            loadAll();
+        } else {
+            clinics = new ArrayList<>();
+        }
+    }
+
     public void loadAll() {
-        providers = service.findAll();
+        clinics = service.findAll();
     }
 
     public void search() {
         if (searchQuery == null || searchQuery.trim().isEmpty()) {
-            loadAll();
+            loadClinics();
         } else {
             ClinicDTO clinic = service.findByName(searchQuery.trim());
-            providers = new ArrayList<>();
+            clinics = new ArrayList<>();
             if (clinic != null) {
-                providers.add(clinic);
+                clinics.add(clinic);
             }
         }
     }
 
     public String save() {
         try {
-            registrationProducer.enqueue(newProvider);
+            newClinic.setProviderName(providerName);
+
+            registrationProducer.enqueue(newClinic);
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Request accepted; the clinic will be created shortly", null));
-            newProvider = new AddClinicDTO();
-            newProvider.setClinicAdmin(new ClinicAdminDTO());
-            loadAll();
+            newClinic = new AddClinicDTO();
+            newClinic.setClinicAdmin(new ClinicAdminDTO());
+            // Preserve providerName for next clinic creation
+            newClinic.setProviderName(providerName);
+            loadClinics();
+
+            if (providerName != null && !providerName.trim().isEmpty()) {
+                return "/provider/detail?faces-redirect=true&name=" + providerName;
+            }
             return null;
         } catch (ValidationException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -84,18 +102,18 @@ public class ClinicBean implements Serializable {
         }
     }
 
-    public List<ClinicDTO> getProviders() {
-        return providers;
+    public List<ClinicDTO> getclinics() {
+        return clinics;
     }
 
-    public AddClinicDTO getNewProvider() {
-        return newProvider;
+    public AddClinicDTO getnewClinic() {
+        return newClinic;
     }
 
-    public void setNewProvider(AddClinicDTO hp) {
-        this.newProvider = hp;
-        if (this.newProvider != null && this.newProvider.getClinicAdmin() == null) {
-            this.newProvider.setClinicAdmin(new ClinicAdminDTO());
+    public void setnewClinic(AddClinicDTO hp) {
+        this.newClinic = hp;
+        if (this.newClinic != null && this.newClinic.getClinicAdmin() == null) {
+            this.newClinic.setClinicAdmin(new ClinicAdminDTO());
         }
     }
 
@@ -105,5 +123,18 @@ public class ClinicBean implements Serializable {
 
     public void setSearchQuery(String q) {
         this.searchQuery = q;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+        if (newClinic != null) {
+            newClinic.setProviderName(providerName);
+        }
+        // Load clinics when providerName is set
+        loadClinics();
     }
 }

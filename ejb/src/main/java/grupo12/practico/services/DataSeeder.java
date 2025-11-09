@@ -39,11 +39,11 @@ public class DataSeeder {
 
         try {
             createHcenAdminIfNotExists(
-                    "62211514",
-                    "Santiago",
-                    "Rodriguez",
+                    "54053584",
+                    "Francisco",
+                    "Simonelli",
                     Gender.MALE,
-                    "Santiago.Rodriguez@hcen.uy",
+                    "francisco.simonelli@hcen.uy",
                     "+59899333456",
                     LocalDate.of(2000, 10, 20),
                     "Av. 18 de Julio 1234, Montevideo");

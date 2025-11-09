@@ -64,6 +64,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                 .add("email", addClinicDTO.getEmail() != null ? addClinicDTO.getEmail() : "")
                 .add("phone", addClinicDTO.getPhone() != null ? addClinicDTO.getPhone() : "")
                 .add("address", addClinicDTO.getAddress() != null ? addClinicDTO.getAddress() : "")
+                .add("providerName", addClinicDTO.getProviderName() != null ? addClinicDTO.getProviderName() : "")
                 .add("clinicAdmin", Json.createObjectBuilder()
                         .add("ci",
                                 addClinicDTO.getClinicAdmin().getCi() != null ? addClinicDTO.getClinicAdmin().getCi()

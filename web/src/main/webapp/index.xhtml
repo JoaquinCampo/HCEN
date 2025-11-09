@@ -5,43 +5,39 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
-  <ui:define name="title">Clinics</ui:define>
+  <ui:define name="title">Providers</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 class="card-title h4 mb-0">Clinics</h2>
-            <small class="text-muted">Organizations providing healthcare services.</small>
+            <h2 class="card-title h4 mb-0">Providers</h2>
+            <small class="text-muted">Organizations grouping healthcare clinics.</small>
           </div>
-          <h:link outcome="/clinic/form" styleClass="btn btn-primary">New Clinic</h:link>
+          <h:link outcome="/provider/form" styleClass="btn btn-primary">New Provider</h:link>
         </div>
 
         <h:panelGroup id="results" layout="block" styleClass="table-responsive mt-4">
-          <h:dataTable value="#{clinicBean.providers}" var="clinic" rendered="#{not empty clinicBean.providers}"
+          <h:dataTable value="#{providerBean.providers}" var="provider" rendered="#{not empty providerBean.providers}"
             styleClass="table table-striped align-middle">
             <h:column>
               <f:facet name="header">Name</f:facet>
-              <div class="fw-semibold">#{clinic.name}</div>
-            </h:column>
-            <h:column>
-              <f:facet name="header">Contact</f:facet>
-              <div>#{empty clinic.phone ? '—' : clinic.phone}</div>
-              <small class="text-muted">#{empty clinic.email ? '—' : clinic.email}</small>
-            </h:column>
-            <h:column>
-              <f:facet name="header">Address</f:facet>
-              <span class="text-muted">#{clinic.address}</span>
+              <div class="fw-semibold">
+                <h:link outcome="/provider/detail">
+                  <f:param name="name" value="#{provider.providerName}" />
+                  #{provider.providerName}
+                </h:link>
+              </div>
             </h:column>
             <h:column>
               <f:facet name="header">Created</f:facet>
-              <span class="text-muted">#{clinic.createdAt}</span>
+              <span class="text-muted">#{provider.createdAt}</span>
             </h:column>
           </h:dataTable>
 
-          <h:panelGroup rendered="#{empty clinicBean.providers}" styleClass="text-muted">
+          <h:panelGroup rendered="#{empty providerBean.providers}" styleClass="text-muted">
             <div class="alert alert-info mb-0">
-              No clinics found.
+              No providers found.
             </div>
           </h:panelGroup>
         </h:panelGroup>
