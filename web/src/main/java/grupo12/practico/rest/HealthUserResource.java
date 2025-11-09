@@ -1,5 +1,6 @@
 package grupo12.practico.rest;
 
+import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
@@ -8,8 +9,6 @@ import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.util.List;
 
 @Path("/health-users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,8 +24,8 @@ public class HealthUserResource {
             @QueryParam("ci") String ci,
             @QueryParam("pageIndex") Integer pageIndex,
             @QueryParam("pageSize") Integer pageSize) {
-        List<HealthUserDTO> users = healthUserService.findAll(clinicName, name, ci, pageIndex, pageSize);
-        return Response.ok(users).build();
+        PaginationDTO<HealthUserDTO> paginationResult = healthUserService.findAll(clinicName, name, ci, pageIndex, pageSize);
+        return Response.ok(paginationResult).build();
     }
 
     @GET

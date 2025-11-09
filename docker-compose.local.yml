@@ -47,7 +47,6 @@ services:
       OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
       OIDC_REDIRECT_URI: ${OIDC_REDIRECT_URI}
       OIDC_SCOPE: ${OIDC_SCOPE}
-      JAVA_OPTS: -Dapp.external.clinicApiUrl=https://nodos-perifericos-wheat.vercel.app/api/clinics -Dapp.external.clinicalHistoryApiUrl=https://nodos-perifericos-wheat.vercel.app/api/clinical-history
     volumes:
       - ./FIREBASE_PK.json:/opt/secrets/firebase-sa.json:ro
     restart: unless-stopped

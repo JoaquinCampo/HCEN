@@ -11,6 +11,8 @@ import grupo12.practico.models.HealthUser;
 public interface HealthUserRepositoryLocal {
     List<HealthUser> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize);
 
+    long count(String clinicName, String name, String ci);
+
     HealthUser create(HealthUser healthUser);
 
     HealthUser linkClinicToHealthUser(String healthUserId, String clinicName);

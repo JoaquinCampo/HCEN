@@ -141,6 +141,70 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
     }
 
     @Override
+    public long count(String clinicName, String name, String ci) {
+        if (clinicName == null && name == null && ci == null) {
+            TypedQuery<Long> query = em.createQuery("SELECT COUNT(h) FROM HealthUser h", Long.class);
+            return query.getSingleResult();
+        }
+
+        String trimmedClinic = clinicName != null ? clinicName.trim() : null;
+        String trimmedName = name != null ? name.trim() : null;
+        String trimmedCi = ci != null ? ci.trim() : null;
+
+        StringBuilder jpql = new StringBuilder("SELECT COUNT(DISTINCT h) FROM HealthUser h");
+
+        boolean filterByClinic = trimmedClinic != null && !trimmedClinic.isEmpty();
+        boolean filterByName = trimmedName != null && !trimmedName.isEmpty();
+        boolean filterByCi = trimmedCi != null && !trimmedCi.isEmpty();
+
+        if (filterByClinic) {
+            jpql.append(" JOIN h.clinicNames clinic");
+        }
+
+        boolean hasCondition = false;
+        if (filterByCi || filterByClinic || filterByName) {
+            jpql.append(" WHERE");
+        }
+
+        if (filterByCi) {
+            jpql.append(" LOWER(h.ci) LIKE :ci");
+            hasCondition = true;
+        }
+
+        if (filterByClinic) {
+            if (hasCondition) {
+                jpql.append(" AND");
+            }
+            jpql.append(" LOWER(clinic) LIKE :clinic");
+            hasCondition = true;
+        }
+
+        if (filterByName) {
+            if (hasCondition) {
+                jpql.append(" AND");
+            }
+            jpql.append(
+                    " LOWER(CONCAT(CONCAT(COALESCE(h.firstName, ''), ' '), COALESCE(h.lastName, ''))) LIKE :name");
+        }
+
+        TypedQuery<Long> query = em.createQuery(jpql.toString(), Long.class);
+
+        if (filterByCi) {
+            query.setParameter("ci", "%" + trimmedCi.toLowerCase() + "%");
+        }
+
+        if (filterByClinic) {
+            query.setParameter("clinic", "%" + trimmedClinic.toLowerCase() + "%");
+        }
+
+        if (filterByName) {
+            query.setParameter("name", "%" + trimmedName.toLowerCase() + "%");
+        }
+
+        return query.getSingleResult();
+    }
+
+    @Override
     public HealthUser findByCi(String healthUserCi) {
         if (healthUserCi == null || healthUserCi.trim().isEmpty()) {
             throw new ValidationException("Health user CI must not be null or empty");

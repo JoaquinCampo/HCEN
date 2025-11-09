@@ -3,6 +3,7 @@ package grupo12.practico.services.HealthUser;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.ClinicalDocumentDTO;
 import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
@@ -32,10 +33,27 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     private AccessPolicyRepositoryLocal accessPolicyRepository;
 
     @Override
-    public List<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize) {
-        return healthUserRepository.findAll(clinicName, name, ci, pageIndex, pageSize).stream()
+    public PaginationDTO<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize) {
+        int safePageIndex = pageIndex != null && pageIndex >= 0 ? pageIndex : 0;
+        int safePageSize = pageSize != null && pageSize > 0 ? pageSize : 20;
+
+        List<HealthUser> users = healthUserRepository.findAll(clinicName, name, ci, safePageIndex, safePageSize);
+        long total = healthUserRepository.count(clinicName, name, ci);
+
+        List<HealthUserDTO> userDTOs = users.stream()
                 .map(HealthUser::toDto)
                 .collect(Collectors.toList());
+
+        PaginationDTO<HealthUserDTO> paginationDTO = new PaginationDTO<>();
+        paginationDTO.setItems(userDTOs);
+        paginationDTO.setPageIndex(safePageIndex);
+        paginationDTO.setPageSize(safePageSize);
+        paginationDTO.setTotal(total);
+        paginationDTO.setTotalPages((long) Math.ceil((double) total / safePageSize));
+        paginationDTO.setHasNextPage(safePageIndex < paginationDTO.getTotalPages() - 1);
+        paginationDTO.setHasPreviousPage(safePageIndex > 0);
+
+        return paginationDTO;
     }
 
     @Override
