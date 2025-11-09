@@ -34,7 +34,8 @@ public class HealthWorkerAccessPolicyProducerBean implements HealthWorkerAccessP
         try {
             String payload = HealthWorkerAccessPolicyMessageMapper.toMessage(dto);
             jmsContext.createProducer().send(queue, payload);
-            LOGGER.fine(() -> "Queued health worker access policy for health user " + dto.getHealthUserId() + ", health worker " + dto.getHealthWorkerCi() + " and clinic " + dto.getClinicName());
+            LOGGER.fine(() -> "Queued health worker access policy for health user " + dto.getHealthUserCi()
+                    + ", health worker " + dto.getHealthWorkerCi() + " and clinic " + dto.getClinicName());
         } catch (ValidationException ex) {
             throw ex;
         } catch (JMSRuntimeException ex) {
@@ -42,4 +43,3 @@ public class HealthWorkerAccessPolicyProducerBean implements HealthWorkerAccessP
         }
     }
 }
-

@@ -20,7 +20,7 @@ public final class HealthWorkerAccessPolicyMessaging {
      * Ordered list of payload fields used in the pipe-separated message.
      */
     public static final String[] PAYLOAD_FIELDS = {
-            "healthUserId",
+            "healthUserCi",
             "healthWorkerCi",
             "clinicName",
             "accessRequestId"

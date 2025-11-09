@@ -6,7 +6,6 @@ import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
 import grupo12.practico.models.AccessRequest;
 import grupo12.practico.models.HealthUser;
-import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import grupo12.practico.repositories.AccessRequest.AccessRequestRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
@@ -27,9 +26,6 @@ import jakarta.validation.ValidationException;
 @Local(AccessRequestServiceLocal.class)
 @Remote(AccessRequestServiceRemote.class)
 public class AccessRequestServiceBean implements AccessRequestServiceRemote {
-
-    @EJB
-    private AccessPolicyServiceLocal accessPolicyServiceLocal;
 
     @EJB
     private AccessRequestRepositoryLocal accessRequestRepository;
@@ -124,6 +120,7 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         AccessRequestDTO dto = new AccessRequestDTO();
         dto.setId(accessRequest.getId());
         dto.setHealthUserId(accessRequest.getHealthUser().getId());
+        dto.setHealthUserCi(accessRequest.getHealthUser().getCi());
         dto.setHealthWorker(healthWorkerDTO);
         dto.setClinic(clinicDTO);
 
@@ -166,6 +163,7 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
             AccessRequestDTO dto = new AccessRequestDTO();
             dto.setId(accessRequest.getId());
             dto.setHealthUserId(accessRequest.getHealthUser().getId());
+            dto.setHealthUserCi(accessRequest.getHealthUser().getCi());
             dto.setHealthWorker(healthWorkerDTO);
             dto.setClinic(clinicDTO);
 

@@ -11,6 +11,7 @@ public class AccessRequestDTO implements Serializable {
 
     private String id;
     private String healthUserId;
+    private String healthUserCi;
 
     private HealthWorkerDTO healthWorker;
     private ClinicDTO clinic;
@@ -39,6 +40,14 @@ public class AccessRequestDTO implements Serializable {
 
     public void setHealthWorker(HealthWorkerDTO healthWorker) {
         this.healthWorker = healthWorker;
+    }
+
+    public String getHealthUserCi() {
+        return healthUserCi;
+    }
+
+    public void setHealthUserCi(String healthUserCi) {
+        this.healthUserCi = healthUserCi;
     }
 
     public ClinicDTO getClinic() {

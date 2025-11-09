@@ -5,16 +5,16 @@ import java.io.Serializable;
 public class AddClinicAccessPolicyDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String healthUserId;
+    private String healthUserCi;
     private String clinicName;
     private String accessRequestId;
 
-    public String getHealthUserId() {
-        return healthUserId;
+    public String getHealthUserCi() {
+        return healthUserCi;
     }
 
-    public void setHealthUserId(String healthUserId) {
-        this.healthUserId = healthUserId;
+    public void setHealthUserCi(String healthUserCi) {
+        this.healthUserCi = healthUserCi;
     }
 
     public String getClinicName() {

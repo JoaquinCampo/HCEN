@@ -22,7 +22,7 @@ public final class HealthWorkerAccessPolicyMessageMapper {
         Objects.requireNonNull(dto, "health worker access policy dto must not be null");
 
         String[] fields = new String[] {
-                requireNoPipe(dto.getHealthUserId(), "healthUserId"),
+                requireNoPipe(dto.getHealthUserCi(), "healthUserCi"),
                 requireNoPipe(dto.getHealthWorkerCi(), "healthWorkerCi"),
                 requireNoPipe(dto.getClinicName(), "clinicName"),
                 dto.getAccessRequestId() != null ? requireNoPipe(dto.getAccessRequestId(), "accessRequestId") : ""
@@ -42,7 +42,7 @@ public final class HealthWorkerAccessPolicyMessageMapper {
         }
 
         AddHealthWorkerAccessPolicyDTO dto = new AddHealthWorkerAccessPolicyDTO();
-        dto.setHealthUserId(requireNotBlank(tokens[0], "healthUserId"));
+        dto.setHealthUserCi(requireNotBlank(tokens[0], "healthUserCi"));
         dto.setHealthWorkerCi(requireNotBlank(tokens[1], "healthWorkerCi"));
         dto.setClinicName(requireNotBlank(tokens[2], "clinicName"));
         String accessRequestId = tokens[3];

@@ -22,7 +22,7 @@ public final class ClinicAccessPolicyMessageMapper {
         Objects.requireNonNull(dto, "clinic access policy dto must not be null");
 
         String[] fields = new String[] {
-                requireNoPipe(dto.getHealthUserId(), "healthUserId"),
+                requireNoPipe(dto.getHealthUserCi(), "healthUserCi"),
                 requireNoPipe(dto.getClinicName(), "clinicName"),
                 requireNoPipe(dto.getAccessRequestId(), "accessRequestId")
         };
@@ -41,7 +41,7 @@ public final class ClinicAccessPolicyMessageMapper {
         }
 
         AddClinicAccessPolicyDTO dto = new AddClinicAccessPolicyDTO();
-        dto.setHealthUserId(requireNotBlank(tokens[0], "healthUserId"));
+        dto.setHealthUserCi(requireNotBlank(tokens[0], "healthUserCi"));
         dto.setClinicName(requireNotBlank(tokens[1], "clinicName"));
         dto.setAccessRequestId(requireNotBlank(tokens[2], "accessRequestId"));
         return dto;

@@ -36,7 +36,8 @@ public class ClinicAccessPolicyMDB implements MessageListener {
             String payload = textMessage.getText();
             AddClinicAccessPolicyDTO dto = ClinicAccessPolicyMessageMapper.fromMessage(payload);
             accessPolicyService.createClinicAccessPolicy(dto);
-            LOGGER.fine(() -> "Processed clinic access policy for health user " + dto.getHealthUserId() + " and clinic " + dto.getClinicName());
+            LOGGER.fine(() -> "Processed clinic access policy for health user " + dto.getHealthUserCi() + " and clinic "
+                    + dto.getClinicName());
         } catch (ValidationException ex) {
             LOGGER.log(Level.WARNING, "Invalid clinic access policy payload", ex);
         } catch (JMSException ex) {
@@ -46,4 +47,3 @@ public class ClinicAccessPolicyMDB implements MessageListener {
         }
     }
 }
-

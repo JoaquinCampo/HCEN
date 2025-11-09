@@ -34,7 +34,8 @@ public class ClinicAccessPolicyProducerBean implements ClinicAccessPolicyProduce
         try {
             String payload = ClinicAccessPolicyMessageMapper.toMessage(dto);
             jmsContext.createProducer().send(queue, payload);
-            LOGGER.fine(() -> "Queued clinic access policy for health user " + dto.getHealthUserId() + " and clinic " + dto.getClinicName());
+            LOGGER.fine(() -> "Queued clinic access policy for health user " + dto.getHealthUserCi() + " and clinic "
+                    + dto.getClinicName());
         } catch (ValidationException ex) {
             throw ex;
         } catch (JMSRuntimeException ex) {
@@ -42,4 +43,3 @@ public class ClinicAccessPolicyProducerBean implements ClinicAccessPolicyProduce
         }
     }
 }
-

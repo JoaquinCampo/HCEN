@@ -36,7 +36,8 @@ public class HealthWorkerAccessPolicyMDB implements MessageListener {
             String payload = textMessage.getText();
             AddHealthWorkerAccessPolicyDTO dto = HealthWorkerAccessPolicyMessageMapper.fromMessage(payload);
             accessPolicyService.createHealthWorkerAccessPolicy(dto);
-            LOGGER.fine(() -> "Processed health worker access policy for health user " + dto.getHealthUserId() + ", health worker " + dto.getHealthWorkerCi() + " and clinic " + dto.getClinicName());
+            LOGGER.fine(() -> "Processed health worker access policy for health user " + dto.getHealthUserCi()
+                    + ", health worker " + dto.getHealthWorkerCi() + " and clinic " + dto.getClinicName());
         } catch (ValidationException ex) {
             LOGGER.log(Level.WARNING, "Invalid health worker access policy payload", ex);
         } catch (JMSException ex) {
@@ -46,4 +47,3 @@ public class HealthWorkerAccessPolicyMDB implements MessageListener {
         }
     }
 }
-

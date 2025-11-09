@@ -9,8 +9,8 @@ public class ClinicAccessPolicyDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String id;
-    private String healthUserId;
-    
+    private String healthUserCi;
+
     private ClinicDTO clinic;
 
     private LocalDate createdAt;
@@ -23,12 +23,12 @@ public class ClinicAccessPolicyDTO implements Serializable {
         this.id = id;
     }
 
-    public String getHealthUserId() {
-        return healthUserId;
+    public String getHealthUserCi() {
+        return healthUserCi;
     }
 
-    public void setHealthUserId(String healthUserId) {
-        this.healthUserId = healthUserId;
+    public void setHealthUserCi(String healthUserCi) {
+        this.healthUserCi = healthUserCi;
     }
 
     public LocalDate getCreatedAt() {

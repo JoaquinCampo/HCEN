@@ -1,17 +1,17 @@
 package grupo12.practico.dtos.AccessPolicy;
 
 public class AddHealthWorkerAccessPolicyDTO {
-    private String healthUserId;
+    private String healthUserCi;
     private String healthWorkerCi;
     private String clinicName;
     private String accessRequestId;
 
-    public String getHealthUserId() {
-        return healthUserId;
+    public String getHealthUserCi() {
+        return healthUserCi;
     }
 
-    public void setHealthUserId(String healthUserId) {
-        this.healthUserId = healthUserId;
+    public void setHealthUserCi(String healthUserCi) {
+        this.healthUserCi = healthUserCi;
     }
 
     public String getHealthWorkerCi() {

@@ -52,14 +52,14 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         if (dto == null) {
             throw new ValidationException("Clinic access policy payload is required");
         }
-        if (isBlank(dto.getHealthUserId())) {
-            throw new ValidationException("Health user id is required");
+        if (isBlank(dto.getHealthUserCi())) {
+            throw new ValidationException("Health user CI is required");
         }
         if (isBlank(dto.getClinicName())) {
-            throw new ValidationException("Clinic id is required");
+            throw new ValidationException("Clinic name is required");
         }
 
-        HealthUser healthUser = healthUserRepository.findById(dto.getHealthUserId());
+        HealthUser healthUser = healthUserRepository.findByCi(dto.getHealthUserCi());
         if (healthUser == null) {
             throw new ValidationException("Health user not found");
         }
@@ -75,7 +75,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
 
         ClinicAccessPolicyDTO result = new ClinicAccessPolicyDTO();
         result.setId(createdClinicAccessPolicy.getId());
-        result.setHealthUserId(healthUser.getId());
+        result.setHealthUserCi(healthUser.getCi());
         result.setClinic(clinicDTO);
 
         // Delete the related access request if provided
@@ -99,14 +99,14 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         if (dto == null) {
             throw new ValidationException("Health worker access policy payload is required");
         }
-        if (isBlank(dto.getHealthUserId())) {
-            throw new ValidationException("Health user id is required");
+        if (isBlank(dto.getHealthUserCi())) {
+            throw new ValidationException("Health user CI is required");
         }
         if (isBlank(dto.getHealthWorkerCi())) {
-            throw new ValidationException("Health worker ci is required");
+            throw new ValidationException("Health worker CI is required");
         }
 
-        HealthUser healthUser = healthUserRepository.findById(dto.getHealthUserId());
+        HealthUser healthUser = healthUserRepository.findByCi(dto.getHealthUserCi());
         if (healthUser == null) {
             throw new ValidationException("Health user not found");
         }
@@ -157,7 +157,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         for (ClinicAccessPolicy policy : clinicAccessPolicies) {
             ClinicAccessPolicyDTO dto = new ClinicAccessPolicyDTO();
             dto.setId(policy.getId());
-            dto.setHealthUserId(policy.getHealthUser().getId());
+            dto.setHealthUserCi(policy.getHealthUser().getId());
             dto.setClinic(clinicService.findByName(policy.getClinicName()));
             result.add(dto);
         }
