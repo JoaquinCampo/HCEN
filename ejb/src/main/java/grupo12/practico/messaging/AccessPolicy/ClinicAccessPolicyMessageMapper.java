@@ -24,7 +24,7 @@ public final class ClinicAccessPolicyMessageMapper {
         String[] fields = new String[] {
                 requireNoPipe(dto.getHealthUserCi(), "healthUserCi"),
                 requireNoPipe(dto.getClinicName(), "clinicName"),
-                requireNoPipe(dto.getAccessRequestId(), "accessRequestId")
+                dto.getAccessRequestId() != null ? requireNoPipe(dto.getAccessRequestId(), "accessRequestId") : ""
         };
 
         return String.join(ClinicAccessPolicyMessaging.FIELD_SEPARATOR, fields);
@@ -43,7 +43,7 @@ public final class ClinicAccessPolicyMessageMapper {
         AddClinicAccessPolicyDTO dto = new AddClinicAccessPolicyDTO();
         dto.setHealthUserCi(requireNotBlank(tokens[0], "healthUserCi"));
         dto.setClinicName(requireNotBlank(tokens[1], "clinicName"));
-        dto.setAccessRequestId(requireNotBlank(tokens[2], "accessRequestId"));
+        dto.setAccessRequestId(tokens[2].isEmpty() ? null : requireNotBlank(tokens[2], "accessRequestId"));
         return dto;
     }
 
