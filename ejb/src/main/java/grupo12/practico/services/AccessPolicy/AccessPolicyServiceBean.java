@@ -215,6 +215,40 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         accessPolicyRepository.deleteHealthWorkerAccessPolicy(healthWorkerAccessPolicyId);
     }
 
+    @Override
+    public boolean hasClinicAccess(String healthUserCi, String clinicName) {
+        if (isBlank(healthUserCi)) {
+            throw new ValidationException("Health user CI is required");
+        }
+        if (isBlank(clinicName)) {
+            throw new ValidationException("Clinic name is required");
+        }
+
+        HealthUser healthUser = healthUserRepository.findByCi(healthUserCi);
+        if (healthUser == null) {
+            return false;
+        }
+
+        return accessPolicyRepository.hasClinicAccess(healthUser.getId(), clinicName);
+    }
+
+    @Override
+    public boolean hasHealthWorkerAccess(String healthUserCi, String healthWorkerCi) {
+        if (isBlank(healthUserCi)) {
+            throw new ValidationException("Health user CI is required");
+        }
+        if (isBlank(healthWorkerCi)) {
+            throw new ValidationException("Health worker CI is required");
+        }
+
+        HealthUser healthUser = healthUserRepository.findByCi(healthUserCi);
+        if (healthUser == null) {
+            return false;
+        }
+
+        return accessPolicyRepository.hasHealthWorkerAccess(healthUser.getId(), healthWorkerCi);
+    }
+
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }

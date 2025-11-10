@@ -17,4 +17,7 @@ public interface AccessPolicyRepositoryLocal {
 
     void deleteClinicAccessPolicy(String clinicAccessPolicyId);
     void deleteHealthWorkerAccessPolicy(String healthWorkerAccessPolicyId);
+
+    boolean hasClinicAccess(String healthUserId, String clinicName);
+    boolean hasHealthWorkerAccess(String healthUserId, String healthWorkerCi);
 }

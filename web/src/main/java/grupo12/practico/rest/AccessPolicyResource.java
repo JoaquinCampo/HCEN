@@ -79,4 +79,26 @@ public class AccessPolicyResource {
                 .entity("{\"message\":\"Health worker access policy deleted successfully\"}")
                 .build();
     }
+
+    @GET
+    @Path("/clinic/check-access")
+    public Response hasClinicAccess(
+            @QueryParam("healthUserCi") String healthUserCi,
+            @QueryParam("clinicName") String clinicName) {
+        boolean hasAccess = accessPolicyService.hasClinicAccess(healthUserCi, clinicName);
+        return Response.ok()
+                .entity("{\"hasAccess\":" + hasAccess + "}")
+                .build();
+    }
+
+    @GET
+    @Path("/health-worker/check-access")
+    public Response hasHealthWorkerAccess(
+            @QueryParam("healthUserCi") String healthUserCi,
+            @QueryParam("healthWorkerCi") String healthWorkerCi) {
+        boolean hasAccess = accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
+        return Response.ok()
+                .entity("{\"hasAccess\":" + hasAccess + "}")
+                .build();
+    }
 }

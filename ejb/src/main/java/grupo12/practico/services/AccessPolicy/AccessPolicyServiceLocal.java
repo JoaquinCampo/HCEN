@@ -20,4 +20,8 @@ public interface AccessPolicyServiceLocal {
     void deleteClinicAccessPolicy(String clinicAccessPolicyId);
 
     void deleteHealthWorkerAccessPolicy(String healthWorkerAccessPolicyId);
+
+    boolean hasClinicAccess(String healthUserCi, String clinicName);
+
+    boolean hasHealthWorkerAccess(String healthUserCi, String healthWorkerCi);
 }
