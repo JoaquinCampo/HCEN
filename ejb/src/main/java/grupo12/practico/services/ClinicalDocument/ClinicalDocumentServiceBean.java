@@ -47,11 +47,11 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
         validatePresignedUrlRequest(request);
 
         boolean hasClinicAccess = accessPolicyService.hasClinicAccess(
-                request.getHealthWorkerCi(),
+                request.getHealthUserCi(),
                 request.getClinicName());
 
         boolean hasHealthWorkerAccess = accessPolicyService.hasHealthWorkerAccess(
-                request.getHealthWorkerCi(),
+                request.getHealthUserCi(),
                 request.getHealthWorkerCi());
 
         if (!hasClinicAccess && !hasHealthWorkerAccess) {

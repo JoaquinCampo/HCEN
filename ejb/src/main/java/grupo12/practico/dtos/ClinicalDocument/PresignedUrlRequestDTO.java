@@ -7,6 +7,7 @@ public class PresignedUrlRequestDTO implements Serializable {
 
     private String fileName;
     private String contentType;
+    private String healthUserCi;
     private String healthWorkerCi;
     private String clinicName;
     private String providerName;
@@ -27,6 +28,13 @@ public class PresignedUrlRequestDTO implements Serializable {
         this.contentType = contentType;
     }
 
+    public String getHealthUserCi() {
+        return healthUserCi;
+    }
+
+    public void setHealthUserCi(String healthUserCi) {
+        this.healthUserCi = healthUserCi;
+    }
 
     public String getHealthWorkerCi() {
         return healthWorkerCi;

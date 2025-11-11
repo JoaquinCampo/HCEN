@@ -124,7 +124,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
 
         HealthWorkerAccessPolicyDTO result = new HealthWorkerAccessPolicyDTO();
         result.setId(createdHealthWorkerPolicy.getId());
-        result.setHealthUserId(healthUser.getId());
+        result.setHealthUserCi(healthUser.getCi());
         result.setHealthWorker(healthWorkerDTO);
         result.setClinic(clinicService.findByName(dto.getClinicName()));
 
@@ -161,7 +161,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         for (ClinicAccessPolicy policy : clinicAccessPolicies) {
             ClinicAccessPolicyDTO dto = new ClinicAccessPolicyDTO();
             dto.setId(policy.getId());
-            dto.setHealthUserCi(policy.getHealthUser().getId());
+            dto.setHealthUserCi(policy.getHealthUser().getCi());
             dto.setClinic(clinicService.findByName(policy.getClinicName()));
             result.add(dto);
         }
@@ -188,7 +188,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         for (HealthWorkerAccessPolicy policy : healthWorkerAccessPolicies) {
             HealthWorkerAccessPolicyDTO dto = new HealthWorkerAccessPolicyDTO();
             dto.setId(policy.getId());
-            dto.setHealthUserId(healthUserId);
+            dto.setHealthUserCi(healthUserCi);
             dto.setHealthWorker(
                     healthWorkerService.findByClinicAndCi(policy.getClinicName(), policy.getHealthWorkerCi()));
             dto.setClinic(clinicService.findByName(policy.getClinicName()));
