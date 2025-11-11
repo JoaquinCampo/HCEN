@@ -17,7 +17,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +30,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
     private static final Logger LOGGER = Logger.getLogger(ClinicalDocumentServiceBean.class.getName());
     private static final String DOCUMENTS_API_BASE_URL = getEnvOrDefault("app.external.documentsApiUrl",
             "http://host.docker.internal:8000/api/documents");
+    private static final String DOCUMENTS_API_KEY = getEnvOrDefault("app.external.documentsApiKey", "");
 
     private static String getEnvOrDefault(String key, String defaultValue) {
         String value = System.getProperty(key);
@@ -73,6 +74,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("x-api-key", DOCUMENTS_API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody.toString()))
                 .build();
 
@@ -116,6 +118,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("x-api-key", DOCUMENTS_API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody.toString()))
                 .build();
 
@@ -204,7 +207,8 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
             // Parse the created_at timestamp if present
             if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
                 String createdAtStr = jsonObject.getString("created_at");
-                dto.setCreatedAt(LocalDateTime.parse(createdAtStr));
+                // Parse ISO 8601 timestamp with 'Z' suffix and convert to LocalDateTime
+                dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
             }
 
             return dto;
