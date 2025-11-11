@@ -1,12 +1,15 @@
 package grupo12.practico.rest;
 
+import grupo12.practico.dtos.NotificationToken.NotificationSubscriptionDTO;
 import grupo12.practico.dtos.NotificationToken.NotificationTokenDTO;
+import grupo12.practico.models.NotificationType;
 import grupo12.practico.rest.dto.NotificationUnsubscribeRequest;
 import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -52,8 +55,23 @@ public class NotificationTokenResource {
                     .entity("{\"error\":\"userCi is required\"}")
                     .build();
         }
+        if (request.getNotificationType() == null || request.getNotificationType().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"notificationType is required\"}")
+                    .build();
+        }
+
+        NotificationType type;
         try {
-            notificationTokenService.unsubscribe(request.getUserCi());
+            type = NotificationType.valueOf(request.getNotificationType());
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"Invalid notificationType. Valid values: ACCESS_REQUEST, CLINICAL_HISTORY_ACCESS\"}")
+                    .build();
+        }
+
+        try {
+            notificationTokenService.unsubscribe(request.getUserCi(), type);
             return Response.noContent().build();
         } catch (ValidationException ex) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -67,12 +85,46 @@ public class NotificationTokenResource {
     public Response subscribe(NotificationUnsubscribeRequest request) {
         if (request == null || request.getUserCi() == null || request.getUserCi().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\":\"userId is required\"}")
+                    .entity("{\"error\":\"userCi is required\"}")
                     .build();
         }
+        if (request.getNotificationType() == null || request.getNotificationType().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"notificationType is required\"}")
+                    .build();
+        }
+
+        NotificationType type;
         try {
-            notificationTokenService.subscribe(request.getUserCi());
+            type = NotificationType.valueOf(request.getNotificationType());
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"Invalid notificationType. Valid values: ACCESS_REQUEST, CLINICAL_HISTORY_ACCESS\"}")
+                    .build();
+        }
+
+        try {
+            notificationTokenService.subscribe(request.getUserCi(), type);
             return Response.noContent().build();
+        } catch (ValidationException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/subscription-preferences/{userCi}")
+    public Response getSubscriptionPreferences(@PathParam("userCi") String userCi) {
+        if (userCi == null || userCi.trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"userCi is required\"}")
+                    .build();
+        }
+
+        try {
+            NotificationSubscriptionDTO preferences = notificationTokenService.getSubscriptionPreferences(userCi);
+            return Response.ok(preferences).build();
         } catch (ValidationException ex) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\":\"" + ex.getMessage() + "\"}")

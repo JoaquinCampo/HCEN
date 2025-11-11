@@ -9,8 +9,12 @@ import grupo12.practico.dtos.HealthUser.ClinicalDocumentDTO;
 import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.HealthUser;
+import grupo12.practico.models.NotificationType;
 import grupo12.practico.repositories.AccessPolicy.AccessPolicyRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
+import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
+import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
+import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -32,8 +36,18 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     @EJB
     private AccessPolicyRepositoryLocal accessPolicyRepository;
 
+    @EJB
+    private NotificationTokenRepositoryLocal notificationTokenRepository;
+
+    @EJB
+    private NotificationTokenServiceLocal notificationTokenService;
+
+    @EJB
+    private PushNotificationServiceLocal pushNotificationService;
+
     @Override
-    public PaginationDTO<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize) {
+    public PaginationDTO<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex,
+            Integer pageSize) {
         int safePageIndex = pageIndex != null && pageIndex >= 0 ? pageIndex : 0;
         int safePageSize = pageSize != null && pageSize > 0 ? pageSize : 20;
 
@@ -138,6 +152,25 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         }
 
         List<ClinicalDocumentDTO> clinicalDocuments = healthUserRepository.findClinicalHistory(healthUserCi);
+
+        // Send notification to health user about clinical history access
+        try {
+            boolean isSubscribed = notificationTokenService.isUserSubscribedToNotificationType(
+                    healthUserCi, NotificationType.CLINICAL_HISTORY_ACCESS);
+
+            if (isSubscribed) {
+                var tokens = notificationTokenRepository.findByUserId(healthUser.getId());
+                if (tokens != null && !tokens.isEmpty()) {
+                    String title = "Clinical history accessed";
+                    String body = String.format("Your clinical history was accessed by a health worker at %s",
+                            clinicName);
+                    for (var t : tokens) {
+                        pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
 
         ClinicalHistoryDTO dto = new ClinicalHistoryDTO();
         dto.setHealthUser(healthUser.toDto());

@@ -27,6 +27,12 @@ public class NotificationUnsubscription {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "subscribed_to_access_request", nullable = false)
+    private boolean subscribedToAccessRequest = true;
+
+    @Column(name = "subscribed_to_clinical_history_access", nullable = false)
+    private boolean subscribedToClinicalHistoryAccess = true;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -55,6 +61,22 @@ public class NotificationUnsubscription {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isSubscribedToAccessRequest() {
+        return subscribedToAccessRequest;
+    }
+
+    public void setSubscribedToAccessRequest(boolean subscribedToAccessRequest) {
+        this.subscribedToAccessRequest = subscribedToAccessRequest;
+    }
+
+    public boolean isSubscribedToClinicalHistoryAccess() {
+        return subscribedToClinicalHistoryAccess;
+    }
+
+    public void setSubscribedToClinicalHistoryAccess(boolean subscribedToClinicalHistoryAccess) {
+        this.subscribedToClinicalHistoryAccess = subscribedToClinicalHistoryAccess;
     }
 
     public LocalDateTime getCreatedAt() {

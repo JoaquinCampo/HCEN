@@ -6,6 +6,7 @@ import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
 import grupo12.practico.models.AccessRequest;
 import grupo12.practico.models.HealthUser;
+import grupo12.practico.models.NotificationType;
 import grupo12.practico.repositories.AccessRequest.AccessRequestRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
@@ -15,6 +16,7 @@ import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
+import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
 import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
@@ -44,6 +46,9 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
     @EJB
     private NotificationTokenRepositoryLocal notificationTokenRepository;
+
+    @EJB
+    private NotificationTokenServiceLocal notificationTokenService;
 
     @EJB
     private PushNotificationServiceLocal pushNotificationService;
@@ -83,15 +88,21 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         AccessRequest persisted = accessRequestRepository.create(accessRequest);
 
         try {
-            var tokens = notificationTokenRepository.findByUserId(healthUser.getId());
-            if (tokens != null && !tokens.isEmpty()) {
-                String title = "New access request";
-                String clinicName = dto.getClinicName() != null ? dto.getClinicName() : "";
-                String healthWorkerName = healthWorker.getFirstName() + " " + healthWorker.getLastName();
-                String body = String.format("%s requested access to your records at %s",
-                        healthWorkerName, clinicName);
-                for (var t : tokens) {
-                    pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
+            // Check if user is subscribed to ACCESS_REQUEST notifications
+            boolean isSubscribed = notificationTokenService.isUserSubscribedToNotificationType(
+                    healthUser.getCi(), NotificationType.ACCESS_REQUEST);
+
+            if (isSubscribed) {
+                var tokens = notificationTokenRepository.findByUserId(healthUser.getId());
+                if (tokens != null && !tokens.isEmpty()) {
+                    String title = "New access request";
+                    String clinicName = dto.getClinicName() != null ? dto.getClinicName() : "";
+                    String healthWorkerName = healthWorker.getFirstName() + " " + healthWorker.getLastName();
+                    String body = String.format("%s requested access to your records at %s",
+                            healthWorkerName, clinicName);
+                    for (var t : tokens) {
+                        pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
+                    }
                 }
             }
         } catch (Exception ignored) {
