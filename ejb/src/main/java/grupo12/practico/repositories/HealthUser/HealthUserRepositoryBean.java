@@ -29,6 +29,8 @@ import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.NodoDocumentosConfig;
+import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 
 import jakarta.validation.ValidationException;
 
@@ -44,6 +46,12 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
 
     @EJB
     private NodoDocumentosConfig config;
+
+    @EJB
+    private HealthWorkerServiceLocal healthWorkerService;
+
+    @EJB
+    private ClinicServiceLocal clinicService;
 
     private final HttpClient httpClient;
 
@@ -243,7 +251,7 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
 
     @Override
     public List<DocumentResponseDTO> fetchClinicalHistory(String healthUserCi, String healthWorkerCi,
-            String clinicName) {
+            String clinicName, String providerName) {
         if (healthUserCi == null || healthUserCi.trim().isEmpty()) {
             throw new ValidationException("Health user CI is required");
         }
@@ -253,9 +261,12 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
         if (clinicName == null || clinicName.trim().isEmpty()) {
             throw new ValidationException("Clinic name is required");
         }
+        if (providerName == null || providerName.trim().isEmpty()) {
+            throw new ValidationException("Provider name is required");
+        }
 
-        String url = String.format("%s/clinical-history/%s?health_worker_ci=%s&clinic_name=%s",
-                config.getDocumentsApiBaseUrl(), healthUserCi, healthWorkerCi, clinicName);
+        String url = String.format("%sclinical-history/%s?health_worker_ci=%s&clinic_name=%s",
+                config.getDocumentsApiBaseUrl(), healthUserCi, healthWorkerCi, providerName);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
@@ -294,10 +305,29 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
             for (JsonValue value : jsonArray) {
                 JsonObject jsonObject = value.asJsonObject();
                 DocumentResponseDTO dto = new DocumentResponseDTO();
-                dto.setDocId(jsonObject.getString("doc_id", null));
-                dto.setHealthWorkerCI(jsonObject.getString("created_by", null));
-                dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
-                dto.setClinicName(jsonObject.getString("clinic_name", null));
+                dto.setId(jsonObject.getString("doc_id", null));
+                
+                
+                String healthWorkerCi = jsonObject.getString("created_by", null);
+                String clinicName = jsonObject.getString("clinic_name", null);
+                
+                if (healthWorkerCi != null && clinicName != null) {
+                    try {
+                        dto.setHealthWorker(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi));
+                    } catch (Exception ex) {
+                        logger.log(Level.WARNING, 
+                            "Failed to fetch HealthWorker for CI: " + healthWorkerCi + " and clinic: " + clinicName, ex);
+                    }
+                }
+                
+                if (clinicName != null) {
+                    try {
+                        dto.setClinic(clinicService.findByName(clinicName));
+                    } catch (Exception ex) {
+                        logger.log(Level.WARNING, "Failed to fetch Clinic for name: " + clinicName, ex);
+                    }
+                }
+                
                 dto.setS3Url(jsonObject.getString("s3_url", null));
 
                 if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {

@@ -1,7 +1,6 @@
 package grupo12.practico.services.ClinicalDocument;
 
 import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
@@ -26,9 +25,9 @@ public interface ClinicalDocumentServiceLocal {
      * Create a clinical document record after the file has been uploaded
      * 
      * @param dto containing createdBy, healthUserCi, clinicName, and s3Url
-     * @return DocumentResponseDTO with the created document details
+     * @return String with the created document id
      */
-    DocumentResponseDTO createClinicalDocument(CreateClinicalDocumentDTO dto);
+    String createClinicalDocument(CreateClinicalDocumentDTO dto);
 
     /**
      * Fetch access history for a health worker

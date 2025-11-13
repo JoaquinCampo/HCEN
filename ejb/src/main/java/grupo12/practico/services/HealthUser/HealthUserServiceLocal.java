@@ -21,7 +21,7 @@ public interface HealthUserServiceLocal {
 
     HealthUserDTO linkClinicToHealthUser(String healthUserId, String clinicName);
 
-    ClinicalHistoryResponseDTO fetchClinicalHistory(String healthUserCi, String healthWorkerCi, String clinicName);
+    ClinicalHistoryResponseDTO fetchClinicalHistory(String healthUserCi, String healthWorkerCi, String clinicName, String providerName);
 
     HealthUserAccessHistoryResponseDTO fetchHealthUserAccessHistory(String healthUserCi);
 

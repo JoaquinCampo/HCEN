@@ -29,10 +29,11 @@ public class ClinicalHistoryResource {
     public Response fetchClinicalHistory(
             @PathParam("healthUserCi") String healthUserCi,
             @QueryParam("healthWorkerCi") String healthWorkerCi,
-            @QueryParam("clinicName") String clinicName) {
+            @QueryParam("clinicName") String clinicName,
+            @QueryParam("providerName") String providerName) {
         try {
             ClinicalHistoryResponseDTO response = healthUserService.fetchClinicalHistory(
-                    healthUserCi, healthWorkerCi, clinicName);
+                    healthUserCi, healthWorkerCi, clinicName, providerName);
             return Response.ok(response).build();
         } catch (Exception ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

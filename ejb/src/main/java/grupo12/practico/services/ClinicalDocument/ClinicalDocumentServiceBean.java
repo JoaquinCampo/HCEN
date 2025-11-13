@@ -2,7 +2,6 @@ package grupo12.practico.services.ClinicalDocument;
 
 import grupo12.practico.dtos.ClinicalDocument.ChunkSourceDTO;
 import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.MessageDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
@@ -109,7 +108,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
     }
 
     @Override
-    public DocumentResponseDTO createClinicalDocument(CreateClinicalDocumentDTO dto) {
+    public String createClinicalDocument(CreateClinicalDocumentDTO dto) {
         validateCreateClinicalDocumentRequest(dto);
 
         String url = config.getDocumentsApiBaseUrl() + "/documents";
@@ -142,7 +141,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
                 throw new IllegalStateException("Failed to create clinical document: HTTP " + status);
             }
 
-            return parseClinicalDocumentResponse(response.body());
+            return parseClinicalDocumentIdResponse(response.body());
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while creating clinical document", ex);
@@ -202,23 +201,11 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
         }
     }
 
-    private DocumentResponseDTO parseClinicalDocumentResponse(String jsonBody) {
+    private String parseClinicalDocumentIdResponse(String jsonBody) {
         try (JsonReader reader = Json.createReader(new StringReader(jsonBody))) {
             JsonObject jsonObject = reader.readObject();
 
-            DocumentResponseDTO dto = new DocumentResponseDTO();
-            dto.setDocId(jsonObject.getString("doc_id", null));
-            dto.setHealthWorkerCI(jsonObject.getString("created_by", null));
-            dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
-            dto.setClinicName(jsonObject.getString("clinic_name", null));
-            dto.setS3Url(jsonObject.getString("s3_url", null));
-
-            if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
-                String createdAtStr = jsonObject.getString("created_at");
-                dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
-            }
-
-            return dto;
+            return jsonObject.getString("doc_id", null);
         } catch (Exception ex) {
             LOGGER.log(Level.WARNING, "Failed to parse clinical document response: " + jsonBody, ex);
             throw new IllegalStateException("Failed to parse clinical document response", ex);

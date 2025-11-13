@@ -105,11 +105,11 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
     @Override
     public ClinicalHistoryResponseDTO fetchClinicalHistory(String healthUserCi, String healthWorkerCi,
-            String clinicName) {
+            String clinicName, String providerName) {
         HealthUserDTO healthUser = healthUserRepository.findByCi(healthUserCi).toDto();
 
         List<DocumentResponseDTO> documents = healthUserRepository.fetchClinicalHistory(healthUserCi, healthWorkerCi,
-                clinicName);
+                clinicName, providerName);
 
         ClinicalHistoryResponseDTO response = new ClinicalHistoryResponseDTO();
         response.setHealthUser(healthUser);

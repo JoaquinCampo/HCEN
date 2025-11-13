@@ -1,7 +1,7 @@
 package grupo12.practico.rest;
 
 import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
@@ -38,7 +38,8 @@ public class ClinicalDocumentResource {
     @POST
     public Response createClinicalDocument(CreateClinicalDocumentDTO dto) {
         try {
-            DocumentResponseDTO response = clinicalDocumentService.createClinicalDocument(dto);
+            String docId = clinicalDocumentService.createClinicalDocument(dto);
+            CreateClinicalDocumentResponseDTO response = new CreateClinicalDocumentResponseDTO(docId);
             return Response.status(Response.Status.CREATED)
                     .entity(response)
                     .build();

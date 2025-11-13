@@ -3,46 +3,40 @@ package grupo12.practico.dtos.ClinicalDocument;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+
 public class DocumentResponseDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String docId;
-    private String healthWorkerCI;
-    private String healthUserCi;
-    private String clinicName;
+    private String id;
+    private HealthWorkerDTO healthWorker;
+    private ClinicDTO clinic;
     private LocalDateTime createdAt;
     private String s3Url;
 
-    public String getDocId() {
-        return docId;
+    public String getId() {
+        return id;
     }
 
-    public void setDocId(String docId) {
-        this.docId = docId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getHealthWorkerCI() {
-        return healthWorkerCI;
+    public HealthWorkerDTO getHealthWorker() {
+        return healthWorker;
     }
 
-    public void setHealthWorkerCI(String healthWorkerCI) {
-        this.healthWorkerCI = healthWorkerCI;
+    public void setHealthWorker(HealthWorkerDTO healthWorker) {
+        this.healthWorker = healthWorker;
     }
 
-    public String getHealthUserCi() {
-        return healthUserCi;
+    public ClinicDTO getClinic() {
+        return clinic;
     }
 
-    public void setHealthUserCi(String healthUserCi) {
-        this.healthUserCi = healthUserCi;
-    }
-
-    public String getClinicName() {
-        return clinicName;
-    }
-
-    public void setClinicName(String clinicName) {
-        this.clinicName = clinicName;
+    public void setClinic(ClinicDTO clinic) {
+        this.clinic = clinic;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -22,8 +22,7 @@ public interface HealthUserRepositoryLocal {
 
     HealthUser findById(String healthUserId);
 
-    List<DocumentResponseDTO> fetchClinicalHistory(String healthUserCi, String healthWorkerCi, String clinicName);
+    List<DocumentResponseDTO> fetchClinicalHistory(String healthUserCi, String healthWorkerCi, String clinicName, String providerName);
 
     List<ClinicalHistoryAccessLogResponseDTO> fetchHealthUserAccessHistory(String healthUserCi);
-
 }
