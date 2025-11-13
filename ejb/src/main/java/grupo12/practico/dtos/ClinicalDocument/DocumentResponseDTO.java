@@ -7,7 +7,7 @@ public class DocumentResponseDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String docId;
-    private String createdBy;
+    private String healthWorkerCI;
     private String healthUserCi;
     private String clinicName;
     private LocalDateTime createdAt;
@@ -21,12 +21,12 @@ public class DocumentResponseDTO implements Serializable {
         this.docId = docId;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
+    public String getHealthWorkerCI() {
+        return healthWorkerCI;
     }
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
+    public void setHealthWorkerCI(String healthWorkerCI) {
+        this.healthWorkerCI = healthWorkerCI;
     }
 
     public String getHealthUserCi() {

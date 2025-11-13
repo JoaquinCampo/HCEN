@@ -1,14 +1,14 @@
 package grupo12.practico.services.ClinicalDocument;
 
-import grupo12.practico.dtos.ClinicalDocument.ChatRequestDTO;
-import grupo12.practico.dtos.ClinicalDocument.ChatResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.ChunkSourceDTO;
-import grupo12.practico.dtos.ClinicalDocument.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.MessageDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
+import grupo12.practico.dtos.ClinicalHistory.ChatResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.repositories.NodoDocumentosConfig;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import jakarta.ejb.Stateless;
@@ -208,15 +208,13 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
 
             DocumentResponseDTO dto = new DocumentResponseDTO();
             dto.setDocId(jsonObject.getString("doc_id", null));
-            dto.setCreatedBy(jsonObject.getString("created_by", null));
+            dto.setHealthWorkerCI(jsonObject.getString("created_by", null));
             dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
             dto.setClinicName(jsonObject.getString("clinic_name", null));
             dto.setS3Url(jsonObject.getString("s3_url", null));
 
-            // Parse the created_at timestamp if present
             if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
                 String createdAtStr = jsonObject.getString("created_at");
-                // Parse ISO 8601 timestamp with 'Z' suffix and convert to LocalDateTime
                 dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
             }
 
@@ -224,51 +222,6 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
         } catch (Exception ex) {
             LOGGER.log(Level.WARNING, "Failed to parse clinical document response: " + jsonBody, ex);
             throw new IllegalStateException("Failed to parse clinical document response", ex);
-        }
-    }
-
-    @Override
-    public List<DocumentResponseDTO> fetchClinicalHistory(String healthUserCi, String healthWorkerCi,
-            String clinicName) {
-        if (healthUserCi == null || healthUserCi.trim().isEmpty()) {
-            throw new ValidationException("Health user CI is required");
-        }
-        if (healthWorkerCi == null || healthWorkerCi.trim().isEmpty()) {
-            throw new ValidationException("Health worker CI is required");
-        }
-        if (clinicName == null || clinicName.trim().isEmpty()) {
-            throw new ValidationException("Clinic name is required");
-        }
-
-        String url = String.format("%s/clinical-history/%s?health_worker_ci=%s&clinic_name=%s",
-                config.getDocumentsApiBaseUrl(), healthUserCi, healthWorkerCi, clinicName);
-
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .uri(URI.create(url))
-                .header("Accept", "application/json")
-                .header("x-api-key", config.getDocumentsApiKey())
-                .GET()
-                .build();
-
-        try {
-            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            int status = response.statusCode();
-
-            if (status != 200) {
-                LOGGER.log(Level.WARNING,
-                        "Failed to fetch clinical history: HTTP {0}. Response body: {1}",
-                        new Object[] { status, response.body() });
-                throw new IllegalStateException("Failed to fetch clinical history: HTTP " + status);
-            }
-
-            return parseClinicalHistoryResponse(response.body());
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while fetching clinical history", ex);
-        } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Error calling documents service for clinical history", ex);
-            throw new IllegalStateException("Unable to fetch clinical history", ex);
         }
     }
 
@@ -379,35 +332,6 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Error calling documents service for chat", ex);
             throw new IllegalStateException("Unable to process chat query", ex);
-        }
-    }
-
-    private List<DocumentResponseDTO> parseClinicalHistoryResponse(String jsonBody) {
-        try (JsonReader reader = Json.createReader(new StringReader(jsonBody))) {
-            JsonArray jsonArray = reader.readArray();
-            List<DocumentResponseDTO> documents = new ArrayList<>();
-
-            for (JsonValue value : jsonArray) {
-                JsonObject jsonObject = value.asJsonObject();
-                DocumentResponseDTO dto = new DocumentResponseDTO();
-                dto.setDocId(jsonObject.getString("doc_id", null));
-                dto.setCreatedBy(jsonObject.getString("created_by", null));
-                dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
-                dto.setClinicName(jsonObject.getString("clinic_name", null));
-                dto.setS3Url(jsonObject.getString("s3_url", null));
-
-                if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
-                    String createdAtStr = jsonObject.getString("created_at");
-                    dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
-                }
-
-                documents.add(dto);
-            }
-
-            return documents;
-        } catch (Exception ex) {
-            LOGGER.log(Level.WARNING, "Failed to parse clinical history response: " + jsonBody, ex);
-            throw new IllegalStateException("Failed to parse clinical history response", ex);
         }
     }
 

@@ -1,4 +1,4 @@
-package grupo12.practico.dtos.ClinicalDocument;
+package grupo12.practico.dtos.ClinicalHistory;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

@@ -1,12 +1,12 @@
 package grupo12.practico.services.ClinicalDocument;
 
-import grupo12.practico.dtos.ClinicalDocument.ChatRequestDTO;
-import grupo12.practico.dtos.ClinicalDocument.ChatResponseDTO;
-import grupo12.practico.dtos.ClinicalDocument.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
+import grupo12.practico.dtos.ClinicalHistory.ChatResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import jakarta.ejb.Local;
 import java.util.List;
 
@@ -29,16 +29,6 @@ public interface ClinicalDocumentServiceLocal {
      * @return DocumentResponseDTO with the created document details
      */
     DocumentResponseDTO createClinicalDocument(CreateClinicalDocumentDTO dto);
-
-    /**
-     * Fetch the clinical history for the given patient
-     * 
-     * @param healthUserCi   CI of the patient
-     * @param healthWorkerCi CI of the worker requesting the history
-     * @param clinicName     Clinic requesting the history
-     * @return List of DocumentResponseDTO
-     */
-    List<DocumentResponseDTO> fetchClinicalHistory(String healthUserCi, String healthWorkerCi, String clinicName);
 
     /**
      * Fetch access history for a health worker

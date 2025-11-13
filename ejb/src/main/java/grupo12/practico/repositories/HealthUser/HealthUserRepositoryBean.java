@@ -1,16 +1,34 @@
 package grupo12.practico.repositories.HealthUser;
 
+import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonValue;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.models.HealthUser;
+import grupo12.practico.repositories.NodoDocumentosConfig;
 
 import jakarta.validation.ValidationException;
 
@@ -24,7 +42,15 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
     @PersistenceContext(unitName = "practicoPersistenceUnit")
     private EntityManager em;
 
+    @EJB
+    private NodoDocumentosConfig config;
+
+    private final HttpClient httpClient;
+
     public HealthUserRepositoryBean() {
+        this.httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
     }
 
     @Override
@@ -213,5 +239,151 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
         logger.info("Persisting HealthUser with CI=" + healthUser.getCi());
         em.persist(healthUser);
         return healthUser;
+    }
+
+    @Override
+    public List<DocumentResponseDTO> fetchClinicalHistory(String healthUserCi, String healthWorkerCi,
+            String clinicName) {
+        if (healthUserCi == null || healthUserCi.trim().isEmpty()) {
+            throw new ValidationException("Health user CI is required");
+        }
+        if (healthWorkerCi == null || healthWorkerCi.trim().isEmpty()) {
+            throw new ValidationException("Health worker CI is required");
+        }
+        if (clinicName == null || clinicName.trim().isEmpty()) {
+            throw new ValidationException("Clinic name is required");
+        }
+
+        String url = String.format("%s/clinical-history/%s?health_worker_ci=%s&clinic_name=%s",
+                config.getDocumentsApiBaseUrl(), healthUserCi, healthWorkerCi, clinicName);
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .uri(URI.create(url))
+                .header("Accept", "application/json")
+                .header("x-api-key", config.getDocumentsApiKey())
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            int status = response.statusCode();
+
+            if (status != 200) {
+                logger.log(Level.WARNING,
+                        "Failed to fetch clinical history: HTTP {0}. Response body: {1}",
+                        new Object[] { status, response.body() });
+                throw new IllegalStateException("Failed to fetch clinical history: HTTP " + status);
+            }
+
+            return parseClinicalHistoryResponse(response.body());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while fetching clinical history", ex);
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, "Error calling documents service for clinical history", ex);
+            throw new IllegalStateException("Unable to fetch clinical history", ex);
+        }
+    }
+
+    private List<DocumentResponseDTO> parseClinicalHistoryResponse(String jsonBody) {
+        try (JsonReader reader = Json.createReader(new StringReader(jsonBody))) {
+            JsonArray jsonArray = reader.readArray();
+            List<DocumentResponseDTO> documents = new ArrayList<>();
+
+            for (JsonValue value : jsonArray) {
+                JsonObject jsonObject = value.asJsonObject();
+                DocumentResponseDTO dto = new DocumentResponseDTO();
+                dto.setDocId(jsonObject.getString("doc_id", null));
+                dto.setHealthWorkerCI(jsonObject.getString("created_by", null));
+                dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
+                dto.setClinicName(jsonObject.getString("clinic_name", null));
+                dto.setS3Url(jsonObject.getString("s3_url", null));
+
+                if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
+                    String createdAtStr = jsonObject.getString("created_at");
+                    dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
+                }
+
+                documents.add(dto);
+            }
+
+            return documents;
+        } catch (Exception ex) {
+            logger.log(Level.WARNING, "Failed to parse clinical history response: " + jsonBody, ex);
+            throw new IllegalStateException("Failed to parse clinical history response", ex);
+        }
+    }
+
+    @Override
+    public List<ClinicalHistoryAccessLogResponseDTO> fetchHealthUserAccessHistory(String healthUserCi) {
+        if (healthUserCi == null || healthUserCi.trim().isEmpty()) {
+            throw new ValidationException("Health user CI is required");
+        }
+
+        String url = String.format("%s/clinical-history/health-users/%s/access-history",
+                config.getDocumentsApiBaseUrl(), healthUserCi);
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .uri(URI.create(url))
+                .header("Accept", "application/json")
+                .header("x-api-key", config.getDocumentsApiKey())
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            int status = response.statusCode();
+
+            if (status != 200) {
+                logger.log(Level.WARNING,
+                        "Failed to fetch health user access history: HTTP {0}. Response body: {1}",
+                        new Object[] { status, response.body() });
+                throw new IllegalStateException("Failed to fetch health user access history: HTTP " + status);
+            }
+
+            return parseHealthUserAccessHistoryResponse(response.body());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while fetching health user access history", ex);
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, "Error calling documents service for health user access history", ex);
+            throw new IllegalStateException("Unable to fetch health user access history", ex);
+        }
+    }
+
+    private List<ClinicalHistoryAccessLogResponseDTO> parseHealthUserAccessHistoryResponse(String jsonBody) {
+        try (JsonReader reader = Json.createReader(new StringReader(jsonBody))) {
+            JsonArray jsonArray = reader.readArray();
+            List<ClinicalHistoryAccessLogResponseDTO> logs = new ArrayList<>();
+
+            for (JsonValue value : jsonArray) {
+                JsonObject jsonObject = value.asJsonObject();
+                ClinicalHistoryAccessLogResponseDTO dto = new ClinicalHistoryAccessLogResponseDTO();
+                dto.setId(Long.valueOf(jsonObject.getInt("id")));
+                dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
+                dto.setHealthWorkerCi(jsonObject.getString("health_worker_ci", null));
+                dto.setClinicName(jsonObject.getString("clinic_name", null));
+
+                if (jsonObject.containsKey("requested_at") && !jsonObject.isNull("requested_at")) {
+                    String requestedAtStr = jsonObject.getString("requested_at");
+                    dto.setRequestedAt(ZonedDateTime.parse(requestedAtStr).toLocalDateTime());
+                }
+
+                if (jsonObject.containsKey("viewed")) {
+                    dto.setViewed(jsonObject.getBoolean("viewed"));
+                }
+
+                dto.setDecisionReason(jsonObject.getString("decision_reason", null));
+
+                logs.add(dto);
+            }
+
+            return logs;
+        } catch (Exception ex) {
+            logger.log(Level.WARNING, "Failed to parse health user access history response: " + jsonBody, ex);
+            throw new IllegalStateException("Failed to parse health user access history response", ex);
+        }
     }
 }

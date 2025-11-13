@@ -5,11 +5,12 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
-import grupo12.practico.dtos.HealthUser.ClinicalDocumentDTO;
-import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.models.HealthUser;
-import grupo12.practico.models.NotificationType;
 import grupo12.practico.repositories.AccessPolicy.AccessPolicyRepositoryLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
@@ -100,6 +101,29 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     @Override
     public HealthUserDTO linkClinicToHealthUser(String healthUserId, String clinicName) {
         return healthUserRepository.linkClinicToHealthUser(healthUserId, clinicName).toDto();
+    }
+
+    @Override
+    public ClinicalHistoryResponseDTO fetchClinicalHistory(String healthUserCi, String healthWorkerCi,
+            String clinicName) {
+        HealthUserDTO healthUser = healthUserRepository.findByCi(healthUserCi).toDto();
+
+        List<DocumentResponseDTO> documents = healthUserRepository.fetchClinicalHistory(healthUserCi, healthWorkerCi,
+                clinicName);
+
+        ClinicalHistoryResponseDTO response = new ClinicalHistoryResponseDTO();
+        response.setHealthUser(healthUser);
+        response.setDocuments(documents);
+
+        return response;
+    }
+
+    @Override
+    public HealthUserAccessHistoryResponseDTO fetchHealthUserAccessHistory(String healthUserCi) {
+        HealthUserDTO healthUser = findByCi(healthUserCi);
+        List<ClinicalHistoryAccessLogResponseDTO> accessHistory = healthUserRepository
+                .fetchHealthUserAccessHistory(healthUserCi);
+        return new HealthUserAccessHistoryResponseDTO(healthUser, accessHistory);
     }
 
     private void validateCreateUserDTO(AddHealthUserDTO addHealthUserDTO) {

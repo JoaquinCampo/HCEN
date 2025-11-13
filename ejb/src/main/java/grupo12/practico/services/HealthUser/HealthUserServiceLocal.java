@@ -3,6 +3,8 @@ package grupo12.practico.services.HealthUser;
 import jakarta.ejb.Local;
 
 import grupo12.practico.dtos.PaginationDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 
@@ -18,5 +20,9 @@ public interface HealthUserServiceLocal {
     HealthUserDTO findByCi(String healthUserCi);
 
     HealthUserDTO linkClinicToHealthUser(String healthUserId, String clinicName);
+
+    ClinicalHistoryResponseDTO fetchClinicalHistory(String healthUserCi, String healthWorkerCi, String clinicName);
+
+    HealthUserAccessHistoryResponseDTO fetchHealthUserAccessHistory(String healthUserCi);
 
 }
