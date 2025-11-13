@@ -11,7 +11,7 @@ import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.models.HealthUser;
-import grupo12.practico.repositories.AccessPolicy.AccessPolicyRepositoryLocal;
+import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
 import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
@@ -35,7 +35,7 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     private HealthUserRepositoryLocal healthUserRepository;
 
     @EJB
-    private AccessPolicyRepositoryLocal accessPolicyRepository;
+    private AccessPolicyServiceLocal accessPolicyService;
 
     @EJB
     private NotificationTokenRepositoryLocal notificationTokenRepository;
@@ -106,6 +106,12 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     @Override
     public ClinicalHistoryResponseDTO fetchClinicalHistory(String healthUserCi, String healthWorkerCi,
             String clinicName, String providerName) {
+
+        boolean clinicAccess = accessPolicyService.hasClinicAccess(healthUserCi, clinicName);
+        boolean workerAccess = accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
+        if (!clinicAccess && !workerAccess)
+            throw new ValidationException("Access denied to clinical history for health user CI: " + healthUserCi);
+
         HealthUserDTO healthUser = healthUserRepository.findByCi(healthUserCi).toDto();
 
         List<DocumentResponseDTO> documents = healthUserRepository.fetchClinicalHistory(healthUserCi, healthWorkerCi,
