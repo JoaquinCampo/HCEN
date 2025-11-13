@@ -38,12 +38,12 @@ public class OidcConfigurationService {
                 "https://auth.gub.uy/oidc/v1/jwks");
         clientId = getEnvOrDefault("OIDC_CLIENT_ID", "");
         clientSecret = getEnvOrDefault("OIDC_CLIENT_SECRET", "");
-        redirectUri = getEnvOrDefault("OIDC_REDIRECT_URI", "http://localhost:8080/api/auth/gubuy/callback");
+        redirectUri = getEnvOrDefault("OIDC_REDIRECT_URI", "");
         scope = getEnvOrDefault("OIDC_SCOPE", "openid profile email");
         issuer = getEnvOrDefault("OIDC_ISSUER", "");
         // Logout endpoint can vary (logout / end_session). Allow override.
         logoutUrl = getEnvOrDefault("OIDC_LOGOUT_URL", "https://auth.gub.uy/oidc/v1/logout");
-        postLogoutRedirectUri = getEnvOrDefault("OIDC_POST_LOGOUT_REDIRECT_URI", redirectUri);
+        postLogoutRedirectUri = getEnvOrDefault("OIDC_POST_LOGOUT_REDIRECT_URI", "");
         acrValues = getEnvOrDefault("OIDC_ACR_VALUES", "");
 
         LOGGER.info("OIDC Configuration loaded:");
