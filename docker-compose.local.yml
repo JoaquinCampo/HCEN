@@ -49,6 +49,7 @@ services:
       OIDC_SCOPE: ${OIDC_SCOPE}
       DOCUMENTS_API_KEY: ${DOCUMENTS_API_KEY}
       DOCUMENTS_API_BASE_URL: ${DOCUMENTS_API_BASE_URL}
+      NODO_PERIFERICO_API_BASE_URL: ${NODO_PERIFERICO_API_BASE_URL}
     volumes:
       - ./FIREBASE_PK.json:/opt/secrets/firebase-sa.json:ro
     restart: unless-stopped

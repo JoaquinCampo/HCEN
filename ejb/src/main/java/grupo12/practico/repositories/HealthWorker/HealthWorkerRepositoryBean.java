@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
@@ -25,19 +26,17 @@ import jakarta.json.JsonReader;
 import jakarta.json.JsonValue;
 import jakarta.validation.ValidationException;
 
+import grupo12.practico.repositories.NodosPerifericosConfig;
+
 @Stateless
 @Local(HealthWorkerRepositoryLocal.class)
 @Remote(HealthWorkerRepositoryRemote.class)
 public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote {
 
     private static final Logger logger = Logger.getLogger(HealthWorkerRepositoryBean.class.getName());
-    private static final String BASE_URL = getEnvOrDefault("app.external.clinicApiUrl",
-            "http://host.docker.internal:3000/api/clinics");
 
-    private static String getEnvOrDefault(String key, String defaultValue) {
-        String value = System.getProperty(key);
-        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
-    }
+    @EJB
+    private NodosPerifericosConfig config;
 
     private final HttpClient httpClient;
 
@@ -58,7 +57,7 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
 
         String encodedClinic = encodePathSegment(clinicName);
         String encodedCi = encodePathSegment(healthWorkerCi);
-        URI uri = URI.create(BASE_URL + "/" + encodedClinic + "/health-worker/" + encodedCi);
+        URI uri = URI.create(config.getClinicsApiUrl() + "/" + encodedClinic + "/health-worker/" + encodedCi);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)

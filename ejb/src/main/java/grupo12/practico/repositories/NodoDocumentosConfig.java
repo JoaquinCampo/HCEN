@@ -1,4 +1,4 @@
-package grupo12.practico.services.ClinicalDocument;
+package grupo12.practico.repositories;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
@@ -11,9 +11,9 @@ import java.util.logging.Logger;
  */
 @Singleton
 @Startup
-public class ClinicalDocumentConfigurationService {
+public class NodoDocumentosConfig {
 
-    private static final Logger LOGGER = Logger.getLogger(ClinicalDocumentConfigurationService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(NodoDocumentosConfig.class.getName());
 
     private String documentsApiBaseUrl;
     private String documentsApiKey;

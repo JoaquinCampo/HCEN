@@ -2,6 +2,7 @@ package grupo12.practico.repositories.Provider;
 
 import jakarta.ejb.Local;
 import grupo12.practico.models.Provider;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
 import java.util.List;
 
 @Local
@@ -14,4 +15,5 @@ public interface ProviderRepositoryLocal {
 
     List<Provider> findAll();
 
+    List<ClinicDTO> fetchClinicsByProvider(String providerName);
 }

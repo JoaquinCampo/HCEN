@@ -2,7 +2,6 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
-import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
@@ -24,7 +23,8 @@ public class HealthUserResource {
             @QueryParam("ci") String ci,
             @QueryParam("pageIndex") Integer pageIndex,
             @QueryParam("pageSize") Integer pageSize) {
-        PaginationDTO<HealthUserDTO> paginationResult = healthUserService.findAll(clinicName, name, ci, pageIndex, pageSize);
+        PaginationDTO<HealthUserDTO> paginationResult = healthUserService.findAll(clinicName, name, ci, pageIndex,
+                pageSize);
         return Response.ok(paginationResult).build();
     }
 
@@ -63,14 +63,4 @@ public class HealthUserResource {
         return Response.ok(user).build();
     }
 
-    @GET
-    @Path("/{healthUserCi}/clinical-history")
-    public Response findClinicalHistory(
-            @PathParam("healthUserCi") String healthUserCi,
-            @QueryParam("clinicName") String clinicName,
-            @QueryParam("healthWorkerCi") String healthWorkerCi) {
-        ClinicalHistoryDTO clinicalHistory = healthUserService.findClinicalHistory(healthUserCi, clinicName,
-                healthWorkerCi);
-        return Response.ok(clinicalHistory).build();
-    }
 }

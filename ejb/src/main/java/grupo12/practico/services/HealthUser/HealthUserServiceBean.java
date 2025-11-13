@@ -119,66 +119,6 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         return healthUserRepository.findById(healthUserId).toDto();
     }
 
-    @Override
-    public ClinicalHistoryDTO findClinicalHistory(String healthUserCi, String clinicName, String healthWorkerCi) {
-        if (isBlank(healthUserCi)) {
-            throw new ValidationException("Health user CI must not be null or empty");
-        }
-        if (isBlank(clinicName)) {
-            throw new ValidationException("Clinic name must not be null or empty");
-        }
-        if (isBlank(healthWorkerCi)) {
-            throw new ValidationException("Health worker CI must not be null or empty");
-        }
-
-        HealthUser healthUser = healthUserRepository.findByCi(healthUserCi);
-        if (healthUser == null) {
-            throw new ValidationException("Health user not found");
-        }
-
-        boolean hasClinicPolicy = accessPolicyRepository
-                .findAllClinicAccessPolicies(healthUser.getId())
-                .stream()
-                .anyMatch(policy -> policy.getClinicName().equals(clinicName));
-
-        boolean hasHealthWorkerPolicy = accessPolicyRepository
-                .findAllHealthWorkerAccessPolicies(healthUser.getId())
-                .stream()
-                .anyMatch(policy -> policy.getHealthWorkerCi().equals(healthWorkerCi)
-                        && policy.getClinicName().equals(clinicName));
-
-        if (!hasClinicPolicy && !hasHealthWorkerPolicy) {
-            throw new ValidationException("Access denied to clinical history");
-        }
-
-        List<ClinicalDocumentDTO> clinicalDocuments = healthUserRepository.findClinicalHistory(healthUserCi);
-
-        // Send notification to health user about clinical history access
-        try {
-            boolean isSubscribed = notificationTokenService.isUserSubscribedToNotificationType(
-                    healthUserCi, NotificationType.CLINICAL_HISTORY_ACCESS);
-
-            if (isSubscribed) {
-                var tokens = notificationTokenRepository.findByUserId(healthUser.getId());
-                if (tokens != null && !tokens.isEmpty()) {
-                    String title = "Clinical history accessed";
-                    String body = String.format("Your clinical history was accessed by a health worker at %s",
-                            clinicName);
-                    for (var t : tokens) {
-                        pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-
-        ClinicalHistoryDTO dto = new ClinicalHistoryDTO();
-        dto.setHealthUser(healthUser.toDto());
-        dto.setClinicalDocuments(clinicalDocuments);
-
-        return dto;
-    }
-
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }

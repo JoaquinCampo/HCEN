@@ -9,6 +9,7 @@ import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
 import grupo12.practico.dtos.ClinicalDocument.MessageDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
+import grupo12.practico.repositories.NodoDocumentosConfig;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import jakarta.ejb.Stateless;
 import jakarta.json.Json;
@@ -39,7 +40,7 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
     private AccessPolicyServiceLocal accessPolicyService;
 
     @EJB
-    private ClinicalDocumentConfigurationService config;
+    private NodoDocumentosConfig config;
 
     private static final Logger LOGGER = Logger.getLogger(ClinicalDocumentServiceBean.class.getName());
 

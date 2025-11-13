@@ -21,5 +21,4 @@ public interface HealthUserRepositoryLocal {
 
     HealthUser findById(String healthUserId);
 
-    List<ClinicalDocumentDTO> findClinicalHistory(String healthUserCi);
 }

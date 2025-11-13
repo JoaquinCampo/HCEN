@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
@@ -30,6 +31,7 @@ import jakarta.validation.ValidationException;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.repositories.NodosPerifericosConfig;
 
 @Stateless
 @Local(ClinicRepositoryLocal.class)
@@ -37,13 +39,9 @@ import grupo12.practico.dtos.Clinic.ClinicDTO;
 public class ClinicRepositoryBean implements ClinicRepositoryRemote {
 
     private static final Logger logger = Logger.getLogger(ClinicRepositoryBean.class.getName());
-    private static final String BASE_URL = getEnvOrDefault("app.external.clinicApiUrl",
-            "http://host.docker.internal:3000/api/clinics");
 
-    private static String getEnvOrDefault(String key, String defaultValue) {
-        String value = System.getProperty(key);
-        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
-    }
+    @EJB
+    private NodosPerifericosConfig config;
 
     private final HttpClient httpClient;
 
@@ -98,7 +96,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                 .toString();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL))
+                .uri(URI.create(config.getClinicsApiUrl()))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
@@ -131,7 +129,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
         }
 
         String encodedName = encodePathSegment(name);
-        URI uri = URI.create(BASE_URL + "/" + encodedName);
+        URI uri = URI.create(config.getClinicsApiUrl() + "/" + encodedName);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
@@ -166,7 +164,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
     @Override
     public List<ClinicDTO> findAll() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL))
+                .uri(URI.create(config.getClinicsApiUrl()))
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -186,7 +184,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             throw new IllegalStateException("Interrupted while fetching clinics data", ex);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Network error connecting to {0}: {1}",
-                    new Object[] { BASE_URL, ex.getMessage() });
+                    new Object[] { config.getClinicsApiUrl(), ex.getMessage() });
             throw new IllegalStateException("Unable to fetch clinics data", ex);
         }
     }

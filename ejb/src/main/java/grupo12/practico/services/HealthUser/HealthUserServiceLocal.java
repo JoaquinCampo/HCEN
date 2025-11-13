@@ -4,7 +4,6 @@ import jakarta.ejb.Local;
 
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
-import grupo12.practico.dtos.HealthUser.ClinicalHistoryDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 
 @Local
@@ -20,5 +19,4 @@ public interface HealthUserServiceLocal {
 
     HealthUserDTO linkClinicToHealthUser(String healthUserId, String clinicName);
 
-    ClinicalHistoryDTO findClinicalHistory(String healthUserCi, String clinicName, String healthWorkerCi);
 }
