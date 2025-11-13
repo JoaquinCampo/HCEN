@@ -5,15 +5,15 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
-  <ui:define name="title">HCEN Admins</ui:define>
+  <ui:define name="title">Administradores HCEN</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 class="card-title h4 mb-0">HCEN Administrators</h2>
+            <h2 class="card-title h4 mb-0">Administradores HCEN</h2>
           </div>
-          <h:link outcome="/admin/form" styleClass="btn btn-primary">New Admin</h:link>
+          <h:link outcome="/admin/form" styleClass="btn btn-primary">Nuevo administrador</h:link>
         </div>
 
         <h:panelGroup id="results" layout="block" styleClass="table-responsive mt-4">
@@ -24,27 +24,27 @@
               <div class="fw-semibold">#{admin.ci}</div>
             </h:column>
             <h:column>
-              <f:facet name="header">Name</f:facet>
+              <f:facet name="header">Nombre</f:facet>
               <div>#{admin.firstName} #{admin.lastName}</div>
             </h:column>
             <h:column>
-              <f:facet name="header">Contact</f:facet>
+              <f:facet name="header">Contacto</f:facet>
               <div>#{empty admin.phone ? '—' : admin.phone}</div>
               <small class="text-muted">#{empty admin.email ? '—' : admin.email}</small>
             </h:column>
             <h:column>
-              <f:facet name="header">Gender</f:facet>
+              <f:facet name="header">Género</f:facet>
               <span class="text-muted">#{admin.gender}</span>
             </h:column>
             <h:column>
-              <f:facet name="header">Created</f:facet>
+              <f:facet name="header">Creado</f:facet>
               <span class="text-muted">#{admin.createdAt}</span>
             </h:column>
           </h:dataTable>
 
           <h:panelGroup rendered="#{empty hcenAdminBean.admins}" styleClass="text-muted">
             <div class="alert alert-info mb-0">
-              No HCEN admins found.
+              No se encontraron administradores HCEN.
             </div>
           </h:panelGroup>
         </h:panelGroup>

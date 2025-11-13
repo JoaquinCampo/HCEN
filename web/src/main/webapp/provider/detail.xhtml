@@ -10,10 +10,10 @@
     <f:event type="preRenderView" listener="#{providerBean.loadProviderByName()}" />
   </f:metadata>
 
-  <ui:define name="title">Provider: #{providerBean.selectedProvider.providerName}</ui:define>
+  <ui:define name="title">Prestador: #{providerBean.selectedProvider.providerName}</ui:define>
   <ui:define name="content">
     <div class="mb-3">
-      <h:link outcome="/index" styleClass="btn btn-sm btn-outline-secondary">Back to Providers</h:link>
+      <h:link outcome="/index" styleClass="btn btn-sm btn-outline-secondary">Volver a Prestadores</h:link>
     </div>
 
     <div class="card shadow-sm">
@@ -21,11 +21,11 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h2 class="card-title h4 mb-0">#{providerBean.selectedProvider.providerName}</h2>
-            <small class="text-muted">Clinics under this provider</small>
+            <small class="text-muted">Clínicas de este prestador</small>
           </div>
           <h:link outcome="/clinic/form" styleClass="btn btn-primary">
             <f:param name="providerName" value="#{providerBean.selectedProvider.providerName}" />
-            New Clinic
+            Nueva clínica
           </h:link>
         </div>
 
@@ -34,27 +34,27 @@
             rendered="#{not empty providerBean.providerClinics}"
             styleClass="table table-striped align-middle">
             <h:column>
-              <f:facet name="header">Name</f:facet>
+              <f:facet name="header">Nombre</f:facet>
               <div class="fw-semibold">#{clinic.name}</div>
             </h:column>
             <h:column>
-              <f:facet name="header">Contact</f:facet>
+              <f:facet name="header">Contacto</f:facet>
               <div>#{empty clinic.phone ? '—' : clinic.phone}</div>
               <small class="text-muted">#{empty clinic.email ? '—' : clinic.email}</small>
             </h:column>
             <h:column>
-              <f:facet name="header">Address</f:facet>
+              <f:facet name="header">Dirección</f:facet>
               <span class="text-muted">#{clinic.address}</span>
             </h:column>
             <h:column>
-              <f:facet name="header">Created</f:facet>
+              <f:facet name="header">Creado</f:facet>
               <span class="text-muted">#{clinic.createdAt}</span>
             </h:column>
           </h:dataTable>
 
           <h:panelGroup rendered="#{empty providerBean.providerClinics}" styleClass="text-muted">
             <div class="alert alert-info mb-0">
-              No clinics associated with this provider yet.
+              No hay clínicas asociadas a este prestador.
             </div>
           </h:panelGroup>
         </h:panelGroup>

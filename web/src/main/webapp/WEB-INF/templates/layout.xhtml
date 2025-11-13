@@ -3,6 +3,7 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  lang="es"
 >
   <h:head>
     <meta charset="UTF-8" />
@@ -32,7 +33,7 @@
           data-bs-target="#mainNav"
           aria-controls="mainNav"
           aria-expanded="false"
-          aria-label="Toggle navigation"
+          aria-label="Alternar navegación"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -41,14 +42,14 @@
             <li class="nav-item">
               <h:link
                 outcome="/admin/list"
-                value="HCEN Admins"
+                value="Administradores HCEN"
                 styleClass="nav-link"
               />
             </li>
             <li class="nav-item">
               <h:link
                 outcome="/admin/form"
-                value="Create Admin"
+                value="Crear administrador"
                 styleClass="nav-link"
               />
             </li>
@@ -57,7 +58,7 @@
             <ui:fragment rendered="#{not userSession.authenticated}">
               <h:link
                 outcome="/auth/login"
-                value="Login with gub.uy"
+                value="Ingresar con gub.uy"
                 styleClass="btn btn-sm btn-outline-light"
               />
             </ui:fragment>

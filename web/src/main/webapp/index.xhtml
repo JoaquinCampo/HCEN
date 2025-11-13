@@ -5,23 +5,23 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
-  <ui:define name="title">Providers</ui:define>
+  <ui:define name="title">Prestadores</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 class="card-title h4 mb-0">Providers</h2>
-            <small class="text-muted">Organizations grouping healthcare clinics.</small>
+            <h2 class="card-title h4 mb-0">Prestadores</h2>
+            <small class="text-muted">Organizaciones que agrupan clínicas de salud.</small>
           </div>
-          <h:link outcome="/provider/form" styleClass="btn btn-primary">New Provider</h:link>
+          <h:link outcome="/provider/form" styleClass="btn btn-primary">Nuevo prestador</h:link>
         </div>
 
         <h:panelGroup id="results" layout="block" styleClass="table-responsive mt-4">
           <h:dataTable value="#{providerBean.providers}" var="provider" rendered="#{not empty providerBean.providers}"
             styleClass="table table-striped align-middle">
             <h:column>
-              <f:facet name="header">Name</f:facet>
+              <f:facet name="header">Nombre</f:facet>
               <div class="fw-semibold">
                 <h:link outcome="/provider/detail">
                   <f:param name="name" value="#{provider.providerName}" />
@@ -30,14 +30,14 @@
               </div>
             </h:column>
             <h:column>
-              <f:facet name="header">Created</f:facet>
+              <f:facet name="header">Creado</f:facet>
               <span class="text-muted">#{provider.createdAt}</span>
             </h:column>
           </h:dataTable>
 
           <h:panelGroup rendered="#{empty providerBean.providers}" styleClass="text-muted">
             <div class="alert alert-info mb-0">
-              No providers found.
+              No se encontraron prestadores.
             </div>
           </h:panelGroup>
         </h:panelGroup>

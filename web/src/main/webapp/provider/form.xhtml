@@ -6,44 +6,44 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
-  <ui:define name="title">Create Provider</ui:define>
+  <ui:define name="title">Crear prestador</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 class="card-title h4 mb-0">Create Provider</h2>
-            <small class="text-muted">Register a new healthcare provider organization.</small>
+            <h2 class="card-title h4 mb-0">Crear prestador</h2>
+            <small class="text-muted">Registrar una nueva organización prestadora de salud.</small>
           </div>
-          <h:link outcome="/index" styleClass="btn btn-outline-secondary">Back to list</h:link>
+          <h:link outcome="/index" styleClass="btn btn-outline-secondary">Volver al listado</h:link>
         </div>
 
         <h:form styleClass="row g-3">
           <div class="col-sm-12">
             <h:outputLabel
               for="providerName"
-              value="Provider Name"
+              value="Nombre del prestador"
               styleClass="form-label"
             />
             <h:inputText
               id="providerName"
               value="#{providerBean.newProvider.providerName}"
               required="true"
-              requiredMessage="Provider name is required"
+              requiredMessage="El nombre del prestador es obligatorio"
               styleClass="form-control"
-              p:placeholder="Enter provider name"
+              p:placeholder="Ingrese el nombre del prestador"
             />
             <h:message for="providerName" styleClass="text-danger small" />
           </div>
 
           <div class="col-12">
             <h:commandButton
-              value="Create Provider"
+              value="Crear prestador"
               action="#{providerBean.save()}"
               styleClass="btn btn-primary"
             />
             <h:button
-              value="Cancel"
+              value="Cancelar"
               outcome="/index"
               styleClass="btn btn-secondary ms-2"
             />

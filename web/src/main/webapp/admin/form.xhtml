@@ -6,19 +6,19 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   template="/WEB-INF/templates/layout.xhtml"
 >
-  <ui:define name="title">Create HCEN Admin</ui:define>
+  <ui:define name="title">Crear administrador HCEN</ui:define>
   <ui:define name="content">
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
-            <h2 class="card-title h4 mb-0">Create HCEN Admin</h2>
+            <h2 class="card-title h4 mb-0">Crear administrador HCEN</h2>
             <small class="text-muted"
-              >Register a new HCEN administrator.</small
+              >Registrar un nuevo administrador HCEN.</small
             >
           </div>
           <h:link outcome="/admin/list" styleClass="btn btn-outline-secondary"
-            >Back to list</h:link
+            >Volver al listado</h:link
           >
         </div>
 
@@ -26,16 +26,16 @@
           <div class="col-md-6">
             <h:outputLabel
               for="ci"
-              value="CI (Document)"
+              value="CI (Cédula de Identidad)"
               styleClass="form-label"
             />
             <h:inputText
               id="ci"
               value="#{hcenAdminBean.newAdmin.ci}"
               required="true"
-              requiredMessage="CI is required"
+              requiredMessage="La cédula es obligatoria"
               styleClass="form-control"
-              p:placeholder="Enter CI"
+              p:placeholder="Ingrese la cédula"
               p:autocomplete="username"
             >
               <f:ajax event="blur" render="ciMessage" execute="ci" />
@@ -49,14 +49,14 @@
           </div>
 
           <div class="col-md-6">
-            <h:outputLabel for="firstName" value="First Name" styleClass="form-label" />
+            <h:outputLabel for="firstName" value="Nombre" styleClass="form-label" />
             <h:inputText
               id="firstName"
               value="#{hcenAdminBean.newAdmin.firstName}"
               required="true"
-              requiredMessage="First name is required"
+              requiredMessage="El nombre es obligatorio"
               styleClass="form-control"
-              p:placeholder="Enter first name"
+              p:placeholder="Ingrese el nombre"
               p:autocomplete="given-name"
             >
               <f:ajax event="blur" render="firstNameMessage" execute="firstName" />
@@ -70,14 +70,14 @@
           </div>
 
           <div class="col-md-6">
-            <h:outputLabel for="lastName" value="Last Name" styleClass="form-label" />
+            <h:outputLabel for="lastName" value="Apellido" styleClass="form-label" />
             <h:inputText
               id="lastName"
               value="#{hcenAdminBean.newAdmin.lastName}"
               required="true"
-              requiredMessage="Last name is required"
+              requiredMessage="El apellido es obligatorio"
               styleClass="form-control"
-              p:placeholder="Enter last name"
+              p:placeholder="Ingrese el apellido"
               p:autocomplete="family-name"
             >
               <f:ajax event="blur" render="lastNameMessage" execute="lastName" />
@@ -91,18 +91,18 @@
           </div>
 
           <div class="col-md-6">
-            <h:outputLabel for="gender" value="Gender" styleClass="form-label" />
+            <h:outputLabel for="gender" value="Género" styleClass="form-label" />
             <h:selectOneMenu
               id="gender"
               value="#{hcenAdminBean.newAdmin.gender}"
               required="true"
-              requiredMessage="Gender is required"
+              requiredMessage="El género es obligatorio"
               styleClass="form-select"
             >
-              <f:selectItem itemLabel="Select gender" itemValue="" />
-              <f:selectItem itemLabel="Male" itemValue="MALE" />
-              <f:selectItem itemLabel="Female" itemValue="FEMALE" />
-              <f:selectItem itemLabel="Other" itemValue="OTHER" />
+              <f:selectItem itemLabel="Seleccionar género" itemValue="" />
+              <f:selectItem itemLabel="Masculino" itemValue="MALE" />
+              <f:selectItem itemLabel="Femenino" itemValue="FEMALE" />
+              <f:selectItem itemLabel="Otro" itemValue="OTHER" />
             </h:selectOneMenu>
             <h:message
               id="genderMessage"
@@ -112,12 +112,12 @@
           </div>
 
           <div class="col-md-6">
-            <h:outputLabel for="email" value="Email" styleClass="form-label" />
+            <h:outputLabel for="email" value="Correo electrónico" styleClass="form-label" />
             <h:inputText
               id="email"
               value="#{hcenAdminBean.newAdmin.email}"
               required="true"
-              requiredMessage="Email is required"
+              requiredMessage="El correo electrónico es obligatorio"
               styleClass="form-control"
               p:type="email"
               p:placeholder="admin@example.com"
@@ -133,16 +133,16 @@
           </div>
 
           <div class="col-md-6">
-            <h:outputLabel for="phone" value="Phone" styleClass="form-label" />
+            <h:outputLabel for="phone" value="Teléfono" styleClass="form-label" />
             <h:inputText
               id="phone"
               value="#{hcenAdminBean.newAdmin.phone}"
               required="true"
-              requiredMessage="Phone is required"
+              requiredMessage="El teléfono es obligatorio"
               styleClass="form-control"
               p:type="tel"
               p:inputmode="tel"
-              p:placeholder="e.g. +598123456"
+              p:placeholder="ej.: +598123456"
               p:pattern="^[+0-9 ()-]{7,20}$"
             >
               <f:ajax event="blur" render="phoneMessage" execute="phone" />
@@ -157,16 +157,16 @@
           <div class="col-12">
             <h:outputLabel
               for="address"
-              value="Address"
+              value="Dirección"
               styleClass="form-label"
             />
             <h:inputText
               id="address"
               value="#{hcenAdminBean.newAdmin.address}"
               required="true"
-              requiredMessage="Address is required"
+              requiredMessage="La dirección es obligatoria"
               styleClass="form-control"
-              p:placeholder="Street, number, city"
+              p:placeholder="Calle, número, ciudad"
               p:autocomplete="street-address"
             >
               <f:ajax event="blur" render="addressMessage" execute="address" />
@@ -179,12 +179,12 @@
           </div>
 
           <div class="col-md-6">
-            <h:outputLabel for="dateOfBirth" value="Date of Birth" styleClass="form-label" />
+            <h:outputLabel for="dateOfBirth" value="Fecha de nacimiento" styleClass="form-label" />
             <h:inputText
               id="dateOfBirth"
               value="#{hcenAdminBean.newAdmin.dateOfBirth}"
               required="true"
-              requiredMessage="Date of birth is required"
+              requiredMessage="La fecha de nacimiento es obligatoria"
               styleClass="form-control"
               p:type="date"
             >
@@ -200,12 +200,12 @@
 
           <div class="col-12 d-flex gap-2 mt-3">
             <h:commandButton
-              value="Create Admin"
+              value="Crear administrador"
               action="#{hcenAdminBean.save}"
               styleClass="btn btn-primary"
             />
             <h:commandButton
-              value="Reset"
+              value="Limpiar"
               actionListener="#{hcenAdminBean.init}"
               immediate="true"
               styleClass="btn btn-outline-secondary"
