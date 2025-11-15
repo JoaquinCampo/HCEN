@@ -19,21 +19,6 @@ public class HealthWorkerServiceBean implements HealthWorkerServiceRemote {
     private HealthWorkerRepositoryLocal healthWorkerRepository;
 
     @Override
-    public List<HealthWorkerDTO> findAll() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public HealthWorkerDTO findById(String id) {
-        return null;
-    }
-
-    @Override
-    public List<HealthWorkerDTO> findByName(String name) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public HealthWorkerDTO findByClinicAndCi(String clinicName, String healthWorkerCi) {
         return healthWorkerRepository.findByClinicAndCi(clinicName, healthWorkerCi);
     }

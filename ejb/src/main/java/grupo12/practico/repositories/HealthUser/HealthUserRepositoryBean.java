@@ -16,7 +16,9 @@ import jakarta.persistence.TypedQuery;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.ZonedDateTime;
@@ -266,7 +268,8 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
         }
 
         String url = String.format("%sclinical-history/%s?health_worker_ci=%s&clinic_name=%s",
-                config.getDocumentsApiBaseUrl(), healthUserCi, healthWorkerCi, providerName);
+                config.getDocumentsApiBaseUrl(), healthUserCi, healthWorkerCi,
+                URLEncoder.encode(providerName, StandardCharsets.UTF_8));
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
@@ -306,20 +309,20 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
                 JsonObject jsonObject = value.asJsonObject();
                 DocumentResponseDTO dto = new DocumentResponseDTO();
                 dto.setId(jsonObject.getString("doc_id", null));
-                
-                
+
                 String healthWorkerCi = jsonObject.getString("created_by", null);
                 String clinicName = jsonObject.getString("clinic_name", null);
-                
+
                 if (healthWorkerCi != null && clinicName != null) {
                     try {
                         dto.setHealthWorker(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi));
                     } catch (Exception ex) {
-                        logger.log(Level.WARNING, 
-                            "Failed to fetch HealthWorker for CI: " + healthWorkerCi + " and clinic: " + clinicName, ex);
+                        logger.log(Level.WARNING,
+                                "Failed to fetch HealthWorker for CI: " + healthWorkerCi + " and clinic: " + clinicName,
+                                ex);
                     }
                 }
-                
+
                 if (clinicName != null) {
                     try {
                         dto.setClinic(clinicService.findByName(clinicName));
@@ -327,7 +330,7 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
                         logger.log(Level.WARNING, "Failed to fetch Clinic for name: " + clinicName, ex);
                     }
                 }
-                
+
                 dto.setS3Url(jsonObject.getString("s3_url", null));
 
                 if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
