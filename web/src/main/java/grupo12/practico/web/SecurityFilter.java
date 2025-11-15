@@ -4,6 +4,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebFilter("/*")
@@ -37,9 +38,14 @@ public class SecurityFilter implements Filter {
             return;
         }
 
-        // Allow access regardless of authentication status - login is now optional
-        // Users can access the app without logging in, but authenticated users get
-        // additional features
+        // Enforce authentication: if no valid session or flag, redirect to login
+        HttpSession session = req.getSession(false);
+        boolean authenticated = session != null && Boolean.TRUE.equals(session.getAttribute("authenticated"));
+        if (!authenticated) {
+            res.sendRedirect(req.getContextPath() + "/auth/login.xhtml");
+            return;
+        }
+
         chain.doFilter(request, response);
     }
 
@@ -57,8 +63,9 @@ public class SecurityFilter implements Filter {
         if (p.endsWith("/auth/login.xhtml") || p.endsWith("/auth/callback.xhtml") || p.endsWith("/callback")
                 || p.equals("/logout"))
             return true;
-        // Root and index (root may receive OIDC code; handled above)
-        if (p.equals("/") || p.endsWith("/index.xhtml") || p.endsWith("/index.jsf"))
+        // Root may receive OIDC code and is allowed; index pages now require
+        // authentication
+        if (p.equals("/"))
             return true;
         // Static files
         return p.endsWith(".css") || p.endsWith(".js") || p.endsWith(".png") || p.endsWith(".jpg")
