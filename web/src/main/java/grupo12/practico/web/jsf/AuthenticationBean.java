@@ -41,8 +41,23 @@ public class AuthenticationBean implements Serializable {
      * Checks for error parameters in the request URL
      */
     private void checkForErrorParameters() {
-        // Login is now optional - no HcenAdmin errors to check
-        showHcenAdminError = false;
+        try {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                ExternalContext externalContext = facesContext.getExternalContext();
+                String error = externalContext.getRequestParameterMap().get("error");
+                if ("hcen_admin_required".equals(error)) {
+                    showHcenAdminError = true;
+                    errorMessage = "Acceso denegado: el usuario no está registrado como administrador HCEN.";
+                    LOGGER.info("Mostrando mensaje de acceso denegado HcenAdmin");
+                } else {
+                    showHcenAdminError = false;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warning("Error verificando parámetros de error: " + e.getMessage());
+            showHcenAdminError = false;
+        }
     }
 
     /**

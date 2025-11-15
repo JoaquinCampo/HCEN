@@ -32,10 +32,15 @@ public class SecurityFilter implements Filter {
             return;
         }
 
-        // Allow static resources, JSF resources, API endpoints and auth pages
+        // Allow static resources, JSF resources, API endpoints and auth pages (except root when no OIDC params)
         if (isPublicPath(path)) {
-            chain.doFilter(request, response);
-            return;
+            // Special case: root without code/error should be treated as protected
+            if (path.equals("/") && codeParam == null && req.getParameter("error") == null) {
+                // Fall through to auth check below
+            } else {
+                chain.doFilter(request, response);
+                return;
+            }
         }
 
         // Enforce authentication: if no valid session or flag, redirect to login
@@ -63,10 +68,7 @@ public class SecurityFilter implements Filter {
         if (p.endsWith("/auth/login.xhtml") || p.endsWith("/auth/callback.xhtml") || p.endsWith("/callback")
                 || p.equals("/logout"))
             return true;
-        // Root may receive OIDC code and is allowed; index pages now require
-        // authentication
-        if (p.equals("/"))
-            return true;
+        // Root is NOT generally public now (only allowed above when it carries code/error)
         // Static files
         return p.endsWith(".css") || p.endsWith(".js") || p.endsWith(".png") || p.endsWith(".jpg")
                 || p.endsWith(".jpeg") || p.endsWith(".svg") || p.endsWith(".ico");

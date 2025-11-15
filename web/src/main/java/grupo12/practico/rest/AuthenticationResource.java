@@ -108,11 +108,26 @@ public class AuthenticationResource {
 
         try {
             OidcAuthResultDTO authResult = oidcAuthenticationService.handleCallback(code, state);
+            // Validar que el usuario sea HcenAdmin registrado
+            String userCi = authResult.getUserInfo() != null ? authResult.getUserInfo().getId() : null;
+            if (userCi == null || userCi.trim().isEmpty()) {
+                LOGGER.warning("No se obtuvo CI del usuario desde gub.uy");
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity("{\"error\":\"ci_not_found\",\"description\":\"No se pudo obtener la cédula del usuario\"}")
+                        .build();
+            }
+            boolean isHcenAdmin = hcenAdminService.isHcenAdmin(userCi.trim());
+            if (!isHcenAdmin) {
+                LOGGER.warning("Usuario con CI " + userCi + " no es HcenAdmin registrado. Redirigiendo a login.");
+                String context = request.getContextPath();
+                String loginPath = (context == null || context.isEmpty()) ? "/auth/login.xhtml"
+                        : context + "/auth/login.xhtml";
+                String loginUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+                        + loginPath + "?error=hcen_admin_required";
+                return Response.seeOther(java.net.URI.create(loginUrl)).build();
+            }
 
-            // Login is now optional - no need to check HcenAdmin status
-            // All users can authenticate with gub.uy
-
-            LOGGER.info("User successfully authenticated with gub.uy");
+            LOGGER.info("Usuario con CI " + userCi + " autenticado como HcenAdmin");
 
             // Persist minimal auth context into session
             HttpSession session = request.getSession(true);
@@ -122,6 +137,7 @@ public class AuthenticationResource {
             session.setAttribute("user_info", authResult.getUserInfo());
             session.setAttribute("id_token_claims", authResult.getIdTokenClaims());
             session.setAttribute("logout_url", authResult.getLogoutUrl());
+            session.setAttribute("hcen_admin_ci", userCi.trim());
 
             LOGGER.info("Authentication successful; session created with user "
                     + (authResult.getUserInfo() != null ? authResult.getUserInfo().getEmail() : "unknown"));
