@@ -7,11 +7,11 @@ import java.util.List;
 
 @Local
 public interface AccessRequestServiceLocal {
-    AccessRequestDTO create(AddAccessRequestDTO dto);
+    AccessRequestDTO createAccessRequest(AddAccessRequestDTO dto);
 
-    AccessRequestDTO findById(String id);
+    AccessRequestDTO findAccessRequestById(String id);
 
-    List<AccessRequestDTO> findAll(String healthUserCi, String healthWorkerCi, String clinicName);
+    List<AccessRequestDTO> findAllAccessRequests(String healthUserCi, String healthWorkerCi, String clinicName);
 
-    void delete(String accessRequestId);
+    void deleteAccessRequest(String accessRequestId);
 }

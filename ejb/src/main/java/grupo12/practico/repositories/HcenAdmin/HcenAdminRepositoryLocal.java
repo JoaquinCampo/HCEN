@@ -6,11 +6,11 @@ import java.util.List;
 
 @Local
 public interface HcenAdminRepositoryLocal {
-    HcenAdmin create(HcenAdmin hcenAdmin);
+    HcenAdmin createHcenAdmin(HcenAdmin hcenAdmin);
 
-    HcenAdmin findByCi(String ci);
+    HcenAdmin findHcenAdminByCi(String ci);
 
-    HcenAdmin findById(String id);
+    HcenAdmin findHcenAdminById(String id);
 
-    List<HcenAdmin> findAll();
+    List<HcenAdmin> findAllHcenAdmins();
 }

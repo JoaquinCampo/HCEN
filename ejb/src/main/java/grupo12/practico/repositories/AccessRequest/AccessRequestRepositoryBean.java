@@ -19,18 +19,18 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
     private EntityManager em;
 
     @Override
-    public AccessRequest create(AccessRequest accessRequest) {
+    public AccessRequest createAccessRequest(AccessRequest accessRequest) {
         em.persist(accessRequest);
         return accessRequest;
     }
 
     @Override
-    public AccessRequest findById(String id) {
+    public AccessRequest findAccessRequestById(String id) {
         return em.find(AccessRequest.class, id);
     }
 
     @Override
-    public List<AccessRequest> findAll(String healthUserId, String healthWorkerCi, String clinicName) {
+    public List<AccessRequest> findAllAccessRequests(String healthUserId, String healthWorkerCi, String clinicName) {
         StringBuilder jpql = new StringBuilder("SELECT ar FROM AccessRequest ar WHERE 1=1");
 
         if (healthUserId != null) {
@@ -59,8 +59,9 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
     }
 
     @Override
-    public void delete(String accessRequestId) {
+    public void deleteAccessRequest(String accessRequestId) {
         AccessRequest accessRequest = em.find(AccessRequest.class, accessRequestId);
+        
         if (accessRequest != null) {
             em.remove(accessRequest);
         }

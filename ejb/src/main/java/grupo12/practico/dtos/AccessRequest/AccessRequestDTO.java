@@ -2,7 +2,7 @@ package grupo12.practico.dtos.AccessRequest;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-
+import java.util.List;
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 
@@ -12,6 +12,7 @@ public class AccessRequestDTO implements Serializable {
     private String id;
     private String healthUserId;
     private String healthUserCi;
+    private List<String> specialtyNames;
 
     private HealthWorkerDTO healthWorker;
     private ClinicDTO clinic;
@@ -64,6 +65,14 @@ public class AccessRequestDTO implements Serializable {
 
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<String> getSpecialtyNames() {
+        return specialtyNames;
+    }
+
+    public void setSpecialtyNames(List<String> specialtyNames) {
+        this.specialtyNames = specialtyNames;
     }
 
 }

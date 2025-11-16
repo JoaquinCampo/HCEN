@@ -27,7 +27,6 @@ import jakarta.json.JsonException;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonValue;
-import jakarta.validation.ValidationException;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
@@ -53,46 +52,32 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
     }
 
     @Override
-    public ClinicDTO create(AddClinicDTO addClinicDTO) {
-        if (addClinicDTO == null) {
-            throw new ValidationException("Clinic data must not be null");
+    public ClinicDTO createClinic(AddClinicDTO addClinicDTO) {
+        var clinicAdminBuilder = Json.createObjectBuilder()
+                .add("ci", addClinicDTO.getClinicAdmin().getCi())
+                .add("firstName", addClinicDTO.getClinicAdmin().getFirstName())
+                .add("lastName", addClinicDTO.getClinicAdmin().getLastName())
+                .add("email", addClinicDTO.getClinicAdmin().getEmail());
+        
+        if (addClinicDTO.getClinicAdmin().getPhone() != null) {
+            clinicAdminBuilder.add("phone", addClinicDTO.getClinicAdmin().getPhone());
         }
-
+        
+        if (addClinicDTO.getClinicAdmin().getAddress() != null) {
+            clinicAdminBuilder.add("address", addClinicDTO.getClinicAdmin().getAddress());
+        }
+        
+        if (addClinicDTO.getClinicAdmin().getDateOfBirth() != null) {
+            clinicAdminBuilder.add("dateOfBirth", addClinicDTO.getClinicAdmin().getDateOfBirth().toString());
+        }
+        
         String jsonPayload = Json.createObjectBuilder()
-                .add("name", addClinicDTO.getName() != null ? addClinicDTO.getName() : "")
-                .add("email", addClinicDTO.getEmail() != null ? addClinicDTO.getEmail() : "")
-                .add("phone", addClinicDTO.getPhone() != null ? addClinicDTO.getPhone() : "")
-                .add("address", addClinicDTO.getAddress() != null ? addClinicDTO.getAddress() : "")
-                .add("providerName", addClinicDTO.getProviderName() != null ? addClinicDTO.getProviderName() : "")
-                .add("clinicAdmin", Json.createObjectBuilder()
-                        .add("ci",
-                                addClinicDTO.getClinicAdmin().getCi() != null ? addClinicDTO.getClinicAdmin().getCi()
-                                        : "")
-                        .add("firstName",
-                                addClinicDTO.getClinicAdmin().getFirstName() != null
-                                        ? addClinicDTO.getClinicAdmin().getFirstName()
-                                        : "")
-                        .add("lastName",
-                                addClinicDTO.getClinicAdmin().getLastName() != null
-                                        ? addClinicDTO.getClinicAdmin().getLastName()
-                                        : "")
-                        .add("email",
-                                addClinicDTO.getClinicAdmin().getEmail() != null
-                                        ? addClinicDTO.getClinicAdmin().getEmail()
-                                        : "")
-                        .add("phone",
-                                addClinicDTO.getClinicAdmin().getPhone() != null
-                                        ? addClinicDTO.getClinicAdmin().getPhone()
-                                        : "")
-                        .add("address",
-                                addClinicDTO.getClinicAdmin().getAddress() != null
-                                        ? addClinicDTO.getClinicAdmin().getAddress()
-                                        : "")
-                        .add("dateOfBirth",
-                                addClinicDTO.getClinicAdmin().getDateOfBirth() != null
-                                        ? addClinicDTO.getClinicAdmin().getDateOfBirth().toString()
-                                        : "")
-                        .build())
+                .add("name", addClinicDTO.getName())
+                .add("email", addClinicDTO.getEmail())
+                .add("phone", addClinicDTO.getPhone())
+                .add("address", addClinicDTO.getAddress())
+                .add("providerName", addClinicDTO.getProviderName())
+                .add("clinicAdmin", clinicAdminBuilder.build())
                 .build()
                 .toString();
 
@@ -109,7 +94,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
 
             if (status == 201) {
                 logger.log(Level.INFO, "Clinic created successfully");
-                return mapResponseToDto(response.body());
+                return mapClinicResponseToDto(response.body());
             } else {
                 logger.log(Level.WARNING, "Failed to create clinic: HTTP {0}, Body: {1}",
                         new Object[] { status, response.body() });
@@ -124,11 +109,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
     }
 
     @Override
-    public ClinicDTO findByName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new ValidationException("Clinic name must not be blank");
-        }
-
+    public ClinicDTO findClinicByName(String name) {
         String encodedName = encodePathSegment(name);
         URI uri = URI.create(config.getClinicsApiUrl() + "/" + encodedName);
 
@@ -153,7 +134,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                 throw new IllegalStateException("Failed to fetch clinic: HTTP " + status);
             }
 
-            return mapResponseToDto(response.body());
+            return mapClinicResponseToDto(response.body());
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while fetching clinic data", ex);
@@ -163,9 +144,17 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
     }
 
     @Override
-    public List<ClinicDTO> findAll() {
+    public List<ClinicDTO> findAllClinics(String providerName) {
+        URI uri;
+        if (providerName == null || providerName.isBlank()) {
+            uri = URI.create(config.getClinicsApiUrl());
+        } else {
+            String encodedProviderName = encodePathSegment(providerName);
+            uri = URI.create(config.getClinicsApiUrl() + "?providerName=" + encodedProviderName);
+        }
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.getClinicsApiUrl()))
+                .uri(uri)
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -178,8 +167,8 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                 logger.log(Level.WARNING, "Unexpected response when fetching all clinics: HTTP {0}", status);
                 throw new IllegalStateException("Failed to fetch clinics: HTTP " + status);
             }
-
-            return mapResponseToListDto(response.body());
+            
+            return mapFindAllClinicsResponseToListDto(response.body());
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while fetching clinics data", ex);
@@ -190,7 +179,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
         }
     }
 
-    private ClinicDTO mapResponseToDto(String body) {
+    private ClinicDTO mapClinicResponseToDto(String body) {
         if (body == null || body.isBlank()) {
             return null;
         }
@@ -208,7 +197,6 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             String createdAt = getString(json, "createdAt");
             if (createdAt != null && !createdAt.isBlank()) {
                 try {
-                    // Parse ISO 8601 DateTime with timezone and convert to LocalDate
                     dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneId.systemDefault()).toLocalDate());
                 } catch (DateTimeParseException ex) {
                     logger.log(Level.WARNING, "Invalid createdAt received for clinic: " + createdAt, ex);
@@ -218,14 +206,13 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             String updatedAt = getString(json, "updatedAt");
             if (updatedAt != null && !updatedAt.isBlank()) {
                 try {
-                    // Parse ISO 8601 DateTime with timezone and convert to LocalDate
                     dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneId.systemDefault()).toLocalDate());
                 } catch (DateTimeParseException ex) {
                     logger.log(Level.WARNING, "Invalid updatedAt received for clinic: " + updatedAt, ex);
                 }
             }
 
-            // Map health workers if present
+            
             JsonArray healthWorkersArray = json.getJsonArray("healthWorkers");
             if (healthWorkersArray != null) {
                 List<HealthWorkerDTO> healthWorkers = new ArrayList<>();
@@ -251,7 +238,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
         }
     }
 
-    private List<ClinicDTO> mapResponseToListDto(String body) {
+    private List<ClinicDTO> mapFindAllClinicsResponseToListDto(String body) {
         if (body == null || body.isBlank()) {
             return Collections.emptyList();
         }
@@ -273,7 +260,6 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                     String createdAt = getString(json, "createdAt");
                     if (createdAt != null && !createdAt.isBlank()) {
                         try {
-                            // Parse ISO 8601 DateTime with timezone and convert to LocalDate
                             dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneId.systemDefault()).toLocalDate());
                         } catch (DateTimeParseException ex) {
                             logger.log(Level.WARNING, "Invalid createdAt received for clinic: " + createdAt, ex);
@@ -283,14 +269,12 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                     String updatedAt = getString(json, "updatedAt");
                     if (updatedAt != null && !updatedAt.isBlank()) {
                         try {
-                            // Parse ISO 8601 DateTime with timezone and convert to LocalDate
                             dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneId.systemDefault()).toLocalDate());
                         } catch (DateTimeParseException ex) {
                             logger.log(Level.WARNING, "Invalid updatedAt received for clinic: " + updatedAt, ex);
                         }
                     }
 
-                    // Map health workers if present
                     JsonArray healthWorkersArray = json.getJsonArray("healthWorkers");
                     if (healthWorkersArray != null) {
                         List<HealthWorkerDTO> healthWorkers = new ArrayList<>();

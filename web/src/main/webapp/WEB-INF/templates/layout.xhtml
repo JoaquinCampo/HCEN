@@ -14,81 +14,122 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
     <h:outputStylesheet library="css" name="theme.css" />
     <h:outputStylesheet />
     <h:outputScript />
   </h:head>
   <h:body class="bg-light gradient-bg">
-    <nav class="navbar navbar-expand-lg navbar-dark glassy-nav">
-      <div class="container">
-        <h:link
-          outcome="/index"
-          styleClass="navbar-brand fw-bold"
-          value="HCEN"
-        />
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#mainNav"
-          aria-controls="mainNav"
-          aria-expanded="false"
-          aria-label="Alternar navegación"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <h:link
-                outcome="/admin/list"
-                value="Administradores HCEN"
-                styleClass="nav-link"
-              />
-            </li>
-            <li class="nav-item">
-              <h:link
-                outcome="/admin/form"
-                value="Crear administrador"
-                styleClass="nav-link"
-              />
-            </li>
-          </ul>
-          <div class="d-flex align-items-center gap-3">
-            <ui:fragment rendered="#{not userSession.authenticated}">
-              <h:link
-                outcome="/auth/login"
-                value="Ingresar con gub.uy"
-                styleClass="btn btn-sm btn-outline-light"
-              />
-            </ui:fragment>
-            <ui:fragment rendered="#{userSession.authenticated}">
-              <span class="navbar-text small text-truncate" style="max-width: 240px;">
-                #{userSession.displayName}
-              </span>
-              <h:outputLink value="#{userSession.logoutHref}" styleClass="btn btn-sm btn-outline-light">
-                Salir
-              </h:outputLink>
-            </ui:fragment>
-            <span class="navbar-text small">JSF 4 • Jakarta EE</span>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-xl-2 sidebar-wrapper">
+          <div class="sidebar-container">
+            <div class="sidebar-header">
+              <h1 class="sidebar-title mb-0 fw-bold">HCEN</h1>
+            </div>
+            <nav class="sidebar-nav">
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <h:link
+                    outcome="/index"
+                    styleClass="nav-link #{facesContext.viewRoot.viewId.contains('/index') and not facesContext.viewRoot.viewId.contains('/provider/') ? 'active' : ''}"
+                    id="nav-index"
+                  >
+                    <i class="bi bi-house-door me-2"></i>Inicio
+                  </h:link>
+                </li>
+                <li class="nav-item">
+                  <h:link
+                    outcome="/provider/list"
+                    styleClass="nav-link #{facesContext.viewRoot.viewId.contains('/provider/') ? 'active' : ''}"
+                    id="nav-providers"
+                  >
+                    <i class="bi bi-building me-2"></i>Prestadores
+                  </h:link>
+                  <ui:fragment
+                    rendered="#{facesContext.viewRoot.viewId.contains('/provider/')}"
+                  >
+                    <ul class="nav flex-column ms-3 mt-1">
+                      <li class="nav-item">
+                        <h:link
+                          outcome="/provider/list"
+                          styleClass="nav-link nav-link-child #{facesContext.viewRoot.viewId.contains('/provider/list') or facesContext.viewRoot.viewId.contains('/provider/detail') ? 'active' : ''}"
+                        >
+                          <i class="bi bi-list-ul me-2"></i>Listado
+                        </h:link>
+                      </li>
+                      <li class="nav-item">
+                        <h:link
+                          outcome="/provider/form"
+                          styleClass="nav-link nav-link-child #{facesContext.viewRoot.viewId.contains('/provider/form') ? 'active' : ''}"
+                        >
+                          <i class="bi bi-plus-circle me-2"></i>Nuevo prestador
+                        </h:link>
+                      </li>
+                    </ul>
+                  </ui:fragment>
+                </li>
+              </ul>
+            </nav>
+            <div class="sidebar-footer">
+              <ui:fragment rendered="#{not userSession.authenticated}">
+                <h:link
+                  outcome="/auth/login"
+                  styleClass="btn btn-sm btn-outline-primary w-100"
+                >
+                  <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar con
+                  gub.uy
+                </h:link>
+              </ui:fragment>
+              <ui:fragment rendered="#{userSession.authenticated}">
+                <div class="sidebar-user-info">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i
+                      class="bi bi-person-circle"
+                      style="font-size: 1.5rem; color: #1976d2"
+                    ></i>
+                    <div class="flex-grow-1">
+                      <div
+                        class="small fw-semibold text-truncate"
+                        style="max-width: 150px"
+                      >
+                        #{userSession.displayName}
+                      </div>
+                      <div class="small text-muted">Sesión activa</div>
+                    </div>
+                  </div>
+                  <h:outputLink
+                    value="#{userSession.logoutHref}"
+                    styleClass="btn btn-sm btn-outline-danger w-100"
+                  >
+                    <i class="bi bi-box-arrow-right me-2"></i>Salir
+                  </h:outputLink>
+                </div>
+              </ui:fragment>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
 
-    <main class="container my-4">
-      <h:messages
-        id="globalMessages"
-        globalOnly="true"
-        infoClass="alert alert-success"
-        warnClass="alert alert-warning"
-        errorClass="alert alert-danger"
-        fatalClass="alert alert-danger"
-        styleClass="alert"
-        layout="list"
-      />
-      <ui:insert name="content" />
-    </main>
+        <!-- Main Content -->
+        <main class="col-lg-9 col-xl-10 main-content">
+          <h:messages
+            id="globalMessages"
+            globalOnly="true"
+            infoClass="alert alert-success"
+            warnClass="alert alert-warning"
+            errorClass="alert alert-danger"
+            fatalClass="alert alert-danger"
+            styleClass="alert"
+            layout="list"
+          />
+          <ui:insert name="content" />
+        </main>
+      </div>
+    </div>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

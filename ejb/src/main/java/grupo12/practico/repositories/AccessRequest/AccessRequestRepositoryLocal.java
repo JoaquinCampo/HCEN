@@ -7,11 +7,11 @@ import jakarta.ejb.Local;
 
 @Local
 public interface AccessRequestRepositoryLocal {
-    AccessRequest create(AccessRequest accessRequest);
+    AccessRequest createAccessRequest(AccessRequest accessRequest);
 
-    AccessRequest findById(String id);
+    AccessRequest findAccessRequestById(String id);
 
-    List<AccessRequest> findAll(String healthUserId, String healthWorkerCi, String clinicName);
+    List<AccessRequest> findAllAccessRequests(String healthUserId, String healthWorkerCi, String clinicName);
 
-    void delete(String accessRequestId);
+    void deleteAccessRequest(String accessRequestId);
 }

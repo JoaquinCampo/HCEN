@@ -2,10 +2,13 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.AccessPolicy.AddClinicAccessPolicyDTO;
 import grupo12.practico.dtos.AccessPolicy.AddHealthWorkerAccessPolicyDTO;
+import grupo12.practico.dtos.AccessPolicy.AddSpecialtyAccessPolicyDTO;
 import grupo12.practico.dtos.AccessPolicy.ClinicAccessPolicyDTO;
 import grupo12.practico.dtos.AccessPolicy.HealthWorkerAccessPolicyDTO;
-import grupo12.practico.messaging.AccessPolicy.ClinicAccessPolicyProducerLocal;
-import grupo12.practico.messaging.AccessPolicy.HealthWorkerAccessPolicyProducerLocal;
+import grupo12.practico.dtos.AccessPolicy.SpecialtyAccessPolicyDTO;
+import grupo12.practico.messaging.AccessPolicy.Clinic.ClinicAccessPolicyProducerLocal;
+import grupo12.practico.messaging.AccessPolicy.HealthWorker.HealthWorkerAccessPolicyProducerLocal;
+import grupo12.practico.messaging.AccessPolicy.Specialty.SpecialtyAccessPolicyProducerLocal;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -28,6 +31,9 @@ public class AccessPolicyResource {
     @EJB
     private HealthWorkerAccessPolicyProducerLocal healthWorkerAccessPolicyProducer;
 
+    @EJB
+    private SpecialtyAccessPolicyProducerLocal specialtyAccessPolicyProducer;
+
     @POST
     @Path("/clinic")
     public Response createClinicAccessPolicy(AddClinicAccessPolicyDTO dto) {
@@ -46,6 +52,15 @@ public class AccessPolicyResource {
                 .build();
     }
 
+    @POST
+    @Path("/specialty")
+    public Response createSpecialtyAccessPolicy(AddSpecialtyAccessPolicyDTO dto) {
+        specialtyAccessPolicyProducer.enqueue(dto);
+        return Response.accepted()
+                .entity("{\"message\":\"Specialty access policy creation request queued successfully\"}")
+                .build();
+    }
+
     @GET
     @Path("/clinic/health-user/{healthUserCi}")
     public Response findAllClinicAccessPolicies(@PathParam("healthUserCi") String healthUserCi) {
@@ -58,6 +73,14 @@ public class AccessPolicyResource {
     public Response findAllHealthWorkerAccessPolicies(@PathParam("healthUserCi") String healthUserCi) {
         List<HealthWorkerAccessPolicyDTO> policies = accessPolicyService
                 .findAllHealthWorkerAccessPolicies(healthUserCi);
+        return Response.ok(policies).build();
+    }
+
+    @GET
+    @Path("/specialty/health-user/{healthUserCi}")
+    public Response findAllSpecialtyAccessPolicies(@PathParam("healthUserCi") String healthUserCi) {
+        List<SpecialtyAccessPolicyDTO> policies = accessPolicyService
+                .findAllSpecialtyAccessPolicies(healthUserCi);
         return Response.ok(policies).build();
     }
 
@@ -80,6 +103,15 @@ public class AccessPolicyResource {
                 .build();
     }
 
+    @DELETE
+    @Path("/specialty/{specialtyAccessPolicyId}")
+    public Response deleteSpecialtyAccessPolicy(@PathParam("specialtyAccessPolicyId") String specialtyAccessPolicyId) {
+        accessPolicyService.deleteSpecialtyAccessPolicy(specialtyAccessPolicyId);
+        return Response.ok()
+                .entity("{\"message\":\"Specialty access policy deleted successfully\"}")
+                .build();
+    }
+
     @GET
     @Path("/clinic/check-access")
     public Response hasClinicAccess(
@@ -97,6 +129,17 @@ public class AccessPolicyResource {
             @QueryParam("healthUserCi") String healthUserCi,
             @QueryParam("healthWorkerCi") String healthWorkerCi) {
         boolean hasAccess = accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
+        return Response.ok()
+                .entity("{\"hasAccess\":" + hasAccess + "}")
+                .build();
+    }
+
+    @GET
+    @Path("/specialty/check-access")
+    public Response hasSpecialtyAccess(
+            @QueryParam("healthUserCi") String healthUserCi,
+            @QueryParam("specialtyNames") List<String> specialtyNames) {
+        boolean hasAccess = accessPolicyService.hasSpecialtyAccess(healthUserCi, specialtyNames);
         return Response.ok()
                 .entity("{\"hasAccess\":" + hasAccess + "}")
                 .build();

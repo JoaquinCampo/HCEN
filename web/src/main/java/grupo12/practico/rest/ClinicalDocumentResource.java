@@ -1,12 +1,12 @@
 package grupo12.practico.rest;
 
-import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalDocument.CreateClinicalDocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
-import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
-import grupo12.practico.dtos.ClinicalHistory.ChatResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
+import grupo12.practico.messaging.ClinicalDocument.Chat.ChatProducerLocal;
+import grupo12.practico.messaging.ClinicalDocument.CreateDocument.CreateDocumentProducerLocal;
+import grupo12.practico.messaging.ClinicalDocument.PresignedUrl.PresignedUrlProducerLocal;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -22,32 +22,30 @@ public class ClinicalDocumentResource {
     @EJB
     private ClinicalDocumentServiceLocal clinicalDocumentService;
 
+    @EJB
+    private PresignedUrlProducerLocal presignedUrlProducer;
+
+    @EJB
+    private CreateDocumentProducerLocal createDocumentProducer;
+
+    @EJB
+    private ChatProducerLocal chatProducer;
+
     @POST
     @Path("/upload-url")
     public Response getPresignedUploadUrl(PresignedUrlRequestDTO request) {
-        try {
-            PresignedUrlResponseDTO response = clinicalDocumentService.getPresignedUploadUrl(request);
-            return Response.ok(response).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
+        presignedUrlProducer.enqueue(request);
+        return Response.accepted()
+                .entity("{\"message\":\"Presigned URL request queued successfully\"}")
+                .build();
     }
 
     @POST
-    public Response createClinicalDocument(CreateClinicalDocumentDTO dto) {
-        try {
-            String docId = clinicalDocumentService.createClinicalDocument(dto);
-            CreateClinicalDocumentResponseDTO response = new CreateClinicalDocumentResponseDTO(docId);
-            return Response.status(Response.Status.CREATED)
-                    .entity(response)
-                    .build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
+    public Response createClinicalDocument(AddClinicalDocumentDTO dto) {
+        createDocumentProducer.enqueue(dto);
+        return Response.accepted()
+                .entity("{\"message\":\"Clinical document creation request queued successfully\"}")
+                .build();
     }
 
     @GET
@@ -69,13 +67,9 @@ public class ClinicalDocumentResource {
     @POST
     @Path("/chat")
     public Response chat(ChatRequestDTO request) {
-        try {
-            ChatResponseDTO response = clinicalDocumentService.chat(request);
-            return Response.ok(response).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
+        chatProducer.enqueue(request);
+        return Response.accepted()
+                .entity("{\"message\":\"Chat request queued successfully\"}")
+                .build();
     }
 }

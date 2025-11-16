@@ -1,6 +1,7 @@
 package grupo12.practico.dtos.ClinicalDocument;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class PresignedUrlRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -11,6 +12,7 @@ public class PresignedUrlRequestDTO implements Serializable {
     private String healthWorkerCi;
     private String clinicName;
     private String providerName;
+    private List<String> specialtyNames;
 
     public String getFileName() {
         return fileName;
@@ -58,5 +60,13 @@ public class PresignedUrlRequestDTO implements Serializable {
 
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    public List<String> getSpecialtyNames() {
+        return specialtyNames;
+    }
+
+    public void setSpecialtyNames(List<String> specialtyNames) {
+        this.specialtyNames = specialtyNames;
     }
 }

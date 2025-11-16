@@ -8,9 +8,9 @@ import java.util.List;
 
 @Local
 public interface ClinicServiceLocal {
-    ClinicDTO create(AddClinicDTO addClinicDTO);
+    ClinicDTO createClinic(AddClinicDTO addClinicDTO);
 
-    ClinicDTO findByName(String name);
+    ClinicDTO findClinicByName(String name);
 
-    List<ClinicDTO> findAll();
+    List<ClinicDTO> findAllClinics(String providerName);
 }

@@ -1,6 +1,7 @@
 package grupo12.practico.models;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -36,6 +37,9 @@ public class AccessRequest {
 
     @Column(name = "clinic_name", nullable = false)
     private String clinicName;
+
+    @Column(name = "specialty_names")
+    private List<String> specialtyNames;
 
     @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
@@ -83,6 +87,14 @@ public class AccessRequest {
         this.clinicName = clinicName;
     }
 
+    public List<String> getSpecialtyNames() {
+        return specialtyNames;
+    }
+
+    public void setSpecialtyNames(List<String> specialtyNames) {
+        this.specialtyNames = specialtyNames;
+    }
+
     public LocalDate getCreatedAt() {
         return createdAt;
     }
@@ -90,4 +102,6 @@ public class AccessRequest {
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
+
+    
 }

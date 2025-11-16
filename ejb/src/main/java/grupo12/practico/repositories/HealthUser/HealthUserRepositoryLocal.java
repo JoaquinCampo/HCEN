@@ -4,25 +4,25 @@ import jakarta.ejb.Local;
 
 import java.util.List;
 
-import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.models.HealthUser;
 
 @Local
 public interface HealthUserRepositoryLocal {
-    List<HealthUser> findAll(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize);
+    List<HealthUser> findAllHealthUsers(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize);
 
-    long count(String clinicName, String name, String ci);
+    long countHealthUsers(String clinicName, String name, String ci);
 
-    HealthUser create(HealthUser healthUser);
+    HealthUser createHealthUser(HealthUser healthUser);
 
     HealthUser linkClinicToHealthUser(String healthUserId, String clinicName);
 
-    HealthUser findByCi(String healthUserCi);
+    HealthUser findHealthUserByCi(String healthUserCi);
 
-    HealthUser findById(String healthUserId);
+    HealthUser findHealthUserById(String healthUserId);
 
-    List<DocumentResponseDTO> fetchClinicalHistory(String healthUserCi, String healthWorkerCi, String clinicName, String providerName);
+    List<ClinicalDocumentDTO> findHealthUserClinicalHistory(String healthUserCi);
 
-    List<ClinicalHistoryAccessLogResponseDTO> fetchHealthUserAccessHistory(String healthUserCi);
+    List<ClinicalHistoryAccessLogResponseDTO> findHealthUserAccessHistory(String healthUserCi);
 }

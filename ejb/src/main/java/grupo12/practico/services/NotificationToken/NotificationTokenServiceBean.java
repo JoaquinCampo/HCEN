@@ -39,7 +39,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
     public NotificationTokenDTO add(NotificationTokenDTO dto) {
         validate(dto);
 
-        HealthUserDTO user = healthUserService.findByCi(dto.getUserCi());
+        HealthUserDTO user = healthUserService.findHealthUserByCi(dto.getUserCi());
         if (user == null) {
             throw new ValidationException("User not found with CI: " + dto.getUserCi());
         }
@@ -64,7 +64,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
 
     @Override
     public List<NotificationTokenDTO> findByUserCi(String userCi) {
-        HealthUserDTO user = healthUserService.findByCi(userCi);
+        HealthUserDTO user = healthUserService.findHealthUserByCi(userCi);
         if (user == null) {
             throw new ValidationException("User not found with CI: " + userCi);
         }
@@ -84,7 +84,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
             throw new ValidationException("userCi and token are required");
         }
 
-        HealthUserDTO user = healthUserService.findByCi(dto.getUserCi());
+        HealthUserDTO user = healthUserService.findHealthUserByCi(dto.getUserCi());
         if (user == null) {
             throw new ValidationException("User not found with CI: " + dto.getUserCi());
         }
@@ -104,7 +104,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
             throw new ValidationException("notificationType is required");
         }
 
-        HealthUserDTO user = healthUserService.findByCi(userCi);
+        HealthUserDTO user = healthUserService.findHealthUserByCi(userCi);
         if (user == null) {
             throw new ValidationException("User not found with CI: " + userCi);
         }
@@ -136,7 +136,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
             throw new ValidationException("notificationType is required");
         }
 
-        HealthUserDTO user = healthUserService.findByCi(userCi);
+        HealthUserDTO user = healthUserService.findHealthUserByCi(userCi);
         if (user == null) {
             throw new ValidationException("User not found with CI: " + userCi);
         }
@@ -157,7 +157,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
             return false;
         }
 
-        HealthUserDTO user = healthUserService.findByCi(userCi);
+        HealthUserDTO user = healthUserService.findHealthUserByCi(userCi);
         if (user == null) {
             return false;
         }
@@ -184,7 +184,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
             throw new ValidationException("userCi is required");
         }
 
-        HealthUserDTO user = healthUserService.findByCi(userCi);
+        HealthUserDTO user = healthUserService.findHealthUserByCi(userCi);
         if (user == null) {
             throw new ValidationException("User not found with CI: " + userCi);
         }

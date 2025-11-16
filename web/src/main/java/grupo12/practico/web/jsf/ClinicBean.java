@@ -55,14 +55,14 @@ public class ClinicBean implements Serializable {
     }
 
     public void loadAll() {
-        clinics = service.findAll();
+        clinics = service.findAllClinics(providerName);
     }
 
     public void search() {
         if (searchQuery == null || searchQuery.trim().isEmpty()) {
             loadClinics();
         } else {
-            ClinicDTO clinic = service.findByName(searchQuery.trim());
+            ClinicDTO clinic = service.findClinicByName(searchQuery.trim());
             clinics = new ArrayList<>();
             if (clinic != null) {
                 clinics.add(clinic);

@@ -4,8 +4,9 @@ import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.Gender;
 import grupo12.practico.dtos.PaginationDTO;
-import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.models.HealthUser;
@@ -72,7 +73,15 @@ class HealthUserServiceBeanTest {
         testAddHealthUserDTO.setDateOfBirth(LocalDate.of(1990, 1, 1));
         testAddHealthUserDTO.setClinicNames(new HashSet<>(Arrays.asList("Clinic A", "Clinic B")));
 
-        testHealthUserDTO = testHealthUser.toDto();
+        testHealthUserDTO = new HealthUserDTO();
+        testHealthUserDTO.setId(testHealthUser.getId());
+        testHealthUserDTO.setCi(testHealthUser.getCi());
+        testHealthUserDTO.setFirstName(testHealthUser.getFirstName());
+        testHealthUserDTO.setLastName(testHealthUser.getLastName());
+        testHealthUserDTO.setGender(testHealthUser.getGender());
+        testHealthUserDTO.setEmail(testHealthUser.getEmail());
+        testHealthUserDTO.setPhone(testHealthUser.getPhone());
+        testHealthUserDTO.setAddress(testHealthUser.getAddress());
     }
 
     @Test
@@ -80,11 +89,11 @@ class HealthUserServiceBeanTest {
     void testFindAll_WithDefaultParameters() {
         // Arrange
         List<HealthUser> users = Arrays.asList(testHealthUser);
-        when(healthUserRepository.findAll(null, null, null, 0, 20)).thenReturn(users);
-        when(healthUserRepository.count(null, null, null)).thenReturn(1L);
+        when(healthUserRepository.findAllHealthUsers(null, null, null, 0, 20)).thenReturn(users);
+        when(healthUserRepository.countHealthUsers(null, null, null)).thenReturn(1L);
 
         // Act
-        PaginationDTO<HealthUserDTO> result = healthUserService.findAll(null, null, null, null, null);
+        PaginationDTO<HealthUserDTO> result = healthUserService.findAllHealthUsers(null, null, null, null, null);
 
         // Assert
         assertNotNull(result);
@@ -96,8 +105,8 @@ class HealthUserServiceBeanTest {
         assertFalse(result.getHasNextPage());
         assertFalse(result.getHasPreviousPage());
 
-        verify(healthUserRepository).findAll(null, null, null, 0, 20);
-        verify(healthUserRepository).count(null, null, null);
+        verify(healthUserRepository).findAllHealthUsers(null, null, null, 0, 20);
+        verify(healthUserRepository).countHealthUsers(null, null, null);
     }
 
     @Test
@@ -108,11 +117,11 @@ class HealthUserServiceBeanTest {
         String name = "John";
         String ci = "54053584";
         List<HealthUser> users = Arrays.asList(testHealthUser);
-        when(healthUserRepository.findAll(clinicName, name, ci, 1, 10)).thenReturn(users);
-        when(healthUserRepository.count(clinicName, name, ci)).thenReturn(25L);
+        when(healthUserRepository.findAllHealthUsers(clinicName, name, ci, 1, 10)).thenReturn(users);
+        when(healthUserRepository.countHealthUsers(clinicName, name, ci)).thenReturn(25L);
 
         // Act
-        PaginationDTO<HealthUserDTO> result = healthUserService.findAll(clinicName, name, ci, 1, 10);
+        PaginationDTO<HealthUserDTO> result = healthUserService.findAllHealthUsers(clinicName, name, ci, 1, 10);
 
         // Assert
         assertNotNull(result);
@@ -124,50 +133,50 @@ class HealthUserServiceBeanTest {
         assertTrue(result.getHasNextPage());
         assertTrue(result.getHasPreviousPage());
 
-        verify(healthUserRepository).findAll(clinicName, name, ci, 1, 10);
-        verify(healthUserRepository).count(clinicName, name, ci);
+        verify(healthUserRepository).findAllHealthUsers(clinicName, name, ci, 1, 10);
+        verify(healthUserRepository).countHealthUsers(clinicName, name, ci);
     }
 
     @Test
     @DisplayName("findAll - Should handle negative page index gracefully")
     void testFindAll_WithNegativePageIndex() {
         // Arrange
-        when(healthUserRepository.findAll(null, null, null, 0, 20)).thenReturn(Collections.emptyList());
-        when(healthUserRepository.count(null, null, null)).thenReturn(0L);
+        when(healthUserRepository.findAllHealthUsers(null, null, null, 0, 20)).thenReturn(Collections.emptyList());
+        when(healthUserRepository.countHealthUsers(null, null, null)).thenReturn(0L);
 
         // Act
-        PaginationDTO<HealthUserDTO> result = healthUserService.findAll(null, null, null, -5, null);
+        PaginationDTO<HealthUserDTO> result = healthUserService.findAllHealthUsers(null, null, null, -5, null);
 
         // Assert
         assertNotNull(result);
         assertEquals(0, result.getPageIndex());
-        verify(healthUserRepository).findAll(null, null, null, 0, 20);
+        verify(healthUserRepository).findAllHealthUsers(null, null, null, 0, 20);
     }
 
     @Test
     @DisplayName("findAll - Should handle invalid page size gracefully")
     void testFindAll_WithInvalidPageSize() {
         // Arrange
-        when(healthUserRepository.findAll(null, null, null, 0, 20)).thenReturn(Collections.emptyList());
-        when(healthUserRepository.count(null, null, null)).thenReturn(0L);
+        when(healthUserRepository.findAllHealthUsers(null, null, null, 0, 20)).thenReturn(Collections.emptyList());
+        when(healthUserRepository.countHealthUsers(null, null, null)).thenReturn(0L);
 
         // Act
-        PaginationDTO<HealthUserDTO> result = healthUserService.findAll(null, null, null, null, 0);
+        PaginationDTO<HealthUserDTO> result = healthUserService.findAllHealthUsers(null, null, null, null, 0);
 
         // Assert
         assertNotNull(result);
         assertEquals(20, result.getPageSize());
-        verify(healthUserRepository).findAll(null, null, null, 0, 20);
+        verify(healthUserRepository).findAllHealthUsers(null, null, null, 0, 20);
     }
 
     @Test
     @DisplayName("create - Should successfully create a health user")
     void testCreate_Success() {
         // Arrange
-        when(healthUserRepository.create(any(HealthUser.class))).thenReturn(testHealthUser);
+        when(healthUserRepository.createHealthUser(any(HealthUser.class))).thenReturn(testHealthUser);
 
         // Act
-        HealthUserDTO result = healthUserService.create(testAddHealthUserDTO);
+        HealthUserDTO result = healthUserService.createHealthUser(testAddHealthUserDTO);
 
         // Assert
         assertNotNull(result);
@@ -176,7 +185,7 @@ class HealthUserServiceBeanTest {
         assertEquals(testHealthUser.getLastName(), result.getLastName());
         assertEquals(testHealthUser.getEmail(), result.getEmail());
 
-        verify(healthUserRepository).create(argThat(user -> user.getCi().equals("54053584") &&
+        verify(healthUserRepository).createHealthUser(argThat(user -> user.getCi().equals("54053584") &&
                 user.getFirstName().equals("John") &&
                 user.getLastName().equals("Doe")));
     }
@@ -187,10 +196,10 @@ class HealthUserServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> healthUserService.create(null));
+                () -> healthUserService.createHealthUser(null));
 
         assertEquals("User data must not be null", exception.getMessage());
-        verify(healthUserRepository, never()).create(any());
+        verify(healthUserRepository, never()).createHealthUser(any());
     }
 
     @Test
@@ -202,10 +211,10 @@ class HealthUserServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> healthUserService.create(testAddHealthUserDTO));
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
 
         assertEquals("User first name and last name are required", exception.getMessage());
-        verify(healthUserRepository, never()).create(any());
+        verify(healthUserRepository, never()).createHealthUser(any());
     }
 
     @Test
@@ -217,10 +226,10 @@ class HealthUserServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> healthUserService.create(testAddHealthUserDTO));
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
 
         assertEquals("User first name and last name are required", exception.getMessage());
-        verify(healthUserRepository, never()).create(any());
+        verify(healthUserRepository, never()).createHealthUser(any());
     }
 
     @Test
@@ -232,10 +241,10 @@ class HealthUserServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> healthUserService.create(testAddHealthUserDTO));
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
 
         assertEquals("User document is required", exception.getMessage());
-        verify(healthUserRepository, never()).create(any());
+        verify(healthUserRepository, never()).createHealthUser(any());
     }
 
     @Test
@@ -243,17 +252,17 @@ class HealthUserServiceBeanTest {
     void testFindByCi_Success() {
         // Arrange
         String ci = "54053584";
-        when(healthUserRepository.findByCi(ci)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserByCi(ci)).thenReturn(testHealthUser);
 
         // Act
-        HealthUserDTO result = healthUserService.findByCi(ci);
+        HealthUserDTO result = healthUserService.findHealthUserByCi(ci);
 
         // Assert
         assertNotNull(result);
         assertEquals(testHealthUser.getCi(), result.getCi());
         assertEquals(testHealthUser.getFirstName(), result.getFirstName());
 
-        verify(healthUserRepository).findByCi(ci);
+        verify(healthUserRepository).findHealthUserByCi(ci);
     }
 
     @Test
@@ -261,17 +270,17 @@ class HealthUserServiceBeanTest {
     void testFindById_Success() {
         // Arrange
         String id = "test-id-123";
-        when(healthUserRepository.findById(id)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserById(id)).thenReturn(testHealthUser);
 
         // Act
-        HealthUserDTO result = healthUserService.findById(id);
+        HealthUserDTO result = healthUserService.findHealthUserById(id);
 
         // Assert
         assertNotNull(result);
         assertEquals(testHealthUser.getId(), result.getId());
         assertEquals(testHealthUser.getCi(), result.getCi());
 
-        verify(healthUserRepository).findById(id);
+        verify(healthUserRepository).findHealthUserById(id);
     }
 
     @Test
@@ -299,21 +308,24 @@ class HealthUserServiceBeanTest {
         String healthUserCi = "54053584";
         String healthWorkerCi = "19301176";
         String clinicName = "Clinic A";
-        String providerName = "Provider X";
 
-        List<DocumentResponseDTO> documents = new ArrayList<>();
-        DocumentResponseDTO doc = new DocumentResponseDTO();
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        ClinicalDocumentDTO doc = new ClinicalDocumentDTO();
         doc.setId("doc-1");
         documents.add(doc);
 
         when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
-        when(healthUserRepository.findByCi(healthUserCi)).thenReturn(testHealthUser);
-        when(healthUserRepository.fetchClinicalHistory(healthUserCi, healthWorkerCi, clinicName, providerName))
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi))
                 .thenReturn(documents);
 
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
         // Act
-        ClinicalHistoryResponseDTO result = healthUserService.fetchClinicalHistory(
-                healthUserCi, healthWorkerCi, clinicName, providerName);
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
 
         // Assert
         assertNotNull(result);
@@ -322,7 +334,7 @@ class HealthUserServiceBeanTest {
         assertEquals(1, result.getDocuments().size());
 
         verify(accessPolicyService).hasClinicAccess(healthUserCi, clinicName);
-        verify(healthUserRepository).fetchClinicalHistory(healthUserCi, healthWorkerCi, clinicName, providerName);
+        verify(healthUserRepository).findHealthUserClinicalHistory(healthUserCi);
     }
 
     @Test
@@ -332,19 +344,23 @@ class HealthUserServiceBeanTest {
         String healthUserCi = "54053584";
         String healthWorkerCi = "19301176";
         String clinicName = "Clinic A";
-        String providerName = "Provider X";
 
-        List<DocumentResponseDTO> documents = new ArrayList<>();
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
 
         when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
         when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(true);
-        when(healthUserRepository.findByCi(healthUserCi)).thenReturn(testHealthUser);
-        when(healthUserRepository.fetchClinicalHistory(healthUserCi, healthWorkerCi, clinicName, providerName))
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi))
                 .thenReturn(documents);
 
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
         // Act
-        ClinicalHistoryResponseDTO result = healthUserService.fetchClinicalHistory(
-                healthUserCi, healthWorkerCi, clinicName, providerName);
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(
+                request);
 
         // Assert
         assertNotNull(result);
@@ -353,7 +369,7 @@ class HealthUserServiceBeanTest {
 
         verify(accessPolicyService).hasClinicAccess(healthUserCi, clinicName);
         verify(accessPolicyService).hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
-        verify(healthUserRepository).fetchClinicalHistory(healthUserCi, healthWorkerCi, clinicName, providerName);
+        verify(healthUserRepository).findHealthUserClinicalHistory(healthUserCi);
     }
 
     @Test
@@ -363,22 +379,26 @@ class HealthUserServiceBeanTest {
         String healthUserCi = "54053584";
         String healthWorkerCi = "19301176";
         String clinicName = "Clinic A";
-        String providerName = "Provider X";
 
         when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
         when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(false);
 
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> healthUserService.fetchClinicalHistory(healthUserCi, healthWorkerCi, clinicName, providerName));
+                () -> healthUserService.findHealthUserClinicalHistory(request));
 
         assertTrue(exception.getMessage().contains("Access denied"));
         assertTrue(exception.getMessage().contains(healthUserCi));
 
         verify(accessPolicyService).hasClinicAccess(healthUserCi, clinicName);
         verify(accessPolicyService).hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
-        verify(healthUserRepository, never()).fetchClinicalHistory(anyString(), anyString(), anyString(), anyString());
+        verify(healthUserRepository, never()).findHealthUserClinicalHistory(anyString());
     }
 
     @Test
@@ -392,8 +412,8 @@ class HealthUserServiceBeanTest {
         log.setHealthWorkerCi("19301176");
         accessLogs.add(log);
 
-        when(healthUserRepository.findByCi(healthUserCi)).thenReturn(testHealthUser);
-        when(healthUserRepository.fetchHealthUserAccessHistory(healthUserCi)).thenReturn(accessLogs);
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserAccessHistory(healthUserCi)).thenReturn(accessLogs);
 
         // Act
         HealthUserAccessHistoryResponseDTO result = healthUserService.fetchHealthUserAccessHistory(healthUserCi);
@@ -404,8 +424,8 @@ class HealthUserServiceBeanTest {
         assertEquals(testHealthUser.getCi(), result.getHealthUser().getCi());
         assertEquals(1, result.getAccessHistory().size());
 
-        verify(healthUserRepository).findByCi(healthUserCi);
-        verify(healthUserRepository).fetchHealthUserAccessHistory(healthUserCi);
+        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
+        verify(healthUserRepository).findHealthUserAccessHistory(healthUserCi);
     }
 
     @Test
@@ -415,8 +435,8 @@ class HealthUserServiceBeanTest {
         String healthUserCi = "54053584";
         List<ClinicalHistoryAccessLogResponseDTO> accessLogs = new ArrayList<>();
 
-        when(healthUserRepository.findByCi(healthUserCi)).thenReturn(testHealthUser);
-        when(healthUserRepository.fetchHealthUserAccessHistory(healthUserCi)).thenReturn(accessLogs);
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserAccessHistory(healthUserCi)).thenReturn(accessLogs);
 
         // Act
         HealthUserAccessHistoryResponseDTO result = healthUserService.fetchHealthUserAccessHistory(healthUserCi);
@@ -426,7 +446,7 @@ class HealthUserServiceBeanTest {
         assertNotNull(result.getHealthUser());
         assertEquals(0, result.getAccessHistory().size());
 
-        verify(healthUserRepository).findByCi(healthUserCi);
-        verify(healthUserRepository).fetchHealthUserAccessHistory(healthUserCi);
+        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
+        verify(healthUserRepository).findHealthUserAccessHistory(healthUserCi);
     }
 }

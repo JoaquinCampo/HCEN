@@ -6,8 +6,9 @@ import java.util.stream.Collectors;
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
-import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.models.HealthUser;
@@ -16,6 +17,9 @@ import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
 import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
 import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
+import grupo12.practico.dtos.Clinic.ClinicDTO;
+import java.util.ArrayList;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -46,17 +50,20 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     @EJB
     private PushNotificationServiceLocal pushNotificationService;
 
+    @EJB
+    private ClinicServiceLocal clinicService;
+
     @Override
-    public PaginationDTO<HealthUserDTO> findAll(String clinicName, String name, String ci, Integer pageIndex,
+    public PaginationDTO<HealthUserDTO> findAllHealthUsers(String clinicName, String name, String ci, Integer pageIndex,
             Integer pageSize) {
         int safePageIndex = pageIndex != null && pageIndex >= 0 ? pageIndex : 0;
         int safePageSize = pageSize != null && pageSize > 0 ? pageSize : 20;
 
-        List<HealthUser> users = healthUserRepository.findAll(clinicName, name, ci, safePageIndex, safePageSize);
-        long total = healthUserRepository.count(clinicName, name, ci);
+        List<HealthUser> users = healthUserRepository.findAllHealthUsers(clinicName, name, ci, safePageIndex, safePageSize);
+        long total = healthUserRepository.countHealthUsers(clinicName, name, ci);
 
         List<HealthUserDTO> userDTOs = users.stream()
-                .map(HealthUser::toDto)
+                .map(this::mapHealthUserResponseToDTO)
                 .collect(Collectors.toList());
 
         PaginationDTO<HealthUserDTO> paginationDTO = new PaginationDTO<>();
@@ -72,10 +79,8 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
     }
 
     @Override
-    public HealthUserDTO create(AddHealthUserDTO addHealthUserDTO) {
-        logger.info("HealthUserServiceBean.create called with CI="
-                + (addHealthUserDTO != null ? addHealthUserDTO.getCi() : "<null>"));
-        validateCreateUserDTO(addHealthUserDTO);
+    public HealthUserDTO createHealthUser(AddHealthUserDTO addHealthUserDTO) {
+        validateAddHealthUserDTO(addHealthUserDTO);
 
         HealthUser healthUser = new HealthUser();
         healthUser.setCi(addHealthUserDTO.getCi());
@@ -88,37 +93,56 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         healthUser.setDateOfBirth(addHealthUserDTO.getDateOfBirth());
         healthUser.setClinicNames(addHealthUserDTO.getClinicNames());
 
-        HealthUser created = healthUserRepository.create(healthUser);
-        logger.info("Health user persisted with id=" + (created != null ? created.getId() : "<null>"));
-        return created.toDto();
+        HealthUser created = healthUserRepository.createHealthUser(healthUser);
+
+        return mapHealthUserResponseToDTO(created);
     }
 
     @Override
-    public HealthUserDTO findByCi(String healthUserCi) {
-        return healthUserRepository.findByCi(healthUserCi).toDto();
+    public HealthUserDTO findHealthUserByCi(String healthUserCi) {
+        if (healthUserCi == null || healthUserCi.isBlank()) {
+            throw new ValidationException("Health user CI is required");
+        }
+
+        HealthUser healthUser = healthUserRepository.findHealthUserByCi(healthUserCi);
+        return healthUser != null ? mapHealthUserResponseToDTO(healthUser) : null;
     }
 
     @Override
     public HealthUserDTO linkClinicToHealthUser(String healthUserId, String clinicName) {
-        return healthUserRepository.linkClinicToHealthUser(healthUserId, clinicName).toDto();
+        if (healthUserId == null || healthUserId.isBlank() || clinicName == null || clinicName.isBlank()) {
+            throw new ValidationException("Health user ID and clinic name are required");
+        }
+
+        HealthUser healthUser = healthUserRepository.linkClinicToHealthUser(healthUserId, clinicName);
+        return mapHealthUserResponseToDTO(healthUser);
     }
 
     @Override
-    public ClinicalHistoryResponseDTO fetchClinicalHistory(String healthUserCi, String healthWorkerCi,
-            String clinicName, String providerName) {
+        public ClinicalHistoryResponseDTO findHealthUserClinicalHistory(ClinicalHistoryRequestDTO request) {
+        
+        if (request == null) {
+            throw new ValidationException("Clinical history request is required");
+        }
 
-        boolean clinicAccess = accessPolicyService.hasClinicAccess(healthUserCi, clinicName);
-        boolean workerAccess = accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
-        if (!clinicAccess && !workerAccess)
-            throw new ValidationException("Access denied to clinical history for health user CI: " + healthUserCi);
+        if (request.getHealthUserCi() == null || request.getHealthUserCi().isBlank()) {
+            throw new ValidationException("Health user CI is required");
+        }
 
-        HealthUserDTO healthUser = healthUserRepository.findByCi(healthUserCi).toDto();
+        boolean isHealthUser = request.getHealthWorkerCi() == null && request.getClinicName() == null && request.getSpecialtyNames() == null;
 
-        List<DocumentResponseDTO> documents = healthUserRepository.fetchClinicalHistory(healthUserCi, healthWorkerCi,
-                clinicName, providerName);
+        boolean hasClinicAccess = !isHealthUser && accessPolicyService.hasClinicAccess(request.getHealthUserCi(), request.getClinicName());
+        boolean hasWorkerAccess = !isHealthUser && accessPolicyService.hasHealthWorkerAccess(request.getHealthUserCi(), request.getHealthWorkerCi());
+        boolean hasSpecialtyAccess = !isHealthUser && accessPolicyService.hasSpecialtyAccess(request.getHealthUserCi(), request.getSpecialtyNames());
+
+        if (!isHealthUser && !hasClinicAccess && !hasWorkerAccess && !hasSpecialtyAccess) {
+            throw new ValidationException("Access denied to clinical history for health user CI: " + request.getHealthUserCi());
+        }
+
+        List<ClinicalDocumentDTO> documents = healthUserRepository.findHealthUserClinicalHistory(request.getHealthUserCi());
 
         ClinicalHistoryResponseDTO response = new ClinicalHistoryResponseDTO();
-        response.setHealthUser(healthUser);
+        response.setHealthUser(findHealthUserByCi(request.getHealthUserCi()));
         response.setDocuments(documents);
 
         return response;
@@ -126,30 +150,79 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
     @Override
     public HealthUserAccessHistoryResponseDTO fetchHealthUserAccessHistory(String healthUserCi) {
-        HealthUserDTO healthUser = findByCi(healthUserCi);
+        HealthUserDTO healthUser = findHealthUserByCi(healthUserCi);
         List<ClinicalHistoryAccessLogResponseDTO> accessHistory = healthUserRepository
-                .fetchHealthUserAccessHistory(healthUserCi);
+                .findHealthUserAccessHistory(healthUserCi);
         return new HealthUserAccessHistoryResponseDTO(healthUser, accessHistory);
     }
-
-    private void validateCreateUserDTO(AddHealthUserDTO addHealthUserDTO) {
-        if (addHealthUserDTO == null) {
-            throw new ValidationException("User data must not be null");
-        }
-        if (isBlank(addHealthUserDTO.getFirstName()) || isBlank(addHealthUserDTO.getLastName())) {
-            throw new ValidationException("User first name and last name are required");
-        }
-        if (isBlank(addHealthUserDTO.getCi())) {
-            throw new ValidationException("User document is required");
-        }
-    }
-
+    
     @Override
-    public HealthUserDTO findById(String healthUserId) {
-        return healthUserRepository.findById(healthUserId).toDto();
+    public HealthUserDTO findHealthUserById(String healthUserId) {
+        if (healthUserId == null || healthUserId.isBlank()) {
+            throw new ValidationException("Health user ID is required");
+        }
+
+        HealthUser healthUser = healthUserRepository.findHealthUserById(healthUserId);
+        return healthUser != null ? mapHealthUserResponseToDTO(healthUser) : null;
     }
 
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
+    private HealthUserDTO mapHealthUserResponseToDTO(HealthUser healthUser) {
+        if (healthUser == null) {
+            return null;
+        }
+        
+        HealthUserDTO dto = new HealthUserDTO();
+        dto.setId(healthUser.getId());
+        dto.setCi(healthUser.getCi());
+        dto.setFirstName(healthUser.getFirstName());
+        dto.setLastName(healthUser.getLastName());
+        dto.setGender(healthUser.getGender());
+        dto.setEmail(healthUser.getEmail());
+        dto.setPhone(healthUser.getPhone());
+        dto.setAddress(healthUser.getAddress());
+        dto.setDateOfBirth(healthUser.getDateOfBirth());
+        dto.setCreatedAt(healthUser.getCreatedAt());
+        dto.setUpdatedAt(healthUser.getUpdatedAt());
+
+        List<ClinicDTO> clinics = new ArrayList<>();
+        if (healthUser.getClinicNames() != null) {
+            for (String clinicName : healthUser.getClinicNames()) {
+                try {
+                    ClinicDTO clinicDTO = clinicService.findClinicByName(clinicName);
+                    if (clinicDTO != null) {
+                        clinics.add(clinicDTO);
+                    }
+                } catch (Exception e) {
+                    logger.warning("Failed to fetch clinic with name: " + clinicName + ". Error: " + e.getMessage());
+                }
+            }
+        }
+        dto.setClinics(clinics);
+
+        return dto;
+    }
+
+    private void validateAddHealthUserDTO(AddHealthUserDTO addHealthUserDTO) {
+        if (addHealthUserDTO == null) {
+            throw new ValidationException("Health user data must not be null");
+        }
+        if (addHealthUserDTO.getFirstName() == null || addHealthUserDTO.getFirstName().isBlank()) {
+            throw new ValidationException("Health user first name is required");
+        }
+        if (addHealthUserDTO.getLastName() == null || addHealthUserDTO.getLastName().isBlank()) {
+            throw new ValidationException("Health user last name is required");
+        }
+        if (addHealthUserDTO.getCi() == null || addHealthUserDTO.getCi().isBlank()) {
+            throw new ValidationException("Health user CI is required");
+        }
+        if (addHealthUserDTO.getClinicNames() == null || addHealthUserDTO.getClinicNames().isEmpty()) {
+            throw new ValidationException("Health user clinic names are required");
+        }
+        if (addHealthUserDTO.getGender() == null) {
+            throw new ValidationException("Health user gender is required");
+        }
+        if (addHealthUserDTO.getEmail() == null || addHealthUserDTO.getEmail().isBlank()) {
+            throw new ValidationException("Health user email is required");
+        }
     }
 }

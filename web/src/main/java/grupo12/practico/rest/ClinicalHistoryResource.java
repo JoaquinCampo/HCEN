@@ -1,10 +1,11 @@
 package grupo12.practico.rest;
 
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
-import grupo12.practico.dtos.ClinicalHistory.ChatResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
+import grupo12.practico.messaging.ClinicalDocument.Chat.ChatProducerLocal;
+import grupo12.practico.messaging.ClinicalHistory.ClinicalHistoryProducerLocal;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
@@ -24,22 +25,29 @@ public class ClinicalHistoryResource {
     @EJB
     private HealthUserServiceLocal healthUserService;
 
+    @EJB
+    private ClinicalHistoryProducerLocal clinicalHistoryProducer;
+
+    @EJB
+    private ChatProducerLocal chatProducer;
+
     @GET
     @Path("/{healthUserCi}")
-    public Response fetchClinicalHistory(
+    public Response findClinicalHistory(
             @PathParam("healthUserCi") String healthUserCi,
             @QueryParam("healthWorkerCi") String healthWorkerCi,
             @QueryParam("clinicName") String clinicName,
-            @QueryParam("providerName") String providerName) {
-        try {
-            ClinicalHistoryResponseDTO response = healthUserService.fetchClinicalHistory(
-                    healthUserCi, healthWorkerCi, clinicName, providerName);
-            return Response.ok(response).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
+            @QueryParam("specialtyNames") List<String> specialtyNames) {
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        clinicalHistoryProducer.enqueue(request);
+        return Response.accepted()
+                .entity("{\"message\":\"Clinical history request queued successfully\"}")
+                .build();
     }
 
     @GET
@@ -75,13 +83,9 @@ public class ClinicalHistoryResource {
     @POST
     @Path("/chat")
     public Response chat(ChatRequestDTO request) {
-        try {
-            ChatResponseDTO response = clinicalDocumentService.chat(request);
-            return Response.ok(response).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
+        chatProducer.enqueue(request);
+        return Response.accepted()
+                .entity("{\"message\":\"Chat request queued successfully\"}")
+                .build();
     }
 }

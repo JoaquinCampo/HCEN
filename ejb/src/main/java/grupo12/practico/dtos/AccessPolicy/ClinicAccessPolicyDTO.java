@@ -10,9 +10,7 @@ public class ClinicAccessPolicyDTO implements Serializable {
 
     private String id;
     private String healthUserCi;
-
     private ClinicDTO clinic;
-
     private LocalDate createdAt;
 
     public String getId() {

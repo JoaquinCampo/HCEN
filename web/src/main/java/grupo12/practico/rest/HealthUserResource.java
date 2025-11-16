@@ -3,6 +3,7 @@ package grupo12.practico.rest;
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -16,14 +17,17 @@ public class HealthUserResource {
     @EJB
     private HealthUserServiceLocal healthUserService;
 
+    @EJB
+    private HealthUserRegistrationProducerLocal healthUserRegistrationProducer;
+
     @GET
-    public Response findAll(
+    public Response findAllHealthUsers(
             @QueryParam("clinicName") String clinicName,
             @QueryParam("name") String name,
             @QueryParam("ci") String ci,
             @QueryParam("pageIndex") Integer pageIndex,
             @QueryParam("pageSize") Integer pageSize) {
-        PaginationDTO<HealthUserDTO> paginationResult = healthUserService.findAll(clinicName, name, ci, pageIndex,
+        PaginationDTO<HealthUserDTO> paginationResult = healthUserService.findAllHealthUsers(clinicName, name, ci, pageIndex,
                 pageSize);
         return Response.ok(paginationResult).build();
     }
@@ -31,7 +35,7 @@ public class HealthUserResource {
     @GET
     @Path("/{ci}")
     public Response findByCi(@PathParam("ci") String ci) {
-        HealthUserDTO user = healthUserService.findByCi(ci);
+        HealthUserDTO user = healthUserService.findHealthUserByCi(ci);
         if (user == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"error\":\"Health user not found with CI: " + ci + "\"}")
@@ -43,14 +47,10 @@ public class HealthUserResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(AddHealthUserDTO addHealthUserDTO) {
-        try {
-            HealthUserDTO createdUser = healthUserService.create(addHealthUserDTO);
-            return Response.status(Response.Status.CREATED).entity(createdUser).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
+        healthUserRegistrationProducer.enqueue(addHealthUserDTO);
+        return Response.accepted()
+                .entity("{\"message\":\"Health user registration request queued successfully\"}")
+                .build();
     }
 
     @POST

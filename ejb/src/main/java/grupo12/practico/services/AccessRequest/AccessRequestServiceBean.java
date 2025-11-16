@@ -54,18 +54,18 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
     private PushNotificationServiceLocal pushNotificationService;
 
     @Override
-    public AccessRequestDTO create(AddAccessRequestDTO dto) {
-        validatePayload(dto);
+    public AccessRequestDTO createAccessRequest(AddAccessRequestDTO dto) {
+        validateAddAccessRequestDTO(dto);
 
-        HealthUser healthUser = healthUserRepository.findByCi(dto.getHealthUserCi());
+        HealthUser healthUser = healthUserRepository.findHealthUserByCi(dto.getHealthUserCi());
         if (healthUser == null) {
             throw new ValidationException("Health user not found");
         }
 
-        boolean duplicateExists = accessRequestRepository
-                .findAll(healthUser.getId(), dto.getHealthWorkerCi(), dto.getClinicName())
+        boolean existingAccessRequest = accessRequestRepository
+                .findAllAccessRequests(healthUser.getId(), dto.getHealthWorkerCi(), dto.getClinicName())
                 .size() > 0;
-        if (duplicateExists) {
+        if (existingAccessRequest) {
             throw new ValidationException("An access request already exists for this combination");
         }
 
@@ -75,7 +75,7 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
             throw new ValidationException("Health worker not found");
         }
 
-        ClinicDTO clinic = clinicServiceLocal.findByName(dto.getClinicName());
+        ClinicDTO clinic = clinicServiceLocal.findClinicByName(dto.getClinicName());
         if (clinic == null) {
             throw new ValidationException("Clinic not found");
         }
@@ -84,11 +84,11 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         accessRequest.setHealthUser(healthUser);
         accessRequest.setHealthWorkerCi(healthWorker.getCi());
         accessRequest.setClinicName(clinic.getName());
+        accessRequest.setSpecialtyNames(dto.getSpecialtyNames());
 
-        AccessRequest persisted = accessRequestRepository.create(accessRequest);
+        AccessRequest persisted = accessRequestRepository.createAccessRequest(accessRequest);
 
         try {
-            // Check if user is subscribed to ACCESS_REQUEST notifications
             boolean isSubscribed = notificationTokenService.isUserSubscribedToNotificationType(
                     healthUser.getCi(), NotificationType.ACCESS_REQUEST);
 
@@ -113,20 +113,24 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         result.setHealthUserId(healthUser.getId());
         result.setHealthWorker(healthWorker);
         result.setClinic(clinic);
+        result.setSpecialtyNames(persisted.getSpecialtyNames());
+        result.setCreatedAt(persisted.getCreatedAt());
 
         return result;
     }
 
     @Override
-    public AccessRequestDTO findById(String id) {
-        if (isBlank(id)) {
+    public AccessRequestDTO findAccessRequestById(String id) {
+        if (id == null || id.isBlank()) {
             throw new ValidationException("Access request id is required");
         }
 
-        AccessRequest accessRequest = accessRequestRepository.findById(id);
+        AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(id);
+
         HealthWorkerDTO healthWorkerDTO = healthWorkerService.findByClinicAndCi(
                 accessRequest.getClinicName(), accessRequest.getHealthWorkerCi());
-        ClinicDTO clinicDTO = clinicServiceLocal.findByName(accessRequest.getClinicName());
+                
+        ClinicDTO clinicDTO = clinicServiceLocal.findClinicByName(accessRequest.getClinicName());
 
         AccessRequestDTO dto = new AccessRequestDTO();
         dto.setId(accessRequest.getId());
@@ -134,42 +138,44 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         dto.setHealthUserCi(accessRequest.getHealthUser().getCi());
         dto.setHealthWorker(healthWorkerDTO);
         dto.setClinic(clinicDTO);
+        dto.setSpecialtyNames(accessRequest.getSpecialtyNames());
+        dto.setCreatedAt(accessRequest.getCreatedAt());
 
-        return accessRequest != null ? dto : null;
+        return dto;
     }
 
     @Override
-    public void delete(String accessRequestId) {
-        if (isBlank(accessRequestId)) {
+    public void deleteAccessRequest(String accessRequestId) {
+        if (accessRequestId == null || accessRequestId.isBlank()) {
             throw new ValidationException("Access request id is required");
         }
 
-        AccessRequest accessRequest = accessRequestRepository.findById(accessRequestId);
-
+        AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(accessRequestId);
         if (accessRequest == null) {
             throw new ValidationException("Access request not found");
         }
 
-        accessRequestRepository.delete(accessRequest.getId());
+        accessRequestRepository.deleteAccessRequest(accessRequest.getId());
     }
 
     @Override
-    public List<AccessRequestDTO> findAll(String healthUserCi, String healthWorkerCi, String clinicName) {
+    public List<AccessRequestDTO> findAllAccessRequests(String healthUserCi, String healthWorkerCi, String clinicName) {
         HealthUserDTO healthUser = null;
-        if (healthUserCi != null && !healthUserCi.trim().isEmpty()) {
-            healthUser = healthUserService.findByCi(healthUserCi);
+
+        if (healthUserCi != null && !healthUserCi.isBlank()) {
+            healthUser = healthUserService.findHealthUserByCi(healthUserCi);
             if (healthUser == null) {
                 throw new ValidationException("Health user not found with CI: " + healthUserCi);
             }
         }
 
         String healthUserId = healthUser != null ? healthUser.getId() : null;
-        List<AccessRequest> accessRequests = accessRequestRepository.findAll(healthUserId, healthWorkerCi, clinicName);
+        List<AccessRequest> accessRequests = accessRequestRepository.findAllAccessRequests(healthUserId, healthWorkerCi, clinicName);
 
         return accessRequests.stream().map(accessRequest -> {
             HealthWorkerDTO healthWorkerDTO = healthWorkerService.findByClinicAndCi(
                     accessRequest.getClinicName(), accessRequest.getHealthWorkerCi());
-            ClinicDTO clinicDTO = clinicServiceLocal.findByName(accessRequest.getClinicName());
+            ClinicDTO clinicDTO = clinicServiceLocal.findClinicByName(accessRequest.getClinicName());
 
             AccessRequestDTO dto = new AccessRequestDTO();
             dto.setId(accessRequest.getId());
@@ -177,27 +183,25 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
             dto.setHealthUserCi(accessRequest.getHealthUser().getCi());
             dto.setHealthWorker(healthWorkerDTO);
             dto.setClinic(clinicDTO);
-
+            dto.setSpecialtyNames(accessRequest.getSpecialtyNames());
+            dto.setCreatedAt(accessRequest.getCreatedAt());
+    
             return dto;
         }).collect(Collectors.toList());
     }
 
-    private void validatePayload(AddAccessRequestDTO dto) {
+    private void validateAddAccessRequestDTO(AddAccessRequestDTO dto) {
         if (dto == null) {
             throw new ValidationException("Access request payload is required");
         }
-        if (isBlank(dto.getHealthUserCi())) {
+        if (dto.getHealthUserCi() == null || dto.getHealthUserCi().isBlank()) {
             throw new ValidationException("Health user id is required");
         }
-        if (isBlank(dto.getHealthWorkerCi())) {
+        if (dto.getHealthWorkerCi() == null || dto.getHealthWorkerCi().isBlank()) {
             throw new ValidationException("Health worker id is required");
         }
-        if (isBlank(dto.getClinicName())) {
+        if (dto.getClinicName() == null || dto.getClinicName().isBlank()) {
             throw new ValidationException("Clinic id is required");
         }
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
     }
 }

@@ -35,7 +35,7 @@ public class AccessRequestMDB implements MessageListener {
         try {
             String payload = textMessage.getText();
             AddAccessRequestDTO dto = AccessRequestMessageMapper.fromMessage(payload);
-            accessRequestService.create(dto);
+            accessRequestService.createAccessRequest(dto);
             LOGGER.fine(() -> "Processed access request for health user " + dto.getHealthUserCi() + " and health worker " + dto.getHealthWorkerCi());
         } catch (ValidationException ex) {
             LOGGER.log(Level.WARNING, "Invalid access request payload", ex);

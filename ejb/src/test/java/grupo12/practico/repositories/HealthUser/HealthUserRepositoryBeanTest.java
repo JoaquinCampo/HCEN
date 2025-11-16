@@ -1,6 +1,6 @@
 package grupo12.practico.repositories.HealthUser;
 
-import grupo12.practico.dtos.ClinicalDocument.DocumentResponseDTO;
+import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.models.Gender;
@@ -112,7 +112,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultList()).thenReturn(users);
 
         // Act
-        List<HealthUser> result = repository.findAll(null, null, null, null, null);
+        List<HealthUser> result = repository.findAllHealthUsers(null, null, null, null, null);
 
         // Assert
         assertNotNull(result);
@@ -136,7 +136,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultList()).thenReturn(users);
 
         // Act
-        List<HealthUser> result = repository.findAll(null, null, null, 1, 10);
+        List<HealthUser> result = repository.findAllHealthUsers(null, null, null, 1, 10);
 
         // Assert
         assertNotNull(result);
@@ -155,7 +155,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultList()).thenReturn(users);
 
         // Act
-        List<HealthUser> result = repository.findAll(null, null, "54053584", 0, 20);
+        List<HealthUser> result = repository.findAllHealthUsers(null, null, "54053584", 0, 20);
 
         // Assert
         assertNotNull(result);
@@ -180,7 +180,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultList()).thenReturn(users);
 
         // Act
-        List<HealthUser> result = repository.findAll("Clinic A", null, null, 0, 20);
+        List<HealthUser> result = repository.findAllHealthUsers("Clinic A", null, null, 0, 20);
 
         // Assert
         assertNotNull(result);
@@ -205,7 +205,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultList()).thenReturn(users);
 
         // Act
-        List<HealthUser> result = repository.findAll(null, "John Doe", null, 0, 20);
+        List<HealthUser> result = repository.findAllHealthUsers(null, "John Doe", null, 0, 20);
 
         // Assert
         assertNotNull(result);
@@ -230,7 +230,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultList()).thenReturn(users);
 
         // Act
-        List<HealthUser> result = repository.findAll("Clinic A", "John", "54053584", 0, 20);
+        List<HealthUser> result = repository.findAllHealthUsers("Clinic A", "John", "54053584", 0, 20);
 
         // Assert
         assertNotNull(result);
@@ -249,7 +249,7 @@ class HealthUserRepositoryBeanTest {
         when(longQuery.getSingleResult()).thenReturn(25L);
 
         // Act
-        long result = repository.count(null, null, null);
+        long result = repository.countHealthUsers(null, null, null);
 
         // Assert
         assertEquals(25L, result);
@@ -265,7 +265,7 @@ class HealthUserRepositoryBeanTest {
         when(longQuery.getSingleResult()).thenReturn(5L);
 
         // Act
-        long result = repository.count("Clinic A", "John", "54053584");
+        long result = repository.countHealthUsers("Clinic A", "John", "54053584");
 
         // Assert
         assertEquals(5L, result);
@@ -285,7 +285,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultStream()).thenReturn(Arrays.asList(testHealthUser).stream());
 
         // Act
-        HealthUser result = repository.findByCi("54053584");
+        HealthUser result = repository.findHealthUserByCi("54053584");
 
         // Assert
         assertNotNull(result);
@@ -301,7 +301,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.findByCi(null));
+                () -> repository.findHealthUserByCi(null));
 
         assertEquals("Health user CI must not be null or empty", exception.getMessage());
         verify(entityManager, never()).createQuery(anyString(), any());
@@ -313,7 +313,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.findByCi(""));
+                () -> repository.findHealthUserByCi(""));
 
         assertEquals("Health user CI must not be null or empty", exception.getMessage());
     }
@@ -331,7 +331,7 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.getResultStream()).thenReturn(Stream.empty());
 
         // Act
-        HealthUser result = repository.findByCi("99999999");
+        HealthUser result = repository.findHealthUserByCi("99999999");
 
         // Assert
         assertNull(result, "Should return null when no health user is found");
@@ -350,7 +350,7 @@ class HealthUserRepositoryBeanTest {
         when(entityManager.find(HealthUser.class, "test-id-123")).thenReturn(testHealthUser);
 
         // Act
-        HealthUser result = repository.findById("test-id-123");
+        HealthUser result = repository.findHealthUserById("test-id-123");
 
         // Assert
         assertNotNull(result);
@@ -365,7 +365,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.findById(null));
+                () -> repository.findHealthUserById(null));
 
         assertEquals("Health user ID must not be null or empty", exception.getMessage());
         verify(entityManager, never()).find(any(), any());
@@ -378,7 +378,7 @@ class HealthUserRepositoryBeanTest {
         // No stubbing needed for persist
 
         // Act
-        HealthUser result = repository.create(testHealthUser);
+        HealthUser result = repository.createHealthUser(testHealthUser);
 
         // Assert
         assertNotNull(result);
@@ -393,7 +393,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.create(null));
+                () -> repository.createHealthUser(null));
 
         assertEquals("HealthUser must not be null", exception.getMessage());
         verify(entityManager, never()).persist(any());
@@ -449,9 +449,6 @@ class HealthUserRepositoryBeanTest {
     void testFetchClinicalHistory_Success() throws Exception {
         // Arrange
         String healthUserCi = "54053584";
-        String healthWorkerCi = "87654321";
-        String clinicName = "Clinic A";
-        String providerName = "Provider X";
 
         String mockResponse = """
                 [
@@ -476,14 +473,13 @@ class HealthUserRepositoryBeanTest {
         doReturn(mockHttpResponse).when(httpClient).send(any(HttpRequest.class), any());
 
         // Act
-        List<DocumentResponseDTO> result = repository.fetchClinicalHistory(healthUserCi, healthWorkerCi, clinicName,
-                providerName);
+        List<ClinicalDocumentDTO> result = repository.findHealthUserClinicalHistory(healthUserCi);
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("doc-1", result.get(0).getId());
-        assertEquals("https://s3.amazonaws.com/bucket/doc.pdf", result.get(0).getS3Url());
+        assertEquals("https://s3.amazonaws.com/bucket/doc.pdf", result.get(0).getContentUrl());
 
         verify(httpClient).send(any(HttpRequest.class), any());
     }
@@ -494,7 +490,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.fetchClinicalHistory(null, "87654321", "Clinic A", "Provider X"));
+                () -> repository.findHealthUserClinicalHistory(null));
 
         assertEquals("Health user CI is required", exception.getMessage());
     }
@@ -504,9 +500,6 @@ class HealthUserRepositoryBeanTest {
     void testFetchClinicalHistory_HttpError() throws Exception {
         // Arrange
         String healthUserCi = "54053584";
-        String healthWorkerCi = "87654321";
-        String clinicName = "Clinic A";
-        String providerName = "Provider_X";
 
         when(config.getDocumentsApiBaseUrl()).thenReturn("http://api.example.com/");
         when(config.getDocumentsApiKey()).thenReturn("test-api-key");
@@ -521,7 +514,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> repository.fetchClinicalHistory(healthUserCi, healthWorkerCi, clinicName, providerName));
+                () -> repository.findHealthUserClinicalHistory(healthUserCi));
 
         assertTrue(exception.getMessage().contains("HTTP 500"));
     }
@@ -557,7 +550,7 @@ class HealthUserRepositoryBeanTest {
         doReturn(mockHttpResponse).when(httpClient).send(any(HttpRequest.class), any());
 
         // Act
-        List<ClinicalHistoryAccessLogResponseDTO> result = repository.fetchHealthUserAccessHistory(healthUserCi);
+        List<ClinicalHistoryAccessLogResponseDTO> result = repository.findHealthUserAccessHistory(healthUserCi);
 
         // Assert
         assertNotNull(result);
@@ -578,7 +571,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.fetchHealthUserAccessHistory(null));
+                () -> repository.findHealthUserAccessHistory(null));
 
         assertEquals("Health user CI is required", exception.getMessage());
     }
@@ -602,7 +595,7 @@ class HealthUserRepositoryBeanTest {
         // Act & Assert
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
-                () -> repository.fetchHealthUserAccessHistory(healthUserCi));
+                () -> repository.findHealthUserAccessHistory(healthUserCi));
 
         assertTrue(exception.getMessage().contains("Failed to fetch health user access history: HTTP 500"));
     }
