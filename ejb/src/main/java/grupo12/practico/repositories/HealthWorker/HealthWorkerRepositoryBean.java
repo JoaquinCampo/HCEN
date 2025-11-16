@@ -8,8 +8,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,9 +111,9 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
                 String dob = getString(userJson, "dateOfBirth");
                 if (dob != null && !dob.isBlank()) {
                     try {
-                        dto.setDateOfBirth(Instant.parse(dob).atZone(ZoneId.systemDefault()).toLocalDate());
+                        dto.setDateOfBirth(LocalDate.parse(dob));
                     } catch (DateTimeParseException ex) {
-                        logger.log(Level.WARNING, "Invalid dateOfBirth received for health worker: " + dob, ex);
+                        throw new IllegalStateException("Invalid dateOfBirth received for health worker: " + dob, ex);
                     }
                 }
             }

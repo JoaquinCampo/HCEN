@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.validation.ValidationException;
 
 import grupo12.practico.models.HcenAdmin;
 import java.util.List;
@@ -21,6 +22,9 @@ public class HcenAdminRepositoryBean implements HcenAdminRepositoryRemote {
 
     @Override
     public HcenAdmin create(HcenAdmin hcenAdmin) {
+        if (hcenAdmin == null) {
+            throw new ValidationException("HcenAdmin must not be null");
+        }
         em.persist(hcenAdmin);
         return hcenAdmin;
     }

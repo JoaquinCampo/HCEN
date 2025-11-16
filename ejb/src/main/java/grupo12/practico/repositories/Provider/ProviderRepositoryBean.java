@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.regex.Pattern;
+
+import jakarta.validation.ValidationException;
+
 import java.util.regex.Matcher;
 
 @Stateless
@@ -31,6 +34,9 @@ public class ProviderRepositoryBean implements ProviderRepositoryRemote {
 
     @Override
     public Provider create(Provider provider) {
+        if (provider == null) {
+            throw new ValidationException("Provider must not be null");
+        }
         em.persist(provider);
         return provider;
     }

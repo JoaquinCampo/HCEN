@@ -361,7 +361,9 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
     public String buildLogoutUrl(String idToken) {
         StringBuilder sb = new StringBuilder(config.getLogoutUrl());
         sb.append("?id_token_hint=").append(urlEncode(idToken));
-        sb.append("&post_logout_redirect_uri=").append(urlEncode(config.getPostLogoutRedirectUri()));
+        String postLogoutRedirectUri = config.getPostLogoutRedirectUri();
+        sb.append("&post_logout_redirect_uri=")
+                .append(postLogoutRedirectUri != null ? urlEncode(postLogoutRedirectUri) : "");
         return sb.toString();
     }
 }
