@@ -5,7 +5,6 @@ import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatResponseDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import jakarta.ejb.Stateless;
@@ -13,8 +12,6 @@ import jakarta.validation.ValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
-
-import java.util.List;
 
 @Stateless
 @Local(ClinicalDocumentServiceLocal.class)
@@ -92,17 +89,6 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
         if (dto.getProviderName() == null || dto.getProviderName().isBlank()) {
             throw new ValidationException("Provider name is required");
         }
-    }
-
-
-    @Override
-    public List<ClinicalHistoryAccessLogResponseDTO> fetchHealthWorkerAccessHistory(String healthWorkerCi,
-            String healthUserCi) {
-        if (healthWorkerCi == null || healthWorkerCi.trim().isEmpty()) {
-            throw new ValidationException("Health worker CI is required");
-        }
-
-        return clinicalDocumentRepository.fetchHealthWorkerAccessHistory(healthWorkerCi, healthUserCi);
     }
 
     @Override

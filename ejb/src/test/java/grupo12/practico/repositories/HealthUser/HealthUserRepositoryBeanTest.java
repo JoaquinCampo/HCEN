@@ -1,7 +1,6 @@
 package grupo12.practico.repositories.HealthUser;
 
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.models.Gender;
 import grupo12.practico.repositories.NodoDocumentosConfig;
@@ -517,86 +516,5 @@ class HealthUserRepositoryBeanTest {
                 () -> repository.findHealthUserClinicalHistory(healthUserCi));
 
         assertTrue(exception.getMessage().contains("HTTP 500"));
-    }
-
-    @Test
-    @DisplayName("fetchHealthUserAccessHistory - Should successfully fetch access history")
-    void testFetchHealthUserAccessHistory_Success() throws Exception {
-        // Arrange
-        String healthUserCi = "54053584";
-
-        String mockResponse = """
-                [
-                    {
-                        "id": 1,
-                        "health_user_ci": "54053584",
-                        "health_worker_ci": "87654321",
-                        "clinic_name": "Clinic A",
-                        "requested_at": "2023-01-01T10:00:00Z",
-                        "viewed": true,
-                        "decision_reason": "Approved"
-                    }
-                ]
-                """;
-
-        when(config.getDocumentsApiBaseUrl()).thenReturn("http://api.example.com/");
-        when(config.getDocumentsApiKey()).thenReturn("test-api-key");
-
-        @SuppressWarnings("unchecked")
-        HttpResponse<String> mockHttpResponse = mock(HttpResponse.class);
-        when(mockHttpResponse.statusCode()).thenReturn(200);
-        when(mockHttpResponse.body()).thenReturn(mockResponse);
-
-        doReturn(mockHttpResponse).when(httpClient).send(any(HttpRequest.class), any());
-
-        // Act
-        List<ClinicalHistoryAccessLogResponseDTO> result = repository.findHealthUserAccessHistory(healthUserCi);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getId());
-        assertEquals("54053584", result.get(0).getHealthUserCi());
-        assertEquals("87654321", result.get(0).getHealthWorkerCi());
-        assertEquals("Clinic A", result.get(0).getClinicName());
-        assertTrue(result.get(0).getViewed());
-        assertEquals("Approved", result.get(0).getDecisionReason());
-
-        verify(httpClient).send(any(HttpRequest.class), any());
-    }
-
-    @Test
-    @DisplayName("fetchHealthUserAccessHistory - Should throw ValidationException for null CI")
-    void testFetchHealthUserAccessHistory_NullCi() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> repository.findHealthUserAccessHistory(null));
-
-        assertEquals("Health user CI is required", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("fetchHealthUserAccessHistory - Should throw IllegalStateException for HTTP error")
-    void testFetchHealthUserAccessHistory_HttpError() throws Exception {
-        // Arrange
-        String healthUserCi = "54053584";
-
-        when(config.getDocumentsApiBaseUrl()).thenReturn("http://api.example.com/");
-        when(config.getDocumentsApiKey()).thenReturn("test-api-key");
-
-        @SuppressWarnings("unchecked")
-        HttpResponse<String> mockHttpResponse = mock(HttpResponse.class);
-        when(mockHttpResponse.statusCode()).thenReturn(500);
-        when(mockHttpResponse.body()).thenReturn("Internal Server Error");
-
-        doReturn(mockHttpResponse).when(httpClient).send(any(HttpRequest.class), any());
-
-        // Act & Assert
-        IllegalStateException exception = assertThrows(
-                IllegalStateException.class,
-                () -> repository.findHealthUserAccessHistory(healthUserCi));
-
-        assertTrue(exception.getMessage().contains("Failed to fetch health user access history: HTTP 500"));
     }
 }

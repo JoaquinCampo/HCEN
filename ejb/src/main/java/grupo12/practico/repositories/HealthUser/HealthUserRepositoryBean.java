@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.NodoDocumentosConfig;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
@@ -325,74 +324,6 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Failed to parse clinical history response: " + jsonBody, ex);
             throw new IllegalStateException("Failed to parse clinical history response", ex);
-        }
-    }
-
-    @Override
-    public List<ClinicalHistoryAccessLogResponseDTO> findHealthUserAccessHistory(String healthUserCi) {
-        String url = String.format("%s/clinical-history/health-users/%s/access-history",
-                config.getDocumentsApiBaseUrl(), healthUserCi);
-
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .uri(URI.create(url))
-                .header("Accept", "application/json")
-                .header("x-api-key", config.getDocumentsApiKey())
-                .GET()
-                .build();
-
-        try {
-            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            int status = response.statusCode();
-
-            if (status != 200) {
-                logger.log(Level.WARNING,
-                        "Failed to fetch health user access history: HTTP {0}. Response body: {1}",
-                        new Object[] { status, response.body() });
-                throw new IllegalStateException("Failed to fetch health user access history: HTTP " + status);
-            }
-
-            return mapHealthUserAccessHistoryResponseToDto(response.body());
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while fetching health user access history", ex);
-        } catch (IOException ex) {
-            logger.log(Level.WARNING, "Error calling documents service for health user access history", ex);
-            throw new IllegalStateException("Unable to fetch health user access history", ex);
-        }
-    }
-
-    private List<ClinicalHistoryAccessLogResponseDTO> mapHealthUserAccessHistoryResponseToDto(String jsonBody) {
-        try (JsonReader reader = Json.createReader(new StringReader(jsonBody))) {
-            JsonArray jsonArray = reader.readArray();
-            List<ClinicalHistoryAccessLogResponseDTO> logs = new ArrayList<>();
-
-            for (JsonValue value : jsonArray) {
-                JsonObject jsonObject = value.asJsonObject();
-                ClinicalHistoryAccessLogResponseDTO dto = new ClinicalHistoryAccessLogResponseDTO();
-                dto.setId(Long.valueOf(jsonObject.getInt("id")));
-                dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
-                dto.setHealthWorkerCi(jsonObject.getString("health_worker_ci", null));
-                dto.setClinicName(jsonObject.getString("clinic_name", null));
-
-                if (jsonObject.containsKey("requested_at") && !jsonObject.isNull("requested_at")) {
-                    String requestedAtStr = jsonObject.getString("requested_at");
-                    dto.setRequestedAt(ZonedDateTime.parse(requestedAtStr).toLocalDateTime());
-                }
-
-                if (jsonObject.containsKey("viewed")) {
-                    dto.setViewed(jsonObject.getBoolean("viewed"));
-                }
-
-                dto.setDecisionReason(jsonObject.getString("decision_reason", null));
-
-                logs.add(dto);
-            }
-
-            return logs;
-        } catch (Exception ex) {
-            logger.log(Level.WARNING, "Failed to parse health user access history response: " + jsonBody, ex);
-            throw new IllegalStateException("Failed to parse health user access history response", ex);
         }
     }
 }

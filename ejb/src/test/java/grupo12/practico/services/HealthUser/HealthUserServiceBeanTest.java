@@ -5,10 +5,8 @@ import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.Gender;
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
-import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
@@ -399,54 +397,5 @@ class HealthUserServiceBeanTest {
         verify(accessPolicyService).hasClinicAccess(healthUserCi, clinicName);
         verify(accessPolicyService).hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
         verify(healthUserRepository, never()).findHealthUserClinicalHistory(anyString());
-    }
-
-    @Test
-    @DisplayName("fetchHealthUserAccessHistory - Should return access history for health user")
-    void testFetchHealthUserAccessHistory_Success() {
-        // Arrange
-        String healthUserCi = "54053584";
-        List<ClinicalHistoryAccessLogResponseDTO> accessLogs = new ArrayList<>();
-
-        ClinicalHistoryAccessLogResponseDTO log = new ClinicalHistoryAccessLogResponseDTO();
-        log.setHealthWorkerCi("19301176");
-        accessLogs.add(log);
-
-        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
-        when(healthUserRepository.findHealthUserAccessHistory(healthUserCi)).thenReturn(accessLogs);
-
-        // Act
-        HealthUserAccessHistoryResponseDTO result = healthUserService.fetchHealthUserAccessHistory(healthUserCi);
-
-        // Assert
-        assertNotNull(result);
-        assertNotNull(result.getHealthUser());
-        assertEquals(testHealthUser.getCi(), result.getHealthUser().getCi());
-        assertEquals(1, result.getAccessHistory().size());
-
-        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
-        verify(healthUserRepository).findHealthUserAccessHistory(healthUserCi);
-    }
-
-    @Test
-    @DisplayName("fetchHealthUserAccessHistory - Should return empty access history")
-    void testFetchHealthUserAccessHistory_EmptyHistory() {
-        // Arrange
-        String healthUserCi = "54053584";
-        List<ClinicalHistoryAccessLogResponseDTO> accessLogs = new ArrayList<>();
-
-        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
-        when(healthUserRepository.findHealthUserAccessHistory(healthUserCi)).thenReturn(accessLogs);
-
-        // Act
-        HealthUserAccessHistoryResponseDTO result = healthUserService.fetchHealthUserAccessHistory(healthUserCi);
-
-        // Assert
-        assertNotNull(result);
-        assertNotNull(result.getHealthUser());
-        assertEquals(0, result.getAccessHistory().size());
-
-        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
-        verify(healthUserRepository).findHealthUserAccessHistory(healthUserCi);
     }
 }

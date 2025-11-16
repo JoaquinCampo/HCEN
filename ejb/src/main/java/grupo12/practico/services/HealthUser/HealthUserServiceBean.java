@@ -7,10 +7,8 @@ import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
-import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
@@ -146,14 +144,6 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         response.setDocuments(documents);
 
         return response;
-    }
-
-    @Override
-    public HealthUserAccessHistoryResponseDTO fetchHealthUserAccessHistory(String healthUserCi) {
-        HealthUserDTO healthUser = findHealthUserByCi(healthUserCi);
-        List<ClinicalHistoryAccessLogResponseDTO> accessHistory = healthUserRepository
-                .findHealthUserAccessHistory(healthUserCi);
-        return new HealthUserAccessHistoryResponseDTO(healthUser, accessHistory);
     }
     
     @Override

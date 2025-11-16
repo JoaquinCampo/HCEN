@@ -6,7 +6,6 @@ import grupo12.practico.dtos.ClinicalDocument.PresignedUrlResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChunkSourceDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.MessageDTO;
 import grupo12.practico.repositories.NodoDocumentosConfig;
 import jakarta.ejb.EJB;
@@ -29,7 +28,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -101,10 +99,15 @@ public class ClinicalDocumentRepositoryBean implements ClinicalDocumentRepositor
         String url = config.getDocumentsApiBaseUrl() + "/documents";
 
         JsonObject jsonBody = Json.createObjectBuilder()
-                .add("created_by", dto.getHealthWorkerCi())
+                .add("title", dto.getTitle())
+                .add("description", dto.getDescription())
+                .add("content", dto.getContent())
+                .add("content_type", dto.getContentType())
+                .add("content_url", dto.getContentUrl())
+                .add("health_worker_ci", dto.getHealthWorkerCi())
                 .add("health_user_ci", dto.getHealthUserCi())
                 .add("clinic_name", dto.getClinicName())
-                .add("s3_url", dto.getContentUrl()) // Using contentUrl as s3Url based on DTO structure
+                .add("provider_name", dto.getProviderName())
                 .build();
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -134,45 +137,6 @@ public class ClinicalDocumentRepositoryBean implements ClinicalDocumentRepositor
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Error calling documents service", ex);
             throw new IllegalStateException("Unable to create clinical document", ex);
-        }
-    }
-
-    @Override
-    public List<ClinicalHistoryAccessLogResponseDTO> fetchHealthWorkerAccessHistory(String healthWorkerCi,
-            String healthUserCi) {
-        String url = String.format("%s/clinical-history/health-workers/%s/access-history",
-                config.getDocumentsApiBaseUrl(), healthWorkerCi);
-
-        if (healthUserCi != null && !healthUserCi.trim().isEmpty()) {
-            url += "?health_user_ci=" + healthUserCi;
-        }
-
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .uri(URI.create(url))
-                .header("Accept", "application/json")
-                .header("x-api-key", config.getDocumentsApiKey())
-                .GET()
-                .build();
-
-        try {
-            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            int status = response.statusCode();
-
-            if (status != 200) {
-                LOGGER.log(Level.WARNING,
-                        "Failed to fetch access history: HTTP {0}. Response body: {1}",
-                        new Object[] { status, response.body() });
-                throw new IllegalStateException("Failed to fetch access history: HTTP " + status);
-            }
-
-            return parseAccessHistoryResponse(response.body());
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while fetching access history", ex);
-        } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Error calling documents service for access history", ex);
-            throw new IllegalStateException("Unable to fetch access history", ex);
         }
     }
 
@@ -255,39 +219,6 @@ public class ClinicalDocumentRepositoryBean implements ClinicalDocumentRepositor
         } catch (Exception ex) {
             LOGGER.log(Level.WARNING, "Failed to parse clinical document response: " + jsonBody, ex);
             throw new IllegalStateException("Failed to parse clinical document response", ex);
-        }
-    }
-
-    private List<ClinicalHistoryAccessLogResponseDTO> parseAccessHistoryResponse(String jsonBody) {
-        try (JsonReader reader = Json.createReader(new StringReader(jsonBody))) {
-            JsonArray jsonArray = reader.readArray();
-            List<ClinicalHistoryAccessLogResponseDTO> logs = new ArrayList<>();
-
-            for (JsonValue value : jsonArray) {
-                JsonObject jsonObject = value.asJsonObject();
-                ClinicalHistoryAccessLogResponseDTO dto = new ClinicalHistoryAccessLogResponseDTO();
-                dto.setId(Long.valueOf(jsonObject.getInt("id")));
-                dto.setHealthUserCi(jsonObject.getString("health_user_ci", null));
-                dto.setHealthWorkerCi(jsonObject.getString("health_worker_ci", null));
-                dto.setClinicName(jsonObject.getString("clinic_name", null));
-                dto.setViewed(jsonObject.getBoolean("viewed"));
-
-                if (jsonObject.containsKey("requested_at") && !jsonObject.isNull("requested_at")) {
-                    String requestedAtStr = jsonObject.getString("requested_at");
-                    dto.setRequestedAt(ZonedDateTime.parse(requestedAtStr).toLocalDateTime());
-                }
-
-                if (jsonObject.containsKey("decision_reason") && !jsonObject.isNull("decision_reason")) {
-                    dto.setDecisionReason(jsonObject.getString("decision_reason"));
-                }
-
-                logs.add(dto);
-            }
-
-            return logs;
-        } catch (Exception ex) {
-            LOGGER.log(Level.WARNING, "Failed to parse access history response: " + jsonBody, ex);
-            throw new IllegalStateException("Failed to parse access history response", ex);
         }
     }
 

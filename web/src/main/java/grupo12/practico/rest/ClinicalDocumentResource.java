@@ -3,7 +3,6 @@ package grupo12.practico.rest;
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
-import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.messaging.ClinicalDocument.Chat.ChatProducerLocal;
 import grupo12.practico.messaging.ClinicalDocument.CreateDocument.CreateDocumentProducerLocal;
 import grupo12.practico.messaging.ClinicalDocument.PresignedUrl.PresignedUrlProducerLocal;
@@ -12,7 +11,6 @@ import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/clinical-documents")
 @Produces(MediaType.APPLICATION_JSON)
@@ -46,22 +44,6 @@ public class ClinicalDocumentResource {
         return Response.accepted()
                 .entity("{\"message\":\"Clinical document creation request queued successfully\"}")
                 .build();
-    }
-
-    @GET
-    @Path("/clinical-history/health-workers/{health_worker_ci}/access-history")
-    public Response fetchHealthWorkerAccessHistory(
-            @PathParam("health_worker_ci") String healthWorkerCi,
-            @QueryParam("health_user_ci") String healthUserCi) {
-        try {
-            List<ClinicalHistoryAccessLogResponseDTO> response = clinicalDocumentService
-                    .fetchHealthWorkerAccessHistory(healthWorkerCi, healthUserCi);
-            return Response.ok(response).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
     }
 
     @POST
