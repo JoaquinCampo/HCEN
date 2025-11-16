@@ -21,3 +21,5 @@ target/
 *.log
 
 FIREBASE_PK.json
+
+.scannerwork

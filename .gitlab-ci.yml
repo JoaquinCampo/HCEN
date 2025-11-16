@@ -31,6 +31,24 @@ build-image:
         --custom-platform=linux/amd64
   only:
     - main
+
+sonarqube:
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  tags:
+    - default
+  stage: build
+  variables:
+    SONAR_HOST_URL: "$SONAR_HOST_URL"
+  before_script:
+    - apt-get update && apt-get install
+  script:
+    - mvn clean verify -DskipTests=false
+    - sonar-scanner -Dsonar.token="$SONAR_TOKEN" -Dsonar.host.url="$SONAR_HOST_URL"
+  only:
+    - main
+
 # Deploy stage disabled - GitLab runner cannot reach EC2 from university network
 # To deploy manually after build: ssh to EC2 and run:
 #   cd /opt/practico && docker-compose pull && docker-compose up -d
