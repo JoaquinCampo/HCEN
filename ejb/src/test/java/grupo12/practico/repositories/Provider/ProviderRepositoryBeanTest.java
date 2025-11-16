@@ -65,7 +65,7 @@ class ProviderRepositoryBeanTest {
         // No stubbing needed for persist
 
         // Act
-        Provider result = repository.create(testProvider);
+        Provider result = repository.createProvider(testProvider);
 
         // Assert
         assertNotNull(result);
@@ -80,7 +80,7 @@ class ProviderRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.create(null));
+                () -> repository.createProvider(null));
 
         assertEquals("Provider must not be null", exception.getMessage());
         verify(entityManager, never()).persist(any());
@@ -93,7 +93,7 @@ class ProviderRepositoryBeanTest {
         when(entityManager.find(Provider.class, "provider-id-123")).thenReturn(testProvider);
 
         // Act
-        Provider result = repository.findById("provider-id-123");
+        Provider result = repository.findProviderById("provider-id-123");
 
         // Assert
         assertNotNull(result);
@@ -106,7 +106,7 @@ class ProviderRepositoryBeanTest {
     @DisplayName("findById - Should return null for null ID")
     void testFindById_NullId() {
         // Act
-        Provider result = repository.findById(null);
+        Provider result = repository.findProviderById(null);
 
         // Assert
         assertNull(result);
@@ -117,7 +117,7 @@ class ProviderRepositoryBeanTest {
     @DisplayName("findById - Should return null for empty ID")
     void testFindById_EmptyId() {
         // Act
-        Provider result = repository.findById("");
+        Provider result = repository.findProviderById("");
 
         // Assert
         assertNull(result);
@@ -128,7 +128,7 @@ class ProviderRepositoryBeanTest {
     @DisplayName("findById - Should return null for blank ID")
     void testFindById_BlankId() {
         // Act
-        Provider result = repository.findById("   ");
+        Provider result = repository.findProviderById("   ");
 
         // Assert
         assertNull(result);
@@ -142,7 +142,7 @@ class ProviderRepositoryBeanTest {
         when(entityManager.find(Provider.class, "non-existent-id")).thenReturn(null);
 
         // Act
-        Provider result = repository.findById("non-existent-id");
+        Provider result = repository.findProviderById("non-existent-id");
 
         // Assert
         assertNull(result);
@@ -160,7 +160,7 @@ class ProviderRepositoryBeanTest {
         when(providerQuery.getResultList()).thenReturn(providers);
 
         // Act
-        Provider result = repository.findByName("Test Provider");
+        Provider result = repository.findProviderByName("Test Provider");
 
         // Assert
         assertNotNull(result);
@@ -182,7 +182,7 @@ class ProviderRepositoryBeanTest {
         when(providerQuery.getResultList()).thenReturn(emptyList);
 
         // Act
-        Provider result = repository.findByName("Non-existent Provider");
+        Provider result = repository.findProviderByName("Non-existent Provider");
 
         // Assert
         assertNull(result);
@@ -194,7 +194,7 @@ class ProviderRepositoryBeanTest {
     @DisplayName("findByName - Should return null for null name")
     void testFindByName_NullName() {
         // Act
-        Provider result = repository.findByName(null);
+        Provider result = repository.findProviderByName(null);
 
         // Assert
         assertNull(result);
@@ -205,7 +205,7 @@ class ProviderRepositoryBeanTest {
     @DisplayName("findByName - Should return null for empty name")
     void testFindByName_EmptyName() {
         // Act
-        Provider result = repository.findByName("");
+        Provider result = repository.findProviderByName("");
 
         // Assert
         assertNull(result);
@@ -216,7 +216,7 @@ class ProviderRepositoryBeanTest {
     @DisplayName("findByName - Should return null for blank name")
     void testFindByName_BlankName() {
         // Act
-        Provider result = repository.findByName("   ");
+        Provider result = repository.findProviderByName("   ");
 
         // Assert
         assertNull(result);
@@ -232,7 +232,7 @@ class ProviderRepositoryBeanTest {
         when(providerQuery.getResultList()).thenReturn(providers);
 
         // Act
-        List<Provider> result = repository.findAll();
+        List<Provider> result = repository.findAllProviders();
 
         // Assert
         assertNotNull(result);
@@ -253,7 +253,7 @@ class ProviderRepositoryBeanTest {
         when(providerQuery.getResultList()).thenReturn(emptyList);
 
         // Act
-        List<Provider> result = repository.findAll();
+        List<Provider> result = repository.findAllProviders();
 
         // Assert
         assertNotNull(result);

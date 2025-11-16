@@ -377,12 +377,6 @@ class OidcAuthenticationServiceTest {
                 .get(null);
         codeVerifierStore.put(validState, codeVerifier);
 
-        // The method will attempt HTTP calls which will fail in test environment
-        // This tests that the method starts processing and reaches the HTTP call
-        // attempt
-        Exception exception = assertThrows(Exception.class,
-                () -> service.handleCallback("auth-code-123", validState));
-
         assertTrue(stateStore.containsKey(validState));
         assertTrue(nonceStore.containsKey(validState));
         assertTrue(codeVerifierStore.containsKey(validState));

@@ -64,17 +64,17 @@ class ProviderServiceBeanTest {
     @DisplayName("create - Should create and return Provider DTO")
     void testCreate_Success() {
         // Arrange
-        when(providerRepository.create(any(Provider.class))).thenReturn(testProvider);
+        when(providerRepository.createProvider(any(Provider.class))).thenReturn(testProvider);
 
         // Act
-        ProviderDTO result = providerService.create(testAddProviderDTO);
+        ProviderDTO result = providerService.createProvider(testAddProviderDTO);
 
         // Assert
         assertNotNull(result);
         assertEquals(testProviderDTO.getId(), result.getId());
         assertEquals(testProviderDTO.getProviderName(), result.getProviderName());
 
-        verify(providerRepository).create(any(Provider.class));
+        verify(providerRepository).createProvider(any(Provider.class));
     }
 
     @Test
@@ -83,10 +83,10 @@ class ProviderServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> providerService.create(null));
+                () -> providerService.createProvider(null));
 
         assertEquals("Provider data must not be null", exception.getMessage());
-        verify(providerRepository, never()).create(any());
+        verify(providerRepository, never()).createProvider(any());
     }
 
     @Test
@@ -98,10 +98,10 @@ class ProviderServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> providerService.create(testAddProviderDTO));
+                () -> providerService.createProvider(testAddProviderDTO));
 
         assertEquals("Provider name is required", exception.getMessage());
-        verify(providerRepository, never()).create(any());
+        verify(providerRepository, never()).createProvider(any());
     }
 
     @Test
@@ -113,10 +113,10 @@ class ProviderServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> providerService.create(testAddProviderDTO));
+                () -> providerService.createProvider(testAddProviderDTO));
 
         assertEquals("Provider name is required", exception.getMessage());
-        verify(providerRepository, never()).create(any());
+        verify(providerRepository, never()).createProvider(any());
     }
 
     @Test
@@ -124,10 +124,10 @@ class ProviderServiceBeanTest {
     void testFindAll_Success() {
         // Arrange
         List<Provider> providers = Arrays.asList(testProvider);
-        when(providerRepository.findAll()).thenReturn(providers);
+        when(providerRepository.findAllProviders()).thenReturn(providers);
 
         // Act
-        List<ProviderDTO> result = providerService.findAll();
+        List<ProviderDTO> result = providerService.findAllProviders();
 
         // Assert
         assertNotNull(result);
@@ -135,23 +135,23 @@ class ProviderServiceBeanTest {
         assertEquals(testProviderDTO.getId(), result.get(0).getId());
         assertEquals(testProviderDTO.getProviderName(), result.get(0).getProviderName());
 
-        verify(providerRepository).findAll();
+        verify(providerRepository).findAllProviders();
     }
 
     @Test
     @DisplayName("findAll - Should return empty list when no providers exist")
     void testFindAll_Empty() {
         // Arrange
-        when(providerRepository.findAll()).thenReturn(Collections.emptyList());
+        when(providerRepository.findAllProviders()).thenReturn(Collections.emptyList());
 
         // Act
-        List<ProviderDTO> result = providerService.findAll();
+        List<ProviderDTO> result = providerService.findAllProviders();
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(providerRepository).findAll();
+        verify(providerRepository).findAllProviders();
     }
 
     @Test
@@ -159,16 +159,16 @@ class ProviderServiceBeanTest {
     void testFindByName_Found() {
         // Arrange
         String providerName = "Test Provider";
-        when(providerRepository.findByName(providerName)).thenReturn(testProvider);
+        when(providerRepository.findProviderByName(providerName)).thenReturn(testProvider);
 
         // Act
-        ProviderDTO result = providerService.findByName(providerName);
+        ProviderDTO result = providerService.findProviderByName(providerName);
 
         // Assert
         assertNotNull(result);
         assertEquals(testProviderDTO.getProviderName(), result.getProviderName());
 
-        verify(providerRepository).findByName(providerName);
+        verify(providerRepository).findProviderByName(providerName);
     }
 
     @Test
@@ -176,39 +176,39 @@ class ProviderServiceBeanTest {
     void testFindByName_NotFound() {
         // Arrange
         String providerName = "Nonexistent Provider";
-        when(providerRepository.findByName(providerName)).thenReturn(null);
+        when(providerRepository.findProviderByName(providerName)).thenReturn(null);
 
         // Act
-        ProviderDTO result = providerService.findByName(providerName);
+        ProviderDTO result = providerService.findProviderByName(providerName);
 
         // Assert
         assertNull(result);
 
-        verify(providerRepository).findByName(providerName);
+        verify(providerRepository).findProviderByName(providerName);
     }
 
     @Test
     @DisplayName("findByName - Should return null for null input")
     void testFindByName_NullInput() {
         // Act
-        ProviderDTO result = providerService.findByName(null);
+        ProviderDTO result = providerService.findProviderByName(null);
 
         // Assert
         assertNull(result);
 
-        verify(providerRepository, never()).findByName(any());
+        verify(providerRepository, never()).findProviderByName(any());
     }
 
     @Test
     @DisplayName("findByName - Should return null for empty input")
     void testFindByName_EmptyInput() {
         // Act
-        ProviderDTO result = providerService.findByName("");
+        ProviderDTO result = providerService.findProviderByName("");
 
         // Assert
         assertNull(result);
 
-        verify(providerRepository, never()).findByName(any());
+        verify(providerRepository, never()).findProviderByName(any());
     }
 
 }

@@ -70,10 +70,10 @@ class HcenAdminServiceBeanTest {
     @DisplayName("create - Should create and return HcenAdmin DTO")
     void testCreate_Success() {
         // Arrange
-        when(hcenAdminRepository.create(any(HcenAdmin.class))).thenReturn(testHcenAdmin);
+        when(hcenAdminRepository.createHcenAdmin(any(HcenAdmin.class))).thenReturn(testHcenAdmin);
 
         // Act
-        HcenAdminDTO result = hcenAdminService.create(testAddHcenAdminDTO);
+        HcenAdminDTO result = hcenAdminService.createHcenAdmin(testAddHcenAdminDTO);
 
         // Assert
         assertNotNull(result);
@@ -82,7 +82,7 @@ class HcenAdminServiceBeanTest {
         assertEquals(testHcenAdminDTO.getFirstName(), result.getFirstName());
         assertEquals(testHcenAdminDTO.getLastName(), result.getLastName());
 
-        verify(hcenAdminRepository).create(any(HcenAdmin.class));
+        verify(hcenAdminRepository).createHcenAdmin(any(HcenAdmin.class));
     }
 
     @Test
@@ -91,10 +91,10 @@ class HcenAdminServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> hcenAdminService.create(null));
+                () -> hcenAdminService.createHcenAdmin(null));
 
         assertEquals("Hcen Admin data must not be null", exception.getMessage());
-        verify(hcenAdminRepository, never()).create(any());
+        verify(hcenAdminRepository, never()).createHcenAdmin(any());
     }
 
     @Test
@@ -106,10 +106,10 @@ class HcenAdminServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> hcenAdminService.create(testAddHcenAdminDTO));
+                () -> hcenAdminService.createHcenAdmin(testAddHcenAdminDTO));
 
         assertEquals("Hcen Admin first name and last name are required", exception.getMessage());
-        verify(hcenAdminRepository, never()).create(any());
+        verify(hcenAdminRepository, never()).createHcenAdmin(any());
     }
 
     @Test
@@ -121,10 +121,10 @@ class HcenAdminServiceBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> hcenAdminService.create(testAddHcenAdminDTO));
+                () -> hcenAdminService.createHcenAdmin(testAddHcenAdminDTO));
 
         assertEquals("Hcen Admin document is required", exception.getMessage());
-        verify(hcenAdminRepository, never()).create(any());
+        verify(hcenAdminRepository, never()).createHcenAdmin(any());
     }
 
     @Test
@@ -132,33 +132,33 @@ class HcenAdminServiceBeanTest {
     void testFindAll_Success() {
         // Arrange
         List<HcenAdmin> admins = Arrays.asList(testHcenAdmin);
-        when(hcenAdminRepository.findAll()).thenReturn(admins);
+        when(hcenAdminRepository.findAllHcenAdmins()).thenReturn(admins);
 
         // Act
-        List<HcenAdminDTO> result = hcenAdminService.findAll();
+        List<HcenAdminDTO> result = hcenAdminService.findAllHcenAdmins();
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testHcenAdminDTO.getId(), result.get(0).getId());
 
-        verify(hcenAdminRepository).findAll();
+        verify(hcenAdminRepository).findAllHcenAdmins();
     }
 
     @Test
     @DisplayName("findAll - Should return empty list when no admins exist")
     void testFindAll_Empty() {
         // Arrange
-        when(hcenAdminRepository.findAll()).thenReturn(Collections.emptyList());
+        when(hcenAdminRepository.findAllHcenAdmins()).thenReturn(Collections.emptyList());
 
         // Act
-        List<HcenAdminDTO> result = hcenAdminService.findAll();
+        List<HcenAdminDTO> result = hcenAdminService.findAllHcenAdmins();
 
         // Assert
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(hcenAdminRepository).findAll();
+        verify(hcenAdminRepository).findAllHcenAdmins();
     }
 
     @Test
@@ -166,16 +166,16 @@ class HcenAdminServiceBeanTest {
     void testFindByCi_Found() {
         // Arrange
         String ci = "12345678";
-        when(hcenAdminRepository.findByCi(ci)).thenReturn(testHcenAdmin);
+        when(hcenAdminRepository.findHcenAdminByCi(ci)).thenReturn(testHcenAdmin);
 
         // Act
-        HcenAdminDTO result = hcenAdminService.findByCi(ci);
+        HcenAdminDTO result = hcenAdminService.findHcenAdminByCi(ci);
 
         // Assert
         assertNotNull(result);
         assertEquals(testHcenAdminDTO.getCi(), result.getCi());
 
-        verify(hcenAdminRepository).findByCi(ci);
+        verify(hcenAdminRepository).findHcenAdminByCi(ci);
     }
 
     @Test
@@ -183,14 +183,14 @@ class HcenAdminServiceBeanTest {
     void testFindByCi_NotFound() {
         // Arrange
         String ci = "99999999";
-        when(hcenAdminRepository.findByCi(ci)).thenReturn(null);
+        when(hcenAdminRepository.findHcenAdminByCi(ci)).thenReturn(null);
 
         // Act
-        HcenAdminDTO result = hcenAdminService.findByCi(ci);
+        HcenAdminDTO result = hcenAdminService.findHcenAdminByCi(ci);
 
         // Assert
         assertNull(result);
 
-        verify(hcenAdminRepository).findByCi(ci);
+        verify(hcenAdminRepository).findHcenAdminByCi(ci);
     }
 }

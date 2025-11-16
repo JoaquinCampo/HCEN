@@ -65,7 +65,7 @@ class HcenAdminRepositoryBeanTest {
         // No stubbing needed for persist
 
         // Act
-        HcenAdmin result = repository.create(testHcenAdmin);
+        HcenAdmin result = repository.createHcenAdmin(testHcenAdmin);
 
         // Assert
         assertNotNull(result);
@@ -80,7 +80,7 @@ class HcenAdminRepositoryBeanTest {
         // Act & Assert
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> repository.create(null));
+                () -> repository.createHcenAdmin(null));
 
         assertEquals("HcenAdmin must not be null", exception.getMessage());
         verify(entityManager, never()).persist(any());
@@ -95,7 +95,7 @@ class HcenAdminRepositoryBeanTest {
         when(hcenAdminQuery.getSingleResult()).thenReturn(testHcenAdmin);
 
         // Act
-        HcenAdmin result = repository.findByCi("11223344");
+        HcenAdmin result = repository.findHcenAdminByCi("11223344");
 
         // Assert
         assertNotNull(result);
@@ -116,7 +116,7 @@ class HcenAdminRepositoryBeanTest {
         when(hcenAdminQuery.getSingleResult()).thenThrow(new NoResultException());
 
         // Act
-        HcenAdmin result = repository.findByCi("99999999");
+        HcenAdmin result = repository.findHcenAdminByCi("99999999");
 
         // Assert
         assertNull(result);
@@ -128,7 +128,7 @@ class HcenAdminRepositoryBeanTest {
     @DisplayName("findByCi - Should return null for null CI")
     void testFindByCi_NullCi() {
         // Act
-        HcenAdmin result = repository.findByCi(null);
+        HcenAdmin result = repository.findHcenAdminByCi(null);
 
         // Assert
         assertNull(result);
@@ -139,7 +139,7 @@ class HcenAdminRepositoryBeanTest {
     @DisplayName("findByCi - Should return null for empty CI")
     void testFindByCi_EmptyCi() {
         // Act
-        HcenAdmin result = repository.findByCi("");
+        HcenAdmin result = repository.findHcenAdminByCi("");
 
         // Assert
         assertNull(result);
@@ -150,7 +150,7 @@ class HcenAdminRepositoryBeanTest {
     @DisplayName("findByCi - Should return null for blank CI")
     void testFindByCi_BlankCi() {
         // Act
-        HcenAdmin result = repository.findByCi("   ");
+        HcenAdmin result = repository.findHcenAdminByCi("   ");
 
         // Assert
         assertNull(result);
@@ -164,7 +164,7 @@ class HcenAdminRepositoryBeanTest {
         when(entityManager.find(HcenAdmin.class, "admin-id-123")).thenReturn(testHcenAdmin);
 
         // Act
-        HcenAdmin result = repository.findById("admin-id-123");
+        HcenAdmin result = repository.findHcenAdminById("admin-id-123");
 
         // Assert
         assertNotNull(result);
@@ -177,7 +177,7 @@ class HcenAdminRepositoryBeanTest {
     @DisplayName("findById - Should return null for null ID")
     void testFindById_NullId() {
         // Act
-        HcenAdmin result = repository.findById(null);
+        HcenAdmin result = repository.findHcenAdminById(null);
 
         // Assert
         assertNull(result);
@@ -188,7 +188,7 @@ class HcenAdminRepositoryBeanTest {
     @DisplayName("findById - Should return null for empty ID")
     void testFindById_EmptyId() {
         // Act
-        HcenAdmin result = repository.findById("");
+        HcenAdmin result = repository.findHcenAdminById("");
 
         // Assert
         assertNull(result);
@@ -199,7 +199,7 @@ class HcenAdminRepositoryBeanTest {
     @DisplayName("findById - Should return null for blank ID")
     void testFindById_BlankId() {
         // Act
-        HcenAdmin result = repository.findById("   ");
+        HcenAdmin result = repository.findHcenAdminById("   ");
 
         // Assert
         assertNull(result);
@@ -213,7 +213,7 @@ class HcenAdminRepositoryBeanTest {
         when(entityManager.find(HcenAdmin.class, "non-existent-id")).thenReturn(null);
 
         // Act
-        HcenAdmin result = repository.findById("non-existent-id");
+        HcenAdmin result = repository.findHcenAdminById("non-existent-id");
 
         // Assert
         assertNull(result);
@@ -230,7 +230,7 @@ class HcenAdminRepositoryBeanTest {
         when(hcenAdminQuery.getResultList()).thenReturn(admins);
 
         // Act
-        java.util.List<HcenAdmin> result = repository.findAll();
+        java.util.List<HcenAdmin> result = repository.findAllHcenAdmins();
 
         // Assert
         assertNotNull(result);
@@ -251,7 +251,7 @@ class HcenAdminRepositoryBeanTest {
         when(hcenAdminQuery.getResultList()).thenReturn(emptyList);
 
         // Act
-        java.util.List<HcenAdmin> result = repository.findAll();
+        java.util.List<HcenAdmin> result = repository.findAllHcenAdmins();
 
         // Assert
         assertNotNull(result);
