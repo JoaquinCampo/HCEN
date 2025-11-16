@@ -16,8 +16,11 @@ target/
 *.ipr
 .env.local
 .env
+.env.production
 
 # Logs
 *.log
 
 FIREBASE_PK.json
+
+.scannerwork
