@@ -146,15 +146,21 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         boolean hasWorkerAccess = !isHealthUser && accessPolicyService.hasHealthWorkerAccess(request.getHealthUserCi(), request.getHealthWorkerCi());
         boolean hasSpecialtyAccess = !isHealthUser && accessPolicyService.hasSpecialtyAccess(request.getHealthUserCi(), request.getSpecialtyNames());
 
-        if (!isHealthUser && !hasClinicAccess && !hasWorkerAccess && !hasSpecialtyAccess) {
-            throw new ValidationException("Access denied to clinical history for health user CI: " + request.getHealthUserCi());
-        }
-
-        List<ClinicalDocumentDTO> documents = healthUserRepository.findHealthUserClinicalHistory(request.getHealthUserCi());
-
         ClinicalHistoryResponseDTO response = new ClinicalHistoryResponseDTO();
         HealthUserDTO healthUserDTO = findHealthUserByCi(request.getHealthUserCi());
         response.setHealthUser(healthUserDTO);
+
+        if (!isHealthUser && !hasClinicAccess && !hasWorkerAccess && !hasSpecialtyAccess) {
+            
+            response.setHasAccess(false);
+            response.setAccessMessage("Access denied to clinical history for health user CI: " + request.getHealthUserCi());
+            response.setDocuments(new ArrayList<>());
+            return response;
+        }
+
+        List<ClinicalDocumentDTO> documents = healthUserRepository.findHealthUserClinicalHistory(request.getHealthUserCi());
+        response.setHasAccess(true);
+        response.setAccessMessage("Access granted");
         response.setDocuments(documents);
 
         // Log clinical history access
