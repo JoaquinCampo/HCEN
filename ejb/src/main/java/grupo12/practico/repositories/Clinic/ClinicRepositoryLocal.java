@@ -8,9 +8,9 @@ import jakarta.ejb.Local;
 
 @Local
 public interface ClinicRepositoryLocal {
-    ClinicDTO create(AddClinicDTO clinicDTO);
+    ClinicDTO createClinic(AddClinicDTO clinicDTO);
 
-    ClinicDTO findByName(String name);
+    ClinicDTO findClinicByName(String name);
 
-    List<ClinicDTO> findAll();
+    List<ClinicDTO> findAllClinics(String providerName);
 }

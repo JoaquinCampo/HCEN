@@ -7,58 +7,89 @@
 >
   <f:metadata>
     <f:viewParam name="name" value="#{providerBean.providerName}" />
-    <f:event type="preRenderView" listener="#{providerBean.loadProviderByName()}" />
+    <f:event
+      type="preRenderView"
+      listener="#{providerBean.loadProviderByName()}"
+    />
   </f:metadata>
 
-  <ui:define name="title">Prestador: #{providerBean.selectedProvider.providerName}</ui:define>
+  <ui:define name="title"
+    >#{providerBean.selectedProvider.providerName}</ui:define
+  >
   <ui:define name="content">
-    <div class="mb-3">
-      <h:link outcome="/index" styleClass="btn btn-sm btn-outline-secondary">Volver a Prestadores</h:link>
-    </div>
-
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h2 class="card-title h4 mb-0">#{providerBean.selectedProvider.providerName}</h2>
-            <small class="text-muted">Clínicas de este prestador</small>
-          </div>
-          <h:link outcome="/clinic/form" styleClass="btn btn-primary">
-            <f:param name="providerName" value="#{providerBean.selectedProvider.providerName}" />
-            Nueva clínica
-          </h:link>
-        </div>
-
-        <h:panelGroup id="clinics" layout="block" styleClass="table-responsive mt-4">
-          <h:dataTable value="#{providerBean.providerClinics}" var="clinic" 
-            rendered="#{not empty providerBean.providerClinics}"
-            styleClass="table table-striped align-middle">
-            <h:column>
-              <f:facet name="header">Nombre</f:facet>
-              <div class="fw-semibold">#{clinic.name}</div>
-            </h:column>
-            <h:column>
-              <f:facet name="header">Contacto</f:facet>
-              <div>#{empty clinic.phone ? '—' : clinic.phone}</div>
-              <small class="text-muted">#{empty clinic.email ? '—' : clinic.email}</small>
-            </h:column>
-            <h:column>
-              <f:facet name="header">Dirección</f:facet>
-              <span class="text-muted">#{clinic.address}</span>
-            </h:column>
-            <h:column>
-              <f:facet name="header">Creado</f:facet>
-              <span class="text-muted">#{clinic.createdAt}</span>
-            </h:column>
-          </h:dataTable>
-
-          <h:panelGroup rendered="#{empty providerBean.providerClinics}" styleClass="text-muted">
-            <div class="alert alert-info mb-0">
-              No hay clínicas asociadas a este prestador.
-            </div>
-          </h:panelGroup>
-        </h:panelGroup>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h:link
+          outcome="/provider/list"
+          styleClass="btn btn-sm btn-outline-secondary mb-2"
+        >
+          <i class="bi bi-arrow-left me-1"></i>Volver a Prestadores
+        </h:link>
+        <h2 class="h3 mb-1">#{providerBean.selectedProvider.providerName}</h2>
+        <p class="text-muted mb-0">Clínicas de este prestador</p>
       </div>
+      <h:link outcome="/clinic/form" styleClass="btn btn-primary">
+        <f:param
+          name="providerName"
+          value="#{providerBean.selectedProvider.providerName}"
+        />
+        <i class="bi bi-plus-circle me-2"></i>Nueva clínica
+      </h:link>
     </div>
+
+    <h:panelGroup id="clinics" layout="block">
+      <ui:fragment rendered="#{not empty providerBean.providerClinics}">
+        <div class="card-grid">
+          <ui:repeat value="#{providerBean.providerClinics}" var="clinic">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-hospital me-2"></i>#{clinic.name}
+                </h5>
+                <p class="card-text">
+                  <i class="bi bi-geo-alt me-1"></i>#{clinic.address}
+                </p>
+                <div class="small text-muted">
+                  <ui:fragment rendered="#{not empty clinic.phone}">
+                    <div>
+                      <i class="bi bi-telephone me-1"></i>#{clinic.phone}
+                    </div>
+                  </ui:fragment>
+                  <ui:fragment rendered="#{not empty clinic.email}">
+                    <div>
+                      <i class="bi bi-envelope me-1"></i>#{clinic.email}
+                    </div>
+                  </ui:fragment>
+                </div>
+              </div>
+              <div class="card-footer">
+                <i class="bi bi-calendar me-1"></i>Creado: #{clinic.createdAt}
+              </div>
+            </div>
+          </ui:repeat>
+        </div>
+      </ui:fragment>
+
+      <ui:fragment rendered="#{empty providerBean.providerClinics}">
+        <div class="card shadow-sm">
+          <div class="card-body text-center py-5">
+            <i
+              class="bi bi-hospital"
+              style="font-size: 3rem; color: #9ca3af"
+            ></i>
+            <p class="text-muted mt-3 mb-0">
+              No hay clínicas asociadas a este prestador.
+            </p>
+            <h:link outcome="/clinic/form" styleClass="btn btn-primary mt-3">
+              <f:param
+                name="providerName"
+                value="#{providerBean.selectedProvider.providerName}"
+              />
+              <i class="bi bi-plus-circle me-2"></i>Crear primera clínica
+            </h:link>
+          </div>
+        </div>
+      </ui:fragment>
+    </h:panelGroup>
   </ui:define>
 </ui:composition>

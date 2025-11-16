@@ -4,6 +4,7 @@ import java.util.List;
 
 import grupo12.practico.models.ClinicAccessPolicy;
 import grupo12.practico.models.HealthWorkerAccessPolicy;
+import grupo12.practico.models.SpecialtyAccessPolicy;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
@@ -31,6 +32,12 @@ public class AccessPolicyRepositoryBean implements AccessPolicyRepositoryRemote 
     }
 
     @Override
+    public SpecialtyAccessPolicy createSpecialtyAccessPolicy(SpecialtyAccessPolicy specialtyAccessPolicy) {
+        em.persist(specialtyAccessPolicy);
+        return specialtyAccessPolicy;
+    }
+
+    @Override
     public List<ClinicAccessPolicy> findAllClinicAccessPolicies(String healthUserId) {
         return em.createQuery("SELECT c FROM ClinicAccessPolicy c WHERE c.healthUser.id = :healthUserId", ClinicAccessPolicy.class)
                 .setParameter("healthUserId", healthUserId)
@@ -40,6 +47,13 @@ public class AccessPolicyRepositoryBean implements AccessPolicyRepositoryRemote 
     @Override
     public List<HealthWorkerAccessPolicy> findAllHealthWorkerAccessPolicies(String healthUserId) {
         return em.createQuery("SELECT h FROM HealthWorkerAccessPolicy h WHERE h.healthUser.id = :healthUserId", HealthWorkerAccessPolicy.class)
+                .setParameter("healthUserId", healthUserId)
+                .getResultList();
+    }
+
+    @Override
+    public List<SpecialtyAccessPolicy> findAllSpecialtyAccessPolicies(String healthUserId) {
+        return em.createQuery("SELECT s FROM SpecialtyAccessPolicy s WHERE s.healthUser.id = :healthUserId", SpecialtyAccessPolicy.class)
                 .setParameter("healthUserId", healthUserId)
                 .getResultList();
     }
@@ -61,6 +75,14 @@ public class AccessPolicyRepositoryBean implements AccessPolicyRepositoryRemote 
     }
 
     @Override
+    public void deleteSpecialtyAccessPolicy(String specialtyAccessPolicyId) {
+        SpecialtyAccessPolicy specialtyAccessPolicy = em.find(SpecialtyAccessPolicy.class, specialtyAccessPolicyId);
+        if (specialtyAccessPolicy != null) {
+            em.remove(specialtyAccessPolicy);
+        }
+    }
+
+    @Override
     public boolean hasClinicAccess(String healthUserId, String clinicName) {
         Long count = em.createQuery(
                 "SELECT COUNT(c) FROM ClinicAccessPolicy c WHERE c.healthUser.id = :healthUserId AND c.clinicName = :clinicName",
@@ -78,6 +100,17 @@ public class AccessPolicyRepositoryBean implements AccessPolicyRepositoryRemote 
                 Long.class)
                 .setParameter("healthUserId", healthUserId)
                 .setParameter("healthWorkerCi", healthWorkerCi)
+                .getSingleResult();
+        return count > 0;
+    }
+
+    @Override
+    public boolean hasSpecialtyAccess(String healthUserId, List<String> specialtyNames) {
+        Long count = em.createQuery(
+                "SELECT COUNT(s) FROM SpecialtyAccessPolicy s WHERE s.healthUser.id = :healthUserId AND s.specialtyName IN :specialtyNames",
+                Long.class)
+                .setParameter("healthUserId", healthUserId)
+                .setParameter("specialtyNames", specialtyNames)
                 .getSingleResult();
         return count > 0;
     }

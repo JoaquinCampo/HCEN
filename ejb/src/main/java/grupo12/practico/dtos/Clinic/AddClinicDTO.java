@@ -5,8 +5,8 @@ public class AddClinicDTO {
     private String email;
     private String phone;
     private String address;
-    private ClinicAdminDTO clinicAdmin = new ClinicAdminDTO();
-    private String providerName;
+    private String providerName;  
+    private ClinicAdminDTO clinicAdmin;
 
     public String getName() {
         return name;
@@ -40,19 +40,19 @@ public class AddClinicDTO {
         this.address = address;
     }
 
-    public ClinicAdminDTO getClinicAdmin() {
-        return clinicAdmin;
-    }
-
-    public void setClinicAdmin(ClinicAdminDTO clinicAdmin) {
-        this.clinicAdmin = clinicAdmin != null ? clinicAdmin : new ClinicAdminDTO();
-    }
-
     public String getProviderName() {
         return providerName;
     }
 
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    public ClinicAdminDTO getClinicAdmin() {
+        return clinicAdmin;
+    }
+
+    public void setClinicAdmin(ClinicAdminDTO clinicAdmin) {
+        this.clinicAdmin = clinicAdmin;
     }
 }

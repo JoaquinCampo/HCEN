@@ -2,8 +2,8 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.NotificationToken.NotificationSubscriptionDTO;
 import grupo12.practico.dtos.NotificationToken.NotificationTokenDTO;
+import grupo12.practico.dtos.NotificationToken.NotificationUnsubscribeRequestDTO;
 import grupo12.practico.models.NotificationType;
-import grupo12.practico.rest.dto.NotificationUnsubscribeRequest;
 import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.validation.ValidationException;
@@ -49,7 +49,7 @@ public class NotificationTokenResource {
 
     @POST
     @Path("/unsubscribe")
-    public Response unsubscribe(NotificationUnsubscribeRequest request) {
+    public Response unsubscribe(NotificationUnsubscribeRequestDTO request) {
         if (request == null || request.getUserCi() == null || request.getUserCi().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\":\"userCi is required\"}")
@@ -82,7 +82,7 @@ public class NotificationTokenResource {
 
     @POST
     @Path("/subscribe")
-    public Response subscribe(NotificationUnsubscribeRequest request) {
+    public Response subscribe(NotificationUnsubscribeRequestDTO request) {
         if (request == null || request.getUserCi() == null || request.getUserCi().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\":\"userCi is required\"}")

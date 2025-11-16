@@ -23,7 +23,7 @@ public class AccessRequestResource {
     private AccessRequestProducerLocal accessRequestProducer;
 
     @POST
-    public Response create(AddAccessRequestDTO dto) {
+    public Response createAccessRequest(AddAccessRequestDTO dto) {
         accessRequestProducer.enqueue(dto);
         return Response.accepted()
                 .entity("{\"message\":\"Access request creation queued successfully\"}")
@@ -31,18 +31,18 @@ public class AccessRequestResource {
     }
 
     @GET
-    public Response findAll(
+    public Response findAllAccessRequests(
             @QueryParam("healthUserCi") String healthUserCi,
             @QueryParam("healthWorkerCi") String healthWorkerCi,
             @QueryParam("clinicName") String clinicName) {
-        List<AccessRequestDTO> requests = accessRequestService.findAll(healthUserCi, healthWorkerCi, clinicName);
+        List<AccessRequestDTO> requests = accessRequestService.findAllAccessRequests(healthUserCi, healthWorkerCi, clinicName);
         return Response.ok(requests).build();
     }
 
     @DELETE
     @Path("/{accessRequestId}")
-    public Response delete(@PathParam("accessRequestId") String accessRequestId) {
-        accessRequestService.delete(accessRequestId);
+    public Response deleteAccessRequest(@PathParam("accessRequestId") String accessRequestId) {
+        accessRequestService.deleteAccessRequest(accessRequestId);
         return Response.ok()
                 .entity("{\"message\":\"Access request deleted successfully\"}")
                 .build();

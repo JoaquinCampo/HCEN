@@ -11,23 +11,9 @@ import java.util.List;
 @Local
 public interface HcenAdminServiceLocal {
 
-    HcenAdminDTO create(AddHcenAdminDTO addHcenAdminDTO);
+    HcenAdminDTO createHcenAdmin(AddHcenAdminDTO addHcenAdminDTO);
 
-    List<HcenAdminDTO> findAll();
+    List<HcenAdminDTO> findAllHcenAdmins();
 
-    /**
-     * Find HcenAdmin by CI (document)
-     * 
-     * @param ci The CI to search for
-     * @return HcenAdminDTO if found, null otherwise
-     */
-    HcenAdminDTO findByCi(String ci);
-
-    /**
-     * Check if a user with the given CI is an HcenAdmin
-     * 
-     * @param ci The CI to check
-     * @return true if the user is an HcenAdmin, false otherwise
-     */
-    boolean isHcenAdmin(String ci);
+    HcenAdminDTO findHcenAdminByCi(String ci);
 }

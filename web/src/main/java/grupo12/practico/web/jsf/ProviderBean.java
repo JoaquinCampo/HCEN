@@ -3,6 +3,7 @@ package grupo12.practico.web.jsf;
 import grupo12.practico.dtos.Provider.ProviderDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
 import grupo12.practico.dtos.Provider.AddProviderDTO;
+import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.services.Provider.ProviderServiceLocal;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -24,6 +25,9 @@ public class ProviderBean implements Serializable {
     @EJB
     private ProviderServiceLocal providerService;
 
+    @EJB
+    private ClinicServiceLocal clinicService;
+
     private AddProviderDTO newProvider;
     private List<ProviderDTO> providers;
     private ProviderDTO selectedProvider;
@@ -39,7 +43,7 @@ public class ProviderBean implements Serializable {
     }
 
     public void loadAll() {
-        providers = providerService.findAll();
+        providers = providerService.findAllProviders();
     }
 
     public void loadProviderByName() {
@@ -49,18 +53,18 @@ public class ProviderBean implements Serializable {
             return;
         }
 
-        selectedProvider = providerService.findByName(providerName.trim());
+        selectedProvider = providerService.findProviderByName(providerName.trim());
         providerClinics = new ArrayList<>();
 
         if (selectedProvider != null) {
-            // Fetch clinics from external API
-            providerClinics = providerService.fetchClinicsByProvider(selectedProvider.getProviderName());
+            // Fetch clinics for this provider using ClinicService
+            providerClinics = clinicService.findAllClinics(selectedProvider.getProviderName());
         }
     }
 
     public String save() {
         try {
-            providerService.create(newProvider);
+            providerService.createProvider(newProvider);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -69,7 +73,7 @@ public class ProviderBean implements Serializable {
             newProvider = new AddProviderDTO();
             loadAll();
 
-            return null;
+            return "/provider/list?faces-redirect=true";
         } catch (ValidationException ex) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, ex.getMessage(), null));

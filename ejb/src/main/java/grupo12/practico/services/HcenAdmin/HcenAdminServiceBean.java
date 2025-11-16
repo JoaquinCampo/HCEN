@@ -5,6 +5,8 @@ import grupo12.practico.dtos.HcenAdmin.HcenAdminDTO;
 import grupo12.practico.models.HcenAdmin;
 import grupo12.practico.repositories.HcenAdmin.HcenAdminRepositoryLocal;
 import jakarta.ejb.EJB;
+import jakarta.ejb.Local;
+import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -12,11 +14,11 @@ import jakarta.validation.ValidationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Service for HcenAdmin operations
- */
+
 @Stateless
-public class HcenAdminServiceBean implements HcenAdminServiceLocal {
+@Local(HcenAdminServiceLocal.class)
+@Remote(HcenAdminServiceRemote.class)
+public class HcenAdminServiceBean implements HcenAdminServiceRemote {
 
     @PersistenceContext(unitName = "practicoPersistenceUnit")
     private EntityManager em;
@@ -25,7 +27,7 @@ public class HcenAdminServiceBean implements HcenAdminServiceLocal {
     private HcenAdminRepositoryLocal hcenAdminRepository;
 
     @Override
-    public HcenAdminDTO create(AddHcenAdminDTO addHcenAdminDTO) {
+    public HcenAdminDTO createHcenAdmin(AddHcenAdminDTO addHcenAdminDTO) {
         validateAddHcenAdminDTO(addHcenAdminDTO);
 
         HcenAdmin hcenAdmin = new HcenAdmin();
@@ -38,42 +40,33 @@ public class HcenAdminServiceBean implements HcenAdminServiceLocal {
         hcenAdmin.setAddress(addHcenAdminDTO.getAddress());
         hcenAdmin.setDateOfBirth(addHcenAdminDTO.getDateOfBirth());
 
-        HcenAdmin createdAdmin = hcenAdminRepository.create(hcenAdmin);
+        HcenAdmin createdAdmin = hcenAdminRepository.createHcenAdmin(hcenAdmin);
         return createdAdmin.toDto();
     }
 
     @Override
-    public List<HcenAdminDTO> findAll() {
-        List<HcenAdmin> admins = hcenAdminRepository.findAll();
+    public List<HcenAdminDTO> findAllHcenAdmins() {
+        List<HcenAdmin> admins = hcenAdminRepository.findAllHcenAdmins();
         return admins.stream()
                 .map(HcenAdmin::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public HcenAdminDTO findByCi(String ci) {
-        HcenAdmin admin = hcenAdminRepository.findByCi(ci);
+    public HcenAdminDTO findHcenAdminByCi(String ci) {
+        HcenAdmin admin = hcenAdminRepository.findHcenAdminByCi(ci);
         return admin != null ? admin.toDto() : null;
-    }
-
-    @Override
-    public boolean isHcenAdmin(String ci) {
-        return hcenAdminRepository.findByCi(ci) != null;
     }
 
     private void validateAddHcenAdminDTO(AddHcenAdminDTO addHcenAdminDTO) {
         if (addHcenAdminDTO == null) {
             throw new ValidationException("Hcen Admin data must not be null");
         }
-        if (isBlank(addHcenAdminDTO.getFirstName()) || isBlank(addHcenAdminDTO.getLastName())) {
+        if (addHcenAdminDTO.getFirstName() == null || addHcenAdminDTO.getFirstName().isBlank() || addHcenAdminDTO.getLastName() == null || addHcenAdminDTO.getLastName().isBlank()) {
             throw new ValidationException("Hcen Admin first name and last name are required");
         }
-        if (isBlank(addHcenAdminDTO.getCi())) {
+        if (addHcenAdminDTO.getCi() == null || addHcenAdminDTO.getCi().isBlank()) {
             throw new ValidationException("Hcen Admin document is required");
         }
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
     }
 }

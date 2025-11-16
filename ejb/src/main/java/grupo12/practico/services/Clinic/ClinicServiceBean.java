@@ -16,7 +16,7 @@ import java.util.List;
 @Stateless
 @Local(ClinicServiceLocal.class)
 @Remote(ClinicServiceRemote.class)
-public class ClinicServiceBean implements ClinicServiceRemote {
+public class ClinicServiceBean implements ClinicServiceLocal {
 
     @EJB
     private HealthUserRepositoryLocal healthUserRepository;
@@ -25,65 +25,65 @@ public class ClinicServiceBean implements ClinicServiceRemote {
     private ClinicRepositoryLocal clinicRepository;
 
     @Override
-    public ClinicDTO create(AddClinicDTO addclinicDTO) {
+    public ClinicDTO createClinic(AddClinicDTO addclinicDTO) {
         validateClinic(addclinicDTO);
 
-        ClinicDTO createdClinic = clinicRepository.create(addclinicDTO);
+        ClinicDTO createdClinic = clinicRepository.createClinic(addclinicDTO);
 
         return createdClinic;
     }
 
     @Override
-    public ClinicDTO findByName(String clinicName) {
-        if (isBlank(clinicName)) {
+    public ClinicDTO findClinicByName(String clinicName) {
+        if (clinicName == null || clinicName.isBlank()) {
             throw new ValidationException("Clinic name is required");
         }
 
-        return clinicRepository.findByName(clinicName);
+        return clinicRepository.findClinicByName(clinicName);
     }
 
     @Override
-    public List<ClinicDTO> findAll() {
-        return clinicRepository.findAll();
+    public List<ClinicDTO> findAllClinics(String providerName) {
+        return clinicRepository.findAllClinics(providerName);
     }
 
     private void validateClinic(AddClinicDTO addClinicDTO) {
         if (addClinicDTO == null) {
             throw new ValidationException("Clinic must not be null");
         }
-        if (isBlank(addClinicDTO.getName())) {
+
+        if (addClinicDTO.getName() == null || addClinicDTO.getName().isBlank()) {
             throw new ValidationException("Clinic name is required");
         }
-        if (isBlank(addClinicDTO.getEmail())) {
+
+        if (addClinicDTO.getEmail() == null || addClinicDTO.getEmail().isBlank()) {
             throw new ValidationException("Clinic email is required");
         }
-        if (isBlank(addClinicDTO.getPhone())) {
+
+        if (addClinicDTO.getPhone() == null || addClinicDTO.getPhone().isBlank()) {
             throw new ValidationException("Clinic phone is required");
         }
-        if (isBlank(addClinicDTO.getAddress())) {
+
+        if (addClinicDTO.getAddress() == null || addClinicDTO.getAddress().isBlank()) {
             throw new ValidationException("Address is required");
         }
 
         ClinicAdminDTO admin = addClinicDTO.getClinicAdmin();
+
         if (admin == null) {
             throw new ValidationException("Clinic admin information is required");
         }
-        if (isBlank(admin.getCi())) {
+        if (admin.getCi() == null || admin.getCi().isBlank()) {
             throw new ValidationException("Clinic admin CI is required");
         }
-        if (isBlank(admin.getFirstName())) {
+        if (admin.getFirstName() == null || admin.getFirstName().isBlank()) {
             throw new ValidationException("Clinic admin first name is required");
         }
-        if (isBlank(admin.getLastName())) {
+        if (admin.getLastName() == null || admin.getLastName().isBlank()) {
             throw new ValidationException("Clinic admin last name is required");
         }
-        if (isBlank(admin.getEmail())) {
+        if (admin.getEmail() == null || admin.getEmail().isBlank()) {
             throw new ValidationException("Clinic admin email is required");
         }
     }
-
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
-    }
-
 }

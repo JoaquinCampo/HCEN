@@ -20,12 +20,18 @@ public final class AccessRequestMessaging {
     public static final String[] PAYLOAD_FIELDS = {
             "healthUserCi",
             "healthWorkerCi",
-            "clinicName"
+            "clinicName",
+            "specialtyNames"
     };
 
     /**
      * Field separator for the plain-text JMS payload.
      */
     public static final String FIELD_SEPARATOR = "|";
+    
+    /**
+     * Separator for specialty names within the specialtyNames field.
+     */
+    public static final String SPECIALTY_SEPARATOR = ",";
 }
 

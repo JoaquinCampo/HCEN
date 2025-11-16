@@ -23,7 +23,6 @@ import jakarta.json.JsonException;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonValue;
-import jakarta.validation.ValidationException;
 
 import grupo12.practico.repositories.NodosPerifericosConfig;
 
@@ -47,13 +46,6 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
 
     @Override
     public HealthWorkerDTO findByClinicAndCi(String clinicName, String healthWorkerCi) {
-        if (clinicName == null || clinicName.isBlank()) {
-            throw new ValidationException("Clinic name must not be blank");
-        }
-        if (healthWorkerCi == null || healthWorkerCi.isBlank()) {
-            throw new ValidationException("Health worker CI must not be blank");
-        }
-
         String encodedClinic = encodePathSegment(clinicName);
         String encodedCi = encodePathSegment(healthWorkerCi);
         URI uri = URI.create(config.getClinicsApiUrl() + "/" + encodedClinic + "/health-worker/" + encodedCi);
@@ -80,7 +72,7 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
                 throw new IllegalStateException("Failed to fetch health worker: HTTP " + status);
             }
 
-            return mapResponseToDto(response.body());
+            return mapFindByClinicAndCiResponseToDto(response.body());
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while fetching health worker data", ex);
@@ -89,7 +81,7 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
         }
     }
 
-    private HealthWorkerDTO mapResponseToDto(String body) {
+    private HealthWorkerDTO mapFindByClinicAndCiResponseToDto(String body) {
         if (body == null || body.isBlank()) {
             return null;
         }

@@ -40,7 +40,7 @@ public class HcenAdminBean implements Serializable {
     }
 
     public void loadAll() {
-        admins = hcenAdminService.findAll();
+        admins = hcenAdminService.findAllHcenAdmins();
     }
 
     public void search() {
@@ -53,7 +53,7 @@ public class HcenAdminBean implements Serializable {
 
     public String save() {
         try {
-            hcenAdminService.create(newAdmin);
+            hcenAdminService.createHcenAdmin(newAdmin);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "HCEN Admin created successfully", null));

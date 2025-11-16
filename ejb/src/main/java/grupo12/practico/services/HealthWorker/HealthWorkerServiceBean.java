@@ -1,8 +1,5 @@
 package grupo12.practico.services.HealthWorker;
 
-import java.util.Collections;
-import java.util.List;
-
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.repositories.HealthWorker.HealthWorkerRepositoryLocal;
 import jakarta.ejb.EJB;

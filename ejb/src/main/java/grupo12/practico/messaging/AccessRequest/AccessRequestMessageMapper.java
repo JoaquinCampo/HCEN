@@ -1,6 +1,10 @@
 package grupo12.practico.messaging.AccessRequest;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
 import jakarta.validation.ValidationException;
@@ -20,10 +24,26 @@ public final class AccessRequestMessageMapper {
     public static String toMessage(AddAccessRequestDTO dto) {
         Objects.requireNonNull(dto, "access request dto must not be null");
 
+        String specialtyNamesStr = "";
+        if (dto.getSpecialtyNames() != null && !dto.getSpecialtyNames().isEmpty()) {
+            specialtyNamesStr = dto.getSpecialtyNames().stream()
+                    .map(name -> {
+                        if (name.contains(AccessRequestMessaging.FIELD_SEPARATOR)) {
+                            throw new ValidationException("Specialty name must not contain '|'");
+                        }
+                        if (name.contains(AccessRequestMessaging.SPECIALTY_SEPARATOR)) {
+                            throw new ValidationException("Specialty name must not contain ','");
+                        }
+                        return name.trim();
+                    })
+                    .collect(Collectors.joining(AccessRequestMessaging.SPECIALTY_SEPARATOR));
+        }
+
         String[] fields = new String[] {
                 requireNoPipe(dto.getHealthUserCi(), "healthUserCi"),
                 requireNoPipe(dto.getHealthWorkerCi(), "healthWorkerCi"),
-                requireNoPipe(dto.getClinicName(), "clinicName")
+                requireNoPipe(dto.getClinicName(), "clinicName"),
+                specialtyNamesStr
         };
 
         return String.join(AccessRequestMessaging.FIELD_SEPARATOR, fields);
@@ -43,6 +63,19 @@ public final class AccessRequestMessageMapper {
         dto.setHealthUserCi(requireNotBlank(tokens[0], "healthUserCi"));
         dto.setHealthWorkerCi(requireNotBlank(tokens[1], "healthWorkerCi"));
         dto.setClinicName(requireNotBlank(tokens[2], "clinicName"));
+        
+        // Parse specialty names
+        String specialtyNamesStr = tokens[3];
+        if (specialtyNamesStr != null && !specialtyNamesStr.trim().isEmpty()) {
+            List<String> specialtyNames = Arrays.stream(specialtyNamesStr.split(AccessRequestMessaging.SPECIALTY_SEPARATOR))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+            dto.setSpecialtyNames(specialtyNames);
+        } else {
+            dto.setSpecialtyNames(Collections.emptyList());
+        }
+        
         return dto;
     }
 

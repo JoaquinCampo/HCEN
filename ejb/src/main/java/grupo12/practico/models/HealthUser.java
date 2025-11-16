@@ -3,7 +3,6 @@ package grupo12.practico.models;
 import java.util.HashSet;
 import java.util.Set;
 
-import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.CollectionTable;
@@ -16,7 +15,7 @@ import jakarta.persistence.Table;
 public class HealthUser extends User {
     @ElementCollection
     @CollectionTable(name = "health_user_clinic", joinColumns = @JoinColumn(name = "health_user_id"))
-    @Column(name = "clinic_name")
+    @Column(name = "clinic_names")
     private Set<String> clinicNames;
 
     public HealthUser() {
@@ -30,22 +29,5 @@ public class HealthUser extends User {
 
     public void setClinicNames(Set<String> clinicNames) {
         this.clinicNames = clinicNames;
-    }
-
-    public HealthUserDTO toDto() {
-        HealthUserDTO dto = new HealthUserDTO();
-        dto.setId(getId());
-        dto.setCi(getCi());
-        dto.setFirstName(getFirstName());
-        dto.setLastName(getLastName());
-        dto.setGender(getGender());
-        dto.setEmail(getEmail());
-        dto.setPhone(getPhone());
-        dto.setAddress(getAddress());
-        dto.setDateOfBirth(getDateOfBirth());
-        dto.setCreatedAt(getCreatedAt());
-        dto.setUpdatedAt(getUpdatedAt());
-        dto.setClinicNames(clinicNames == null ? new HashSet<>() : new HashSet<>(clinicNames));
-        return dto;
     }
 }

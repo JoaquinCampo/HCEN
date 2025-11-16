@@ -1,6 +1,5 @@
 package grupo12.practico.dtos.ClinicalHistory;
 
-import grupo12.practico.dtos.ClinicalDocument.ChunkSourceDTO;
 import java.io.Serializable;
 import java.util.List;
 

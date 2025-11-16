@@ -1,5 +1,6 @@
 package grupo12.practico.services.Auth;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import grupo12.practico.dtos.Auth.*;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -16,6 +17,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import jakarta.ejb.EJB;
+import jakarta.ejb.Local;
+import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -33,10 +36,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.Date;
 
-/**
- * Service for handling OpenID Connect authentication with gub.uy
- */
 @Stateless
+@Local(OidcAuthenticationServiceLocal.class)
+@Remote(OidcAuthenticationServiceRemote.class)
 public class OidcAuthenticationService implements OidcAuthenticationServiceLocal {
 
     private static final Logger LOGGER = Logger.getLogger(OidcAuthenticationService.class.getName());
@@ -303,13 +305,14 @@ public class OidcAuthenticationService implements OidcAuthenticationServiceLocal
             client.close();
         }
 
-        Map<String, Object> jwksMap = objectMapper.readValue(jwksJson, Map.class);
+        Map<String, Object> jwksMap = objectMapper.readValue(jwksJson, new TypeReference<Map<String, Object>>() {});
         Object keysObj = jwksMap.get("keys");
         java.util.List<JWK> jwkList = new java.util.ArrayList<>();
         if (keysObj instanceof java.util.List) {
             for (Object k : (java.util.List<?>) keysObj) {
                 if (!(k instanceof Map))
                     continue;
+                @SuppressWarnings("unchecked")
                 Map<String, Object> keyMap = (Map<String, Object>) k;
                 Object kty = keyMap.get("kty");
                 if (kty == null || !"RSA".equalsIgnoreCase(kty.toString()))
