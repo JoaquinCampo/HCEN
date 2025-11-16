@@ -3,6 +3,7 @@
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:f="http://xmlns.jcp.org/jsf/core"
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+  xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
   template="/WEB-INF/templates/layout.xhtml"
 >
   <ui:define name="title">Inicio - HCEN</ui:define>
@@ -12,14 +13,201 @@
       <p class="welcome-subtitle">
         Sistema de Gestión de Historia Clínica Electrónica Nacional
       </p>
-      <p class="text-muted mb-4">
-        Gestiona prestadores de salud, clínicas y accede a la información clínica de manera segura y eficiente.
-      </p>
-      <div class="d-flex gap-3 justify-content-center">
-        <h:link outcome="/provider/list" styleClass="btn btn-primary btn-lg">
-          <i class="bi bi-building me-2"></i>Ver Prestadores
-        </h:link>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="container mt-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Estadísticas del Sistema</h2>
+        <h:form styleClass="d-flex gap-2">
+          <h:selectOneMenu
+            value="#{analytics.daysRange}"
+            styleClass="form-select"
+          >
+            <f:selectItem itemValue="7" itemLabel="Últimos 7 días" />
+            <f:selectItem itemValue="30" itemLabel="Últimos 30 días" />
+            <f:selectItem itemValue="90" itemLabel="Últimos 90 días" />
+            <f:ajax
+              event="change"
+              listener="#{analytics.loadAnalytics}"
+              render="analyticsPanel"
+            />
+          </h:selectOneMenu>
+        </h:form>
       </div>
+
+      <h:panelGroup id="analyticsPanel">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Total de Eventos</h5>
+                <h2 class="card-text text-primary">#{analytics.totalLogs}</h2>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Documentos Creados</h5>
+                <h2 class="card-text text-success">
+                  #{analytics.documentLogsCount}
+                </h2>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Usuarios de Salud</h5>
+                <h2 class="card-text text-info">
+                  #{analytics.logActivityByType['HealthUser']}
+                </h2>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card text-center">
+              <div class="card-body">
+                <h5 class="card-title text-muted">Solicitudes de Acceso</h5>
+                <h2 class="card-text text-warning">
+                  #{analytics.logActivityByType['AccessRequest']}
+                </h2>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Analytics -->
+        <div class="row">
+          <!-- Health User Logs -->
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Usuarios de Salud por Acción</h5>
+              </div>
+              <div class="card-body">
+                <c:if test="#{not empty analytics.healthUserLogsByAction}">
+                  <ul class="list-group list-group-flush">
+                    <c:forEach
+                      items="#{analytics.healthUserLogsByAction}"
+                      var="entry"
+                    >
+                      <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                      >
+                        #{analytics.getHealthUserActionLabel(entry.key)}
+                        <span class="badge bg-primary rounded-pill"
+                          >#{entry.value}</span
+                        >
+                      </li>
+                    </c:forEach>
+                  </ul>
+                </c:if>
+                <c:if test="#{empty analytics.healthUserLogsByAction}">
+                  <p class="text-muted text-center">No hay datos disponibles</p>
+                </c:if>
+              </div>
+            </div>
+          </div>
+
+          <!-- Access Request Logs -->
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Solicitudes de Acceso por Estado</h5>
+              </div>
+              <div class="card-body">
+                <c:if test="#{not empty analytics.accessRequestLogsByAction}">
+                  <ul class="list-group list-group-flush">
+                    <c:forEach
+                      items="#{analytics.accessRequestLogsByAction}"
+                      var="entry"
+                    >
+                      <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                      >
+                        #{analytics.getAccessRequestActionLabel(entry.key)}
+                        <span class="badge bg-warning rounded-pill"
+                          >#{entry.value}</span
+                        >
+                      </li>
+                    </c:forEach>
+                  </ul>
+                </c:if>
+                <c:if test="#{empty analytics.accessRequestLogsByAction}">
+                  <p class="text-muted text-center">No hay datos disponibles</p>
+                </c:if>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clinical History Logs -->
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Accesos a Historia Clínica por Tipo</h5>
+              </div>
+              <div class="card-body">
+                <c:if
+                  test="#{not empty analytics.clinicalHistoryLogsByAccessType}"
+                >
+                  <ul class="list-group list-group-flush">
+                    <c:forEach
+                      items="#{analytics.clinicalHistoryLogsByAccessType}"
+                      var="entry"
+                    >
+                      <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                      >
+                        #{analytics.getClinicalHistoryAccessTypeLabel(entry.key)}
+                        <span class="badge bg-info rounded-pill"
+                          >#{entry.value}</span
+                        >
+                      </li>
+                    </c:forEach>
+                  </ul>
+                </c:if>
+                <c:if test="#{empty analytics.clinicalHistoryLogsByAccessType}">
+                  <p class="text-muted text-center">No hay datos disponibles</p>
+                </c:if>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity by Log Type -->
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Actividad por Tipo de Log</h5>
+              </div>
+              <div class="card-body">
+                <c:if test="#{not empty analytics.logActivityByType}">
+                  <ul class="list-group list-group-flush">
+                    <c:forEach
+                      items="#{analytics.logActivityByType}"
+                      var="entry"
+                    >
+                      <li
+                        class="list-group-item d-flex justify-content-between align-items-center"
+                      >
+                        #{analytics.getLogTypeLabel(entry.key)}
+                        <span class="badge bg-secondary rounded-pill"
+                          >#{entry.value}</span
+                        >
+                      </li>
+                    </c:forEach>
+                  </ul>
+                </c:if>
+                <c:if test="#{empty analytics.logActivityByType}">
+                  <p class="text-muted text-center">No hay datos disponibles</p>
+                </c:if>
+              </div>
+            </div>
+          </div>
+        </div>
+      </h:panelGroup>
     </div>
   </ui:define>
 </ui:composition>

@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -38,7 +40,9 @@ public class AccessRequest {
     @Column(name = "clinic_name", nullable = false)
     private String clinicName;
 
-    @Column(name = "specialty_names")
+    @ElementCollection
+    @CollectionTable(name = "access_request_specialties", joinColumns = @JoinColumn(name = "access_request_id"))
+    @Column(name = "specialty_name")
     private List<String> specialtyNames;
 
     @Column(name = "created_at", nullable = false)

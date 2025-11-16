@@ -2,7 +2,6 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
-import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
 import grupo12.practico.messaging.ClinicalDocument.Chat.ChatProducerLocal;
 import grupo12.practico.messaging.ClinicalHistory.ClinicalHistoryProducerLocal;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
@@ -47,20 +46,6 @@ public class ClinicalHistoryResource {
         return Response.accepted()
                 .entity("{\"message\":\"Clinical history request queued successfully\"}")
                 .build();
-    }
-
-    @GET
-    @Path("/health-users/{healthUserCi}/access-history")
-    public Response fetchHealthUserAccessHistory(@PathParam("healthUserCi") String healthUserCi) {
-        try {
-            HealthUserAccessHistoryResponseDTO response = healthUserService
-                    .fetchHealthUserAccessHistory(healthUserCi);
-            return Response.ok(response).build();
-        } catch (Exception ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"" + ex.getMessage() + "\"}")
-                    .build();
-        }
     }
 
     @POST

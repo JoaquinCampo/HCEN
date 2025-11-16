@@ -18,7 +18,10 @@ import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import grupo12.practico.services.AccessRequest.AccessRequestServiceLocal;
+import grupo12.practico.services.Logger.LoggerServiceLocal;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.models.AccessRequest;
+import grupo12.practico.repositories.AccessRequest.AccessRequestRepositoryLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -49,6 +52,12 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
 
     @EJB
     private AccessRequestServiceLocal accessRequestService;
+
+    @EJB
+    private LoggerServiceLocal loggerService;
+
+    @EJB
+    private AccessRequestRepositoryLocal accessRequestRepository;
 
     @Override
     public ClinicAccessPolicyDTO createClinicAccessPolicy(AddClinicAccessPolicyDTO dto) {
@@ -82,8 +91,20 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         result.setHealthUserCi(healthUser.getCi());
         result.setClinic(clinicDTO);
 
+        // Log access request acceptance
         if (dto.getAccessRequestId() != null && !dto.getAccessRequestId().isBlank()) {
             try {
+                AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(dto.getAccessRequestId());
+                if (accessRequest != null) {
+                    loggerService.logAccessRequestAcceptedByClinic(
+                        dto.getAccessRequestId(),
+                        healthUser.getCi(),
+                        accessRequest.getHealthWorkerCi(),
+                        dto.getClinicName(),
+                        accessRequest.getSpecialtyNames()
+                    );
+                }
+                
                 accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
                 LOGGER.info(
                         "Deleted access request " + dto.getAccessRequestId() + " after creating clinic access policy");
@@ -130,8 +151,20 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         result.setHealthWorker(healthWorkerDTO);
         result.setClinic(clinicService.findClinicByName(dto.getClinicName()));
 
+        // Log access request acceptance
         if (dto.getAccessRequestId() != null && !dto.getAccessRequestId().isBlank()) {
             try {
+                AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(dto.getAccessRequestId());
+                if (accessRequest != null) {
+                    loggerService.logAccessRequestAcceptedByHealthWorker(
+                        dto.getAccessRequestId(),
+                        healthUser.getCi(),
+                        dto.getHealthWorkerCi(),
+                        dto.getClinicName(),
+                        accessRequest.getSpecialtyNames()
+                    );
+                }
+                
                 accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
                 LOGGER.info("Deleted access request " + dto.getAccessRequestId()
                         + " after creating health worker access policy");
@@ -172,6 +205,29 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         result.setId(createdSpecialtyPolicy.getId());
         result.setHealthUserCi(healthUser.getCi());
         result.setSpecialtyName(dto.getSpecialtyName());
+
+        // Log access request acceptance if applicable
+        if (dto.getAccessRequestId() != null && !dto.getAccessRequestId().isBlank()) {
+            try {
+                AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(dto.getAccessRequestId());
+                if (accessRequest != null) {
+                    loggerService.logAccessRequestAcceptedBySpecialty(
+                        dto.getAccessRequestId(),
+                        healthUser.getCi(),
+                        accessRequest.getHealthWorkerCi(),
+                        accessRequest.getClinicName(),
+                        accessRequest.getSpecialtyNames()
+                    );
+                }
+                
+                accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
+                LOGGER.info("Deleted access request " + dto.getAccessRequestId()
+                        + " after creating specialty access policy");
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING,
+                        "Failed to delete access request after creating specialty policy: " + e.getMessage(), e);
+            }
+        }
 
         return result;
     }

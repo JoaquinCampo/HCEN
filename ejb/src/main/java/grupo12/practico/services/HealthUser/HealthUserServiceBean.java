@@ -17,6 +17,7 @@ import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal
 import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
+import grupo12.practico.services.Logger.LoggerServiceLocal;
 import java.util.ArrayList;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
@@ -50,6 +51,9 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
     @EJB
     private ClinicServiceLocal clinicService;
+
+    @EJB
+    private LoggerServiceLocal loggerService;
 
     @Override
     public PaginationDTO<HealthUserDTO> findAllHealthUsers(String clinicName, String name, String ci, Integer pageIndex,
@@ -93,6 +97,11 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
         HealthUser created = healthUserRepository.createHealthUser(healthUser);
 
+        // Log health user creation
+        for (String clinicName : created.getClinicNames()) {
+            loggerService.logHealthUserCreated(created.getCi(), clinicName);
+        }
+
         return mapHealthUserResponseToDTO(created);
     }
 
@@ -113,6 +122,10 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         }
 
         HealthUser healthUser = healthUserRepository.linkClinicToHealthUser(healthUserId, clinicName);
+        
+        // Log clinic link
+        loggerService.logHealthUserClinicLinked(healthUser.getCi(), clinicName);
+        
         return mapHealthUserResponseToDTO(healthUser);
     }
 
@@ -140,8 +153,31 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         List<ClinicalDocumentDTO> documents = healthUserRepository.findHealthUserClinicalHistory(request.getHealthUserCi());
 
         ClinicalHistoryResponseDTO response = new ClinicalHistoryResponseDTO();
-        response.setHealthUser(findHealthUserByCi(request.getHealthUserCi()));
+        HealthUserDTO healthUserDTO = findHealthUserByCi(request.getHealthUserCi());
+        response.setHealthUser(healthUserDTO);
         response.setDocuments(documents);
+
+        // Log clinical history access
+        if (isHealthUser) {
+            // Self-access by health user
+            loggerService.logClinicalHistoryAccessBySelf(request.getHealthUserCi());
+        } else {
+            // Access by health worker
+            try {
+                String accessType = hasClinicAccess ? "BY_CLINIC" : 
+                                   hasWorkerAccess ? "BY_HEALTH_WORKER" : 
+                                   hasSpecialtyAccess ? "BY_SPECIALTY" : "UNKNOWN";
+                loggerService.logClinicalHistoryAccessByHealthWorker(
+                    request.getHealthUserCi(),
+                    request.getHealthWorkerCi(),
+                    request.getClinicName(),
+                    request.getSpecialtyNames(),
+                    accessType
+                );
+            } catch (Exception e) {
+                logger.warning("Failed to log clinical history access by health worker: " + e.getMessage());
+            }
+        }
 
         return response;
     }

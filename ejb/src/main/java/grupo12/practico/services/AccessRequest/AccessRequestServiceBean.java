@@ -18,6 +18,7 @@ import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
 import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
 import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
+import grupo12.practico.services.Logger.LoggerServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
@@ -52,6 +53,9 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
     @EJB
     private PushNotificationServiceLocal pushNotificationService;
+
+    @EJB
+    private LoggerServiceLocal loggerService;
 
     @Override
     public AccessRequestDTO createAccessRequest(AddAccessRequestDTO dto) {
@@ -116,6 +120,15 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         result.setSpecialtyNames(persisted.getSpecialtyNames());
         result.setCreatedAt(persisted.getCreatedAt());
 
+        // Log access request creation
+        loggerService.logAccessRequestCreated(
+            persisted.getId(),
+            healthUser.getCi(),
+            healthWorker.getCi(),
+            clinic.getName(),
+            dto.getSpecialtyNames()
+        );
+
         return result;
     }
 
@@ -154,6 +167,16 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         if (accessRequest == null) {
             throw new ValidationException("Access request not found");
         }
+
+        // Log access request denial before deletion
+        HealthUser healthUser = accessRequest.getHealthUser();
+        loggerService.logAccessRequestDenied(
+            accessRequest.getId(),
+            healthUser.getCi(),
+            accessRequest.getHealthWorkerCi(),
+            accessRequest.getClinicName(),
+            accessRequest.getSpecialtyNames()
+        );
 
         accessRequestRepository.deleteAccessRequest(accessRequest.getId());
     }

@@ -7,22 +7,29 @@ import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatResponseDTO;
 import grupo12.practico.repositories.ClinicalDocument.ClinicalDocumentRepositoryLocal;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
+import grupo12.practico.services.Logger.LoggerServiceLocal;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
+import java.util.logging.Logger;
 
 @Stateless
 @Local(ClinicalDocumentServiceLocal.class)
 @Remote(ClinicalDocumentServiceRemote.class)
 public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal {
 
+    private static final Logger LOGGER = Logger.getLogger(ClinicalDocumentServiceBean.class.getName());
+
     @EJB
     private AccessPolicyServiceLocal accessPolicyService;
 
     @EJB
     private ClinicalDocumentRepositoryLocal clinicalDocumentRepository;
+
+    @EJB
+    private LoggerServiceLocal loggerService;
 
     @Override
     public PresignedUrlResponseDTO getPresignedUploadUrl(PresignedUrlRequestDTO request) {
@@ -52,7 +59,21 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
     public String createClinicalDocument(AddClinicalDocumentDTO dto) {
         validateCreateClinicalDocumentRequest(dto);
 
-        return clinicalDocumentRepository.createClinicalDocument(dto);
+        String documentId = clinicalDocumentRepository.createClinicalDocument(dto);
+
+        // Log document creation
+        try {
+            loggerService.logDocumentCreated(
+                documentId,
+                dto.getHealthUserCi(),
+                dto.getHealthWorkerCi(),
+                dto.getClinicName()
+            );
+        } catch (Exception e) {
+            LOGGER.warning("Failed to log document creation: " + e.getMessage());
+        }
+
+        return documentId;
     }
 
     private void validatePresignedUrlRequest(PresignedUrlRequestDTO request) {
