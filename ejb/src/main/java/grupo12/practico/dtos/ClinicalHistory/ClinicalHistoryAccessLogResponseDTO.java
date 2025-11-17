@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public class ClinicalHistoryAccessLogResponseDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private String id;
     private String healthUserCi;
     private String healthWorkerCi;
     private String clinicName;
@@ -14,11 +14,11 @@ public class ClinicalHistoryAccessLogResponseDTO implements Serializable {
     private Boolean viewed;
     private String decisionReason;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

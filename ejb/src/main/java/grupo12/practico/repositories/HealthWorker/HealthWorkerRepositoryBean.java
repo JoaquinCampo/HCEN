@@ -8,8 +8,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +25,7 @@ import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonException;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
@@ -81,6 +88,42 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
         }
     }
 
+    @Override
+    public List<HealthWorkerDTO> findByClinic(String clinicName) {
+        String encodedClinic = encodePathSegment(clinicName);
+        URI uri = URI.create(config.getClinicsApiUrl() + "/" + encodedClinic + "/health-workers");
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            int status = response.statusCode();
+
+            if (status == 404) {
+                logger.log(Level.INFO, "Clinic not found when fetching health workers: {0}", clinicName);
+                return null;
+            }
+
+            if (status != 200) {
+                logger.log(Level.WARNING,
+                        "Unexpected response when fetching health workers for clinic {0}: HTTP {1}",
+                        new Object[] { clinicName, status });
+                throw new IllegalStateException("Failed to fetch clinic health workers: HTTP " + status);
+            }
+
+            return mapFindByClinicResponseToDtoList(response.body(), clinicName);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while fetching clinic health workers", ex);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Unable to fetch clinic health workers", ex);
+        }
+    }
+
     private HealthWorkerDTO mapFindByClinicAndCiResponseToDto(String body) {
         if (body == null || body.isBlank()) {
             return null;
@@ -100,13 +143,9 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
                 dto.setPhone(getString(userJson, "phone"));
                 dto.setAddress(getString(userJson, "address"));
 
-                String dob = getString(userJson, "dateOfBirth");
-                if (dob != null && !dob.isBlank()) {
-                    try {
-                        dto.setDateOfBirth(LocalDate.parse(dob));
-                    } catch (DateTimeParseException ex) {
-                        throw new IllegalStateException("Invalid dateOfBirth received for health worker: " + dob, ex);
-                    }
+                LocalDate birthDate = parseDate(getString(userJson, "dateOfBirth"));
+                if (birthDate != null) {
+                    dto.setDateOfBirth(birthDate);
                 }
             }
 
@@ -116,12 +155,84 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
         }
     }
 
+    private List<HealthWorkerDTO> mapFindByClinicResponseToDtoList(String body, String clinicName) {
+        if (body == null || body.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        try (JsonReader reader = Json.createReader(new StringReader(body))) {
+            JsonValue root = reader.read();
+            if (root == null || root.getValueType() != JsonValue.ValueType.ARRAY) {
+                throw new IllegalStateException("Invalid JSON received for clinic health workers");
+            }
+
+            JsonArray array = root.asJsonArray();
+            List<HealthWorkerDTO> dtos = new ArrayList<>();
+
+            for (JsonValue value : array) {
+                if (value.getValueType() != JsonValue.ValueType.OBJECT) {
+                    continue;
+                }
+
+                JsonObject hwJson = value.asJsonObject();
+                HealthWorkerDTO dto = new HealthWorkerDTO();
+
+                if (hwJson.containsKey("user") && !hwJson.isNull("user")) {
+                    JsonObject userJson = hwJson.getJsonObject("user");
+                    dto.setCi(getString(userJson, "ci"));
+                    dto.setFirstName(getString(userJson, "firstName"));
+                    dto.setLastName(getString(userJson, "lastName"));
+                    dto.setEmail(getString(userJson, "email"));
+                    dto.setPhone(getString(userJson, "phone"));
+                    dto.setAddress(getString(userJson, "address"));
+
+                    LocalDate birthDate = parseDate(getString(userJson, "dateOfBirth"));
+                    if (birthDate != null) {
+                        dto.setDateOfBirth(birthDate);
+                    }
+                }
+
+                dto.setClinicNames(Collections.singletonList(clinicName));
+                dtos.add(dto);
+            }
+
+            return dtos;
+        } catch (JsonException ex) {
+            throw new IllegalStateException("Invalid JSON received for clinic health workers", ex);
+        }
+    }
+
     private String getString(JsonObject json, String key) {
         JsonValue value = json.get(key);
         if (value == null || value.getValueType() == JsonValue.ValueType.NULL) {
             return null;
         }
         return json.getString(key, null);
+    }
+
+    private LocalDate parseDate(String raw) {
+        if (raw == null) {
+            return null;
+        }
+
+        String value = raw.trim();
+        if (value.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(value);
+        } catch (DateTimeParseException firstException) {
+            try {
+                Instant instant = Instant.parse(value);
+                return instant.atZone(ZoneOffset.UTC).toLocalDate();
+            } catch (DateTimeException secondException) {
+                firstException.addSuppressed(secondException);
+                throw new IllegalStateException(
+                        "Invalid dateOfBirth received for health worker: " + raw,
+                        firstException);
+            }
+        }
     }
 
     private String encodePathSegment(String segment) {

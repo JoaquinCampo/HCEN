@@ -30,6 +30,15 @@ public class ClinicalHistoryResource {
     private ChatProducerLocal chatProducer;
 
     @GET
+    @Path("/health-users/{healthUserCi}/access-history")
+    public Response findClinicalHistoryAccessHistory(
+            @PathParam("healthUserCi") String healthUserCi,
+            @QueryParam("pageIndex") Integer pageIndex,
+            @QueryParam("pageSize") Integer pageSize) {
+        return Response.ok(healthUserService.findHealthUserAccessHistory(healthUserCi, pageIndex, pageSize)).build();
+    }
+
+    @GET
     @Path("/{healthUserCi}")
     public Response findClinicalHistory(
             @PathParam("healthUserCi") String healthUserCi,
@@ -54,6 +63,17 @@ public class ClinicalHistoryResource {
         chatProducer.enqueue(request);
         return Response.accepted()
                 .entity("{\"message\":\"Chat request queued successfully\"}")
+                .build();
+    }
+
+    @GET
+    @Path("/health-users/{healthUserCi}/access-history")
+    public Response getClinicalHistoryAccessHistory(
+            @PathParam("healthUserCi") String healthUserCi,
+            @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+            @QueryParam("pageSize") @DefaultValue("50") int pageSize) {
+        return Response.ok(
+                healthUserService.findHealthUserAccessHistory(healthUserCi, pageIndex, pageSize))
                 .build();
     }
 }

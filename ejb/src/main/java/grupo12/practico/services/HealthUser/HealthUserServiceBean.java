@@ -7,8 +7,11 @@ import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
+import grupo12.practico.models.ClinicalHistoryLog;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
@@ -61,7 +64,8 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         int safePageIndex = pageIndex != null && pageIndex >= 0 ? pageIndex : 0;
         int safePageSize = pageSize != null && pageSize > 0 ? pageSize : 20;
 
-        List<HealthUser> users = healthUserRepository.findAllHealthUsers(clinicName, name, ci, safePageIndex, safePageSize);
+        List<HealthUser> users = healthUserRepository.findAllHealthUsers(clinicName, name, ci, safePageIndex,
+                safePageSize);
         long total = healthUserRepository.countHealthUsers(clinicName, name, ci);
 
         List<HealthUserDTO> userDTOs = users.stream()
@@ -122,16 +126,16 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         }
 
         HealthUser healthUser = healthUserRepository.linkClinicToHealthUser(healthUserId, clinicName);
-        
+
         // Log clinic link
         loggerService.logHealthUserClinicLinked(healthUser.getCi(), clinicName);
-        
+
         return mapHealthUserResponseToDTO(healthUser);
     }
 
     @Override
-        public ClinicalHistoryResponseDTO findHealthUserClinicalHistory(ClinicalHistoryRequestDTO request) {
-        
+    public ClinicalHistoryResponseDTO findHealthUserClinicalHistory(ClinicalHistoryRequestDTO request) {
+
         if (request == null) {
             throw new ValidationException("Clinical history request is required");
         }
@@ -140,17 +144,23 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
             throw new ValidationException("Health user CI is required");
         }
 
-        boolean isHealthUser = request.getHealthWorkerCi() == null && request.getClinicName() == null && request.getSpecialtyNames() == null;
+        boolean isHealthUser = request.getHealthWorkerCi() == null && request.getClinicName() == null
+                && request.getSpecialtyNames() == null;
 
-        boolean hasClinicAccess = !isHealthUser && accessPolicyService.hasClinicAccess(request.getHealthUserCi(), request.getClinicName());
-        boolean hasWorkerAccess = !isHealthUser && accessPolicyService.hasHealthWorkerAccess(request.getHealthUserCi(), request.getHealthWorkerCi());
-        boolean hasSpecialtyAccess = !isHealthUser && accessPolicyService.hasSpecialtyAccess(request.getHealthUserCi(), request.getSpecialtyNames());
+        boolean hasClinicAccess = !isHealthUser
+                && accessPolicyService.hasClinicAccess(request.getHealthUserCi(), request.getClinicName());
+        boolean hasWorkerAccess = !isHealthUser
+                && accessPolicyService.hasHealthWorkerAccess(request.getHealthUserCi(), request.getHealthWorkerCi());
+        boolean hasSpecialtyAccess = !isHealthUser
+                && accessPolicyService.hasSpecialtyAccess(request.getHealthUserCi(), request.getSpecialtyNames());
 
         if (!isHealthUser && !hasClinicAccess && !hasWorkerAccess && !hasSpecialtyAccess) {
-            throw new ValidationException("Access denied to clinical history for health user CI: " + request.getHealthUserCi());
+            throw new ValidationException(
+                    "Access denied to clinical history for health user CI: " + request.getHealthUserCi());
         }
 
-        List<ClinicalDocumentDTO> documents = healthUserRepository.findHealthUserClinicalHistory(request.getHealthUserCi());
+        List<ClinicalDocumentDTO> documents = healthUserRepository
+                .findHealthUserClinicalHistory(request.getHealthUserCi());
 
         ClinicalHistoryResponseDTO response = new ClinicalHistoryResponseDTO();
         HealthUserDTO healthUserDTO = findHealthUserByCi(request.getHealthUserCi());
@@ -164,16 +174,14 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         } else {
             // Access by health worker
             try {
-                String accessType = hasClinicAccess ? "BY_CLINIC" : 
-                                   hasWorkerAccess ? "BY_HEALTH_WORKER" : 
-                                   hasSpecialtyAccess ? "BY_SPECIALTY" : "UNKNOWN";
+                String accessType = hasClinicAccess ? "BY_CLINIC"
+                        : hasWorkerAccess ? "BY_HEALTH_WORKER" : hasSpecialtyAccess ? "BY_SPECIALTY" : "UNKNOWN";
                 loggerService.logClinicalHistoryAccessByHealthWorker(
-                    request.getHealthUserCi(),
-                    request.getHealthWorkerCi(),
-                    request.getClinicName(),
-                    request.getSpecialtyNames(),
-                    accessType
-                );
+                        request.getHealthUserCi(),
+                        request.getHealthWorkerCi(),
+                        request.getClinicName(),
+                        request.getSpecialtyNames(),
+                        accessType);
             } catch (Exception e) {
                 logger.warning("Failed to log clinical history access by health worker: " + e.getMessage());
             }
@@ -181,7 +189,33 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
         return response;
     }
-    
+
+    @Override
+    public HealthUserAccessHistoryResponseDTO findHealthUserAccessHistory(String healthUserCi, Integer pageIndex,
+            Integer pageSize) {
+        if (healthUserCi == null || healthUserCi.isBlank()) {
+            throw new ValidationException("Health user CI is required");
+        }
+
+        HealthUserDTO healthUser = findHealthUserByCi(healthUserCi);
+        if (healthUser == null) {
+            throw new ValidationException("Health user not found for CI: " + healthUserCi);
+        }
+
+        PaginationDTO<ClinicalHistoryLog> logsPage = loggerService.getClinicalHistoryLogs(healthUserCi, null,
+                pageIndex, pageSize);
+        List<ClinicalHistoryAccessLogResponseDTO> accessLogs = logsPage != null && logsPage.getItems() != null
+                ? logsPage.getItems().stream()
+                        .map(this::mapClinicalHistoryLogToDTO)
+                        .collect(Collectors.toList())
+                : java.util.Collections.emptyList();
+
+        HealthUserAccessHistoryResponseDTO response = new HealthUserAccessHistoryResponseDTO();
+        response.setHealthUser(healthUser);
+        response.setAccessHistory(accessLogs);
+        return response;
+    }
+
     @Override
     public HealthUserDTO findHealthUserById(String healthUserId) {
         if (healthUserId == null || healthUserId.isBlank()) {
@@ -196,7 +230,7 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         if (healthUser == null) {
             return null;
         }
-        
+
         HealthUserDTO dto = new HealthUserDTO();
         dto.setId(healthUser.getId());
         dto.setCi(healthUser.getCi());
@@ -250,5 +284,17 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         if (addHealthUserDTO.getEmail() == null || addHealthUserDTO.getEmail().isBlank()) {
             throw new ValidationException("Health user email is required");
         }
+    }
+
+    private ClinicalHistoryAccessLogResponseDTO mapClinicalHistoryLogToDTO(ClinicalHistoryLog log) {
+        ClinicalHistoryAccessLogResponseDTO dto = new ClinicalHistoryAccessLogResponseDTO();
+        dto.setId(log.getId());
+        dto.setHealthUserCi(log.getHealthUserCi());
+        dto.setHealthWorkerCi("HEALTH_WORKER".equalsIgnoreCase(log.getAccessorType()) ? log.getAccessorCi() : null);
+        dto.setClinicName(log.getClinicName());
+        dto.setRequestedAt(log.getTimestamp());
+        dto.setViewed("HEALTH_USER".equalsIgnoreCase(log.getAccessorType()));
+        dto.setDecisionReason(log.getAccessType());
+        return dto;
     }
 }
