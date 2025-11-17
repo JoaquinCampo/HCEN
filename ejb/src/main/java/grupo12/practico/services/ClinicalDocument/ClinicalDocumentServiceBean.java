@@ -123,6 +123,9 @@ public class ClinicalDocumentServiceBean implements ClinicalDocumentServiceLocal
         if (request.getHealthUserCi() == null || request.getHealthUserCi().trim().isEmpty()) {
             throw new ValidationException("Health user CI is required");
         }
+        if (request.getConversationHistory() == null) {
+            request.setConversationHistory(new java.util.ArrayList<>());
+        }
 
         return clinicalDocumentRepository.chat(request);
     }

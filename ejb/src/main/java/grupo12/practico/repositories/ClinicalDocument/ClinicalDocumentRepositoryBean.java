@@ -154,19 +154,20 @@ public class ClinicalDocumentRepositoryBean implements ClinicalDocumentRepositor
     public ChatResponseDTO chat(ChatRequestDTO request) {
         String url = config.getDocumentsApiBaseUrl() + "/chat";
 
-        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
-                .add("query", request.getQuery())
-                .add("health_user_ci", request.getHealthUserCi());
-
+        // Build conversation history array (always include, even if empty)
+        JsonArrayBuilder historyBuilder = Json.createArrayBuilder();
         if (request.getConversationHistory() != null && !request.getConversationHistory().isEmpty()) {
-            JsonArrayBuilder historyBuilder = Json.createArrayBuilder();
             for (MessageDTO message : request.getConversationHistory()) {
                 historyBuilder.add(Json.createObjectBuilder()
                         .add("role", message.getRole())
                         .add("content", message.getContent()));
             }
-            jsonBuilder.add("conversation_history", historyBuilder);
         }
+
+        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
+                .add("query", request.getQuery())
+                .add("health_user_ci", request.getHealthUserCi())
+                .add("conversation_history", historyBuilder);
 
         if (request.getDocumentId() != null && !request.getDocumentId().trim().isEmpty()) {
             jsonBuilder.add("document_id", request.getDocumentId());
