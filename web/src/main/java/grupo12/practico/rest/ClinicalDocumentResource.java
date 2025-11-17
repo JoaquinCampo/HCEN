@@ -3,9 +3,7 @@ package grupo12.practico.rest;
 import grupo12.practico.dtos.ClinicalDocument.AddClinicalDocumentDTO;
 import grupo12.practico.dtos.ClinicalDocument.PresignedUrlRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
-import grupo12.practico.messaging.ClinicalDocument.Chat.ChatProducerLocal;
-import grupo12.practico.messaging.ClinicalDocument.CreateDocument.CreateDocumentProducerLocal;
-import grupo12.practico.messaging.ClinicalDocument.PresignedUrl.PresignedUrlProducerLocal;
+import grupo12.practico.messaging.ClinicalDocument.CreateDocumentProducerLocal;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -21,21 +19,12 @@ public class ClinicalDocumentResource {
     private ClinicalDocumentServiceLocal clinicalDocumentService;
 
     @EJB
-    private PresignedUrlProducerLocal presignedUrlProducer;
-
-    @EJB
     private CreateDocumentProducerLocal createDocumentProducer;
-
-    @EJB
-    private ChatProducerLocal chatProducer;
 
     @POST
     @Path("/upload-url")
     public Response getPresignedUploadUrl(PresignedUrlRequestDTO request) {
-        presignedUrlProducer.enqueue(request);
-        return Response.accepted()
-                .entity("{\"message\":\"Presigned URL request queued successfully\"}")
-                .build();
+        return Response.ok(clinicalDocumentService.getPresignedUploadUrl(request)).build();
     }
 
     @POST
@@ -49,9 +38,6 @@ public class ClinicalDocumentResource {
     @POST
     @Path("/chat")
     public Response chat(ChatRequestDTO request) {
-        chatProducer.enqueue(request);
-        return Response.accepted()
-                .entity("{\"message\":\"Chat request queued successfully\"}")
-                .build();
+        return Response.ok(clinicalDocumentService.chat(request)).build();
     }
 }

@@ -2,8 +2,7 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.ClinicalHistory.ChatRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
-import grupo12.practico.messaging.ClinicalDocument.Chat.ChatProducerLocal;
-import grupo12.practico.messaging.ClinicalHistory.ClinicalHistoryProducerLocal;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
 import grupo12.practico.services.ClinicalDocument.ClinicalDocumentServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
@@ -22,12 +21,6 @@ public class ClinicalHistoryResource {
 
     @EJB
     private HealthUserServiceLocal healthUserService;
-
-    @EJB
-    private ClinicalHistoryProducerLocal clinicalHistoryProducer;
-
-    @EJB
-    private ChatProducerLocal chatProducer;
 
     @GET
     @Path("/health-users/{healthUserCi}/access-history")
@@ -51,19 +44,14 @@ public class ClinicalHistoryResource {
         request.setClinicName(clinicName);
         request.setSpecialtyNames(specialtyNames);
 
-        clinicalHistoryProducer.enqueue(request);
-        return Response.accepted()
-                .entity("{\"message\":\"Clinical history request queued successfully\"}")
-                .build();
+        ClinicalHistoryResponseDTO response = healthUserService.findHealthUserClinicalHistory(request);
+        return Response.ok(response).build();
     }
 
     @POST
     @Path("/chat")
     public Response chat(ChatRequestDTO request) {
-        chatProducer.enqueue(request);
-        return Response.accepted()
-                .entity("{\"message\":\"Chat request queued successfully\"}")
-                .build();
+        return Response.ok(clinicalDocumentService.chat(request)).build();
     }
 
     @GET

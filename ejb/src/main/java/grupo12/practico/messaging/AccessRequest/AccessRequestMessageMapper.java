@@ -70,7 +70,7 @@ public final class AccessRequestMessageMapper {
             List<String> specialtyNames = Arrays.stream(specialtyNamesStr.split(AccessRequestMessaging.SPECIALTY_SEPARATOR))
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
+                    .toList();
             dto.setSpecialtyNames(specialtyNames);
         } else {
             dto.setSpecialtyNames(Collections.emptyList());

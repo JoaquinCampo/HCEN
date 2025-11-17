@@ -10,7 +10,6 @@ import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
 import jakarta.validation.ValidationException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Stateless
 @Local(ProviderServiceLocal.class)
@@ -36,7 +35,7 @@ public class ProviderServiceBean implements ProviderServiceLocal {
         List<Provider> providers = providerRepository.findAllProviders();
         return providers.stream()
                 .map(Provider::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

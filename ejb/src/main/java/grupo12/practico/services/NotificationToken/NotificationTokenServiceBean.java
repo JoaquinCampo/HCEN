@@ -1,7 +1,6 @@
 package grupo12.practico.services.NotificationToken;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.NotificationToken.NotificationSubscriptionDTO;
@@ -75,7 +74,7 @@ public class NotificationTokenServiceBean implements NotificationTokenServiceRem
             d.setUserCi(userCi);
             d.setToken(t.getToken());
             return d;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Override

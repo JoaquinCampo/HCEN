@@ -1,4 +1,4 @@
-package grupo12.practico.messaging.ClinicalDocument.CreateDocument;
+package grupo12.practico.messaging.ClinicalDocument;
 
 import java.util.Objects;
 

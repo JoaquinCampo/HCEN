@@ -12,7 +12,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ValidationException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Stateless
@@ -49,7 +48,7 @@ public class HcenAdminServiceBean implements HcenAdminServiceRemote {
         List<HcenAdmin> admins = hcenAdminRepository.findAllHcenAdmins();
         return admins.stream()
                 .map(HcenAdmin::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

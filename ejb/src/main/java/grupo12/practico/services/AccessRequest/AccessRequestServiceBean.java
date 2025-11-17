@@ -1,7 +1,6 @@
 package grupo12.practico.services.AccessRequest;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import grupo12.practico.dtos.AccessRequest.AccessRequestDTO;
 import grupo12.practico.dtos.AccessRequest.AddAccessRequestDTO;
 import grupo12.practico.models.AccessRequest;
@@ -210,7 +209,7 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
             dto.setCreatedAt(accessRequest.getCreatedAt());
     
             return dto;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void validateAddAccessRequestDTO(AddAccessRequestDTO dto) {

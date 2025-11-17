@@ -1,9 +1,12 @@
 package grupo12.practico.dtos.HealthWorker;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
-public class HealthWorkerDTO {
+public class HealthWorkerDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String ci;
     private String firstName;
     private String lastName;

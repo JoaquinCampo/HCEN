@@ -98,17 +98,27 @@ public class ClinicalDocumentRepositoryBean implements ClinicalDocumentRepositor
     public String createClinicalDocument(AddClinicalDocumentDTO dto) {
         String url = config.getDocumentsApiBaseUrl() + "/documents";
 
-        JsonObject jsonBody = Json.createObjectBuilder()
+        JsonObjectBuilder jsonBuilder = Json.createObjectBuilder()
                 .add("title", dto.getTitle())
-                .add("description", dto.getDescription())
-                .add("content", dto.getContent())
-                .add("content_type", dto.getContentType())
-                .add("content_url", dto.getContentUrl())
                 .add("health_worker_ci", dto.getHealthWorkerCi())
                 .add("health_user_ci", dto.getHealthUserCi())
                 .add("clinic_name", dto.getClinicName())
-                .add("provider_name", dto.getProviderName())
-                .build();
+                .add("provider_name", dto.getProviderName());
+
+        if (dto.getDescription() != null) {
+            jsonBuilder.add("description", dto.getDescription());
+        }
+        if (dto.getContent() != null) {
+            jsonBuilder.add("content", dto.getContent());
+        }
+        if (dto.getContentType() != null) {
+            jsonBuilder.add("content_type", dto.getContentType());
+        }
+        if (dto.getContentUrl() != null) {
+            jsonBuilder.add("content_url", dto.getContentUrl());
+        }
+
+        JsonObject jsonBody = jsonBuilder.build();
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)

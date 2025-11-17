@@ -2,12 +2,15 @@ package grupo12.practico.dtos.ClinicalHistory;
 
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+import java.io.Serializable;
 import java.util.List;
 
-public class ClinicalHistoryResponseDTO {
+public class ClinicalHistoryResponseDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private HealthUserDTO healthUser;
     private List<ClinicalDocumentDTO> documents;
-    private boolean hasAccess;
+    private Boolean hasAccess;
     private String accessMessage;
 
     public HealthUserDTO getHealthUser() {
@@ -26,11 +29,11 @@ public class ClinicalHistoryResponseDTO {
         this.documents = documents;
     }
 
-    public boolean isHasAccess() {
+    public Boolean getHasAccess() {
         return hasAccess;
     }
 
-    public void setHasAccess(boolean hasAccess) {
+    public void setHasAccess(Boolean hasAccess) {
         this.hasAccess = hasAccess;
     }
 

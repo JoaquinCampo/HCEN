@@ -30,7 +30,6 @@ import jakarta.json.JsonValue;
 
 import grupo12.practico.dtos.Clinic.AddClinicDTO;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
-import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.repositories.NodosPerifericosConfig;
 
 @Stateless
@@ -212,26 +211,6 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                 }
             }
 
-            
-            JsonArray healthWorkersArray = json.getJsonArray("healthWorkers");
-            if (healthWorkersArray != null) {
-                List<HealthWorkerDTO> healthWorkers = new ArrayList<>();
-                for (JsonValue value : healthWorkersArray) {
-                    if (value.getValueType() == JsonValue.ValueType.OBJECT) {
-                        JsonObject hwJson = value.asJsonObject();
-                        HealthWorkerDTO hw = new HealthWorkerDTO();
-                        hw.setCi(getString(hwJson, "ci"));
-                        hw.setFirstName(getString(hwJson, "firstName"));
-                        hw.setLastName(getString(hwJson, "lastName"));
-                        hw.setEmail(getString(hwJson, "email"));
-                        hw.setPhone(getString(hwJson, "phone"));
-                        hw.setAddress(getString(hwJson, "address"));
-                        healthWorkers.add(hw);
-                    }
-                }
-                dto.setHealthWorkers(healthWorkers);
-            }
-
             return dto;
         } catch (JsonException ex) {
             throw new IllegalStateException("Invalid JSON received for clinic", ex);
@@ -273,25 +252,6 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                         } catch (DateTimeParseException ex) {
                             logger.log(Level.WARNING, "Invalid updatedAt received for clinic: " + updatedAt, ex);
                         }
-                    }
-
-                    JsonArray healthWorkersArray = json.getJsonArray("healthWorkers");
-                    if (healthWorkersArray != null) {
-                        List<HealthWorkerDTO> healthWorkers = new ArrayList<>();
-                        for (JsonValue hwValue : healthWorkersArray) {
-                            if (hwValue.getValueType() == JsonValue.ValueType.OBJECT) {
-                                JsonObject hwJson = hwValue.asJsonObject();
-                                HealthWorkerDTO hw = new HealthWorkerDTO();
-                                hw.setCi(getString(hwJson, "ci"));
-                                hw.setFirstName(getString(hwJson, "firstName"));
-                                hw.setLastName(getString(hwJson, "lastName"));
-                                hw.setEmail(getString(hwJson, "email"));
-                                hw.setPhone(getString(hwJson, "phone"));
-                                hw.setAddress(getString(hwJson, "address"));
-                                healthWorkers.add(hw);
-                            }
-                        }
-                        dto.setHealthWorkers(healthWorkers);
                     }
 
                     clinics.add(dto);

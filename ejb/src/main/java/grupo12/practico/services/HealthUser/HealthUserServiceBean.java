@@ -2,7 +2,6 @@ package grupo12.practico.services.HealthUser;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
@@ -70,7 +69,7 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
         List<HealthUserDTO> userDTOs = users.stream()
                 .map(this::mapHealthUserResponseToDTO)
-                .collect(Collectors.toList());
+                .toList();
 
         PaginationDTO<HealthUserDTO> paginationDTO = new PaginationDTO<>();
         paginationDTO.setItems(userDTOs);
@@ -159,7 +158,6 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         response.setHealthUser(healthUserDTO);
 
         if (!isHealthUser && !hasClinicAccess && !hasWorkerAccess && !hasSpecialtyAccess) {
-
             response.setHasAccess(false);
             response.setAccessMessage(
                     "Access denied to clinical history for health user CI: " + request.getHealthUserCi());
@@ -213,7 +211,7 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
         List<ClinicalHistoryAccessLogResponseDTO> accessLogs = logsPage != null && logsPage.getItems() != null
                 ? logsPage.getItems().stream()
                         .map(this::mapClinicalHistoryLogToDTO)
-                        .collect(Collectors.toList())
+                        .toList()
                 : java.util.Collections.emptyList();
 
         HealthUserAccessHistoryResponseDTO response = new HealthUserAccessHistoryResponseDTO();

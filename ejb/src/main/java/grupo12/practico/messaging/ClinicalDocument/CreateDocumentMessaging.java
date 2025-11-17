@@ -1,4 +1,4 @@
-package grupo12.practico.messaging.ClinicalDocument.CreateDocument;
+package grupo12.practico.messaging.ClinicalDocument;
 
 /**
  * Centralizes JMS configuration details for the create clinical document flow.
