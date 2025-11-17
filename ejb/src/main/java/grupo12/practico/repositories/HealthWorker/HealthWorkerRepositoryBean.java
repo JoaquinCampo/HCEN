@@ -99,6 +99,10 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
 
     @Override
     public List<HealthWorkerDTO> findByClinic(String clinicName) {
+        if (clinicName == null || clinicName.equals("")) {
+            throw new IllegalArgumentException("Null or empty Clinic name");
+        }
+
         String encodedClinic = encodePathSegment(clinicName);
         URI uri = URI.create(config.getClinicsApiUrl() + "/" + encodedClinic + "/health-workers");
 

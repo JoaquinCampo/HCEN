@@ -419,4 +419,64 @@ class ClinicalDocumentServiceBeanTest {
         assertEquals("Health user CI is required", exception.getMessage());
         verify(clinicalDocumentRepository, never()).chat(any());
     }
+
+    @Test
+    @DisplayName("getPresignedUploadUrl - Should succeed with clinic and health worker access")
+    void getPresignedUploadUrl_ShouldSucceedWithClinicAndHealthWorkerAccess() {
+        when(accessPolicyService.hasClinicAccess("87654321", "Test Clinic")).thenReturn(true);
+        when(accessPolicyService.hasHealthWorkerAccess("87654321", "12345678")).thenReturn(true);
+        when(accessPolicyService.hasSpecialtyAccess("87654321", List.of("Cardiology"))).thenReturn(false);
+        when(clinicalDocumentRepository.getPresignedUploadUrl(presignedUrlRequestDTO))
+                .thenReturn(presignedUrlResponseDTO);
+
+        PresignedUrlResponseDTO result = service.getPresignedUploadUrl(presignedUrlRequestDTO);
+
+        assertNotNull(result);
+        verify(clinicalDocumentRepository).getPresignedUploadUrl(presignedUrlRequestDTO);
+    }
+
+    @Test
+    @DisplayName("getPresignedUploadUrl - Should succeed with all access types")
+    void getPresignedUploadUrl_ShouldSucceedWithAllAccessTypes() {
+        when(accessPolicyService.hasClinicAccess("87654321", "Test Clinic")).thenReturn(true);
+        when(accessPolicyService.hasHealthWorkerAccess("87654321", "12345678")).thenReturn(true);
+        when(accessPolicyService.hasSpecialtyAccess("87654321", List.of("Cardiology"))).thenReturn(true);
+        when(clinicalDocumentRepository.getPresignedUploadUrl(presignedUrlRequestDTO))
+                .thenReturn(presignedUrlResponseDTO);
+
+        PresignedUrlResponseDTO result = service.getPresignedUploadUrl(presignedUrlRequestDTO);
+
+        assertNotNull(result);
+        verify(clinicalDocumentRepository).getPresignedUploadUrl(presignedUrlRequestDTO);
+    }
+
+    @Test
+    @DisplayName("getPresignedUploadUrl - Should succeed with specialty and health worker access")
+    void getPresignedUploadUrl_ShouldSucceedWithSpecialtyAndHealthWorkerAccess() {
+        when(accessPolicyService.hasClinicAccess("87654321", "Test Clinic")).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess("87654321", "12345678")).thenReturn(true);
+        when(accessPolicyService.hasSpecialtyAccess("87654321", List.of("Cardiology"))).thenReturn(true);
+        when(clinicalDocumentRepository.getPresignedUploadUrl(presignedUrlRequestDTO))
+                .thenReturn(presignedUrlResponseDTO);
+
+        PresignedUrlResponseDTO result = service.getPresignedUploadUrl(presignedUrlRequestDTO);
+
+        assertNotNull(result);
+        verify(clinicalDocumentRepository).getPresignedUploadUrl(presignedUrlRequestDTO);
+    }
+
+    @Test
+    @DisplayName("getPresignedUploadUrl - Should succeed with clinic and specialty access")
+    void getPresignedUploadUrl_ShouldSucceedWithClinicAndSpecialtyAccess() {
+        when(accessPolicyService.hasClinicAccess("87654321", "Test Clinic")).thenReturn(true);
+        when(accessPolicyService.hasHealthWorkerAccess("87654321", "12345678")).thenReturn(false);
+        when(accessPolicyService.hasSpecialtyAccess("87654321", List.of("Cardiology"))).thenReturn(true);
+        when(clinicalDocumentRepository.getPresignedUploadUrl(presignedUrlRequestDTO))
+                .thenReturn(presignedUrlResponseDTO);
+
+        PresignedUrlResponseDTO result = service.getPresignedUploadUrl(presignedUrlRequestDTO);
+
+        assertNotNull(result);
+        verify(clinicalDocumentRepository).getPresignedUploadUrl(presignedUrlRequestDTO);
+    }
 }

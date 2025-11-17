@@ -5,8 +5,11 @@ import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.models.Gender;
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
+import grupo12.practico.dtos.ClinicalHistory.HealthUserAccessHistoryResponseDTO;
+import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryAccessLogResponseDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
+import grupo12.practico.models.ClinicalHistoryLog;
 import grupo12.practico.models.HealthUser;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
@@ -432,6 +435,21 @@ class HealthUserServiceBeanTest {
     }
 
     @Test
+    @DisplayName("create - Should throw ValidationException when first name is null")
+    void testCreate_NullFirstName() {
+        // Arrange
+        testAddHealthUserDTO.setFirstName(null);
+
+        // Act & Assert
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
+
+        assertEquals("Health user first name is required", exception.getMessage());
+        verify(healthUserRepository, never()).createHealthUser(any());
+    }
+
+    @Test
     @DisplayName("create - Should throw ValidationException when first name is blank")
     void testCreate_BlankFirstName() {
         // Arrange
@@ -443,6 +461,21 @@ class HealthUserServiceBeanTest {
                 () -> healthUserService.createHealthUser(testAddHealthUserDTO));
 
         assertEquals("Health user first name is required", exception.getMessage());
+        verify(healthUserRepository, never()).createHealthUser(any());
+    }
+
+    @Test
+    @DisplayName("create - Should throw ValidationException when last name is null")
+    void testCreate_NullLastName() {
+        // Arrange
+        testAddHealthUserDTO.setLastName(null);
+
+        // Act & Assert
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
+
+        assertEquals("Health user last name is required", exception.getMessage());
         verify(healthUserRepository, never()).createHealthUser(any());
     }
 
@@ -462,8 +495,8 @@ class HealthUserServiceBeanTest {
     }
 
     @Test
-    @DisplayName("create - Should throw ValidationException when CI is blank")
-    void testCreate_BlankCi() {
+    @DisplayName("create - Should throw ValidationException when CI is null")
+    void testCreate_NullCi() {
         // Arrange
         testAddHealthUserDTO.setCi(null);
 
@@ -473,6 +506,51 @@ class HealthUserServiceBeanTest {
                 () -> healthUserService.createHealthUser(testAddHealthUserDTO));
 
         assertEquals("Health user CI is required", exception.getMessage());
+        verify(healthUserRepository, never()).createHealthUser(any());
+    }
+
+    @Test
+    @DisplayName("create - Should throw ValidationException when CI is blank")
+    void testCreate_BlankCi() {
+        // Arrange
+        testAddHealthUserDTO.setCi("   ");
+
+        // Act & Assert
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
+
+        assertEquals("Health user CI is required", exception.getMessage());
+        verify(healthUserRepository, never()).createHealthUser(any());
+    }
+
+    @Test
+    @DisplayName("create - Should throw ValidationException when email is null")
+    void testCreate_NullEmail() {
+        // Arrange
+        testAddHealthUserDTO.setEmail(null);
+
+        // Act & Assert
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
+
+        assertEquals("Health user email is required", exception.getMessage());
+        verify(healthUserRepository, never()).createHealthUser(any());
+    }
+
+    @Test
+    @DisplayName("create - Should throw ValidationException when email is blank")
+    void testCreate_BlankEmail() {
+        // Arrange
+        testAddHealthUserDTO.setEmail("");
+
+        // Act & Assert
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> healthUserService.createHealthUser(testAddHealthUserDTO));
+
+        assertEquals("Health user email is required", exception.getMessage());
         verify(healthUserRepository, never()).createHealthUser(any());
     }
 
@@ -641,5 +719,264 @@ class HealthUserServiceBeanTest {
         verify(accessPolicyService).hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
         verify(accessPolicyService).hasSpecialtyAccess(healthUserCi, null);
         verify(healthUserRepository, never()).findHealthUserClinicalHistory(anyString());
+    }
+
+    @Test
+    @DisplayName("fetchClinicalHistory - Should return clinical history when specialty has access")
+    void testFetchClinicalHistory_WithSpecialtyAccess() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<String> specialtyNames = List.of("Cardiology");
+
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        ClinicalDocumentDTO doc = new ClinicalDocumentDTO();
+        doc.setId("doc-1");
+        documents.add(doc);
+
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(false);
+        when(accessPolicyService.hasSpecialtyAccess(healthUserCi, specialtyNames)).thenReturn(true);
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi))
+                .thenReturn(documents);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertNotNull(result.getHealthUser());
+        assertTrue(result.getHasAccess());
+        assertEquals(1, result.getDocuments().size());
+
+        verify(accessPolicyService).hasClinicAccess(healthUserCi, clinicName);
+        verify(accessPolicyService).hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
+        verify(accessPolicyService).hasSpecialtyAccess(healthUserCi, specialtyNames);
+        verify(healthUserRepository).findHealthUserClinicalHistory(healthUserCi);
+    }
+
+    @Test
+    @DisplayName("fetchClinicalHistory - Should return clinical history when multiple access types granted")
+    void testFetchClinicalHistory_WithMultipleAccessTypes() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        ClinicalDocumentDTO doc = new ClinicalDocumentDTO();
+        doc.setId("doc-1");
+        documents.add(doc);
+
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(true);
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi))
+                .thenReturn(documents);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertNotNull(result.getHealthUser());
+        assertTrue(result.getHasAccess());
+        assertEquals(1, result.getDocuments().size());
+
+        verify(accessPolicyService).hasClinicAccess(healthUserCi, clinicName);
+        verify(healthUserRepository).findHealthUserClinicalHistory(healthUserCi);
+    }
+
+    @Test
+    @DisplayName("findHealthUserAccessHistory - Should successfully return access history")
+    void testFindHealthUserAccessHistory_Success() {
+        // Arrange
+        String healthUserCi = "54053584";
+        Integer pageIndex = 0;
+        Integer pageSize = 10;
+
+        ClinicalHistoryLog log1 = new ClinicalHistoryLog();
+        log1.setId("log-1");
+        log1.setHealthUserCi(healthUserCi);
+        log1.setAccessorCi("12345678");
+        log1.setAccessorType("HEALTH_WORKER");
+        log1.setClinicName("Clinic A");
+        log1.setAccessType("BY_CLINIC");
+        log1.setTimestamp(java.time.LocalDateTime.now());
+
+        ClinicalHistoryLog log2 = new ClinicalHistoryLog();
+        log2.setId("log-2");
+        log2.setHealthUserCi(healthUserCi);
+        log2.setAccessorCi(null);
+        log2.setAccessorType("HEALTH_USER");
+        log2.setClinicName("Clinic B");
+        log2.setAccessType("SELF_ACCESS");
+        log2.setTimestamp(java.time.LocalDateTime.now().minusHours(1));
+
+        List<ClinicalHistoryLog> logs = Arrays.asList(log1, log2);
+        PaginationDTO<ClinicalHistoryLog> logsPage = new PaginationDTO<>();
+        logsPage.setItems(logs);
+        logsPage.setPageIndex(0);
+        logsPage.setPageSize(10);
+        logsPage.setTotal(2L);
+        logsPage.setTotalPages(1);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(loggerService.getClinicalHistoryLogs(healthUserCi, null, pageIndex, pageSize)).thenReturn(logsPage);
+
+        // Act
+        HealthUserAccessHistoryResponseDTO result = healthUserService.findHealthUserAccessHistory(healthUserCi,
+                pageIndex, pageSize);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(testHealthUserDTO.getCi(), result.getHealthUser().getCi());
+        assertEquals(testHealthUserDTO.getFirstName(), result.getHealthUser().getFirstName());
+        assertNotNull(result.getAccessHistory());
+        assertEquals(2, result.getAccessHistory().size());
+
+        ClinicalHistoryAccessLogResponseDTO logDTO1 = result.getAccessHistory().get(0);
+        assertEquals("log-1", logDTO1.getId());
+        assertEquals(healthUserCi, logDTO1.getHealthUserCi());
+        assertEquals("12345678", logDTO1.getHealthWorkerCi());
+        assertEquals("Clinic A", logDTO1.getClinicName());
+        assertEquals("BY_CLINIC", logDTO1.getDecisionReason());
+        assertFalse(logDTO1.getViewed());
+
+        ClinicalHistoryAccessLogResponseDTO logDTO2 = result.getAccessHistory().get(1);
+        assertEquals("log-2", logDTO2.getId());
+        assertNull(logDTO2.getHealthWorkerCi());
+        assertEquals("Clinic B", logDTO2.getClinicName());
+        assertEquals("SELF_ACCESS", logDTO2.getDecisionReason());
+        assertTrue(logDTO2.getViewed());
+
+        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
+        verify(loggerService).getClinicalHistoryLogs(healthUserCi, null, pageIndex, pageSize);
+    }
+
+    @Test
+    @DisplayName("findHealthUserAccessHistory - Should throw ValidationException for null health user CI")
+    void testFindHealthUserAccessHistory_NullHealthUserCi() {
+        assertThrows(ValidationException.class,
+                () -> healthUserService.findHealthUserAccessHistory(null, 0, 10));
+    }
+
+    @Test
+    @DisplayName("findHealthUserAccessHistory - Should throw ValidationException for blank health user CI")
+    void testFindHealthUserAccessHistory_BlankHealthUserCi() {
+        assertThrows(ValidationException.class,
+                () -> healthUserService.findHealthUserAccessHistory("", 0, 10));
+        assertThrows(ValidationException.class,
+                () -> healthUserService.findHealthUserAccessHistory("   ", 0, 10));
+    }
+
+    @Test
+    @DisplayName("findHealthUserAccessHistory - Should throw ValidationException when health user not found")
+    void testFindHealthUserAccessHistory_HealthUserNotFound() {
+        // Arrange
+        String healthUserCi = "99999999";
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(null);
+
+        // Act & Assert
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> healthUserService.findHealthUserAccessHistory(healthUserCi, 0, 10));
+
+        assertTrue(exception.getMessage().contains("Health user not found for CI: " + healthUserCi));
+        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
+        verify(loggerService, never()).getClinicalHistoryLogs(anyString(), any(), anyInt(), anyInt());
+    }
+
+    @Test
+    @DisplayName("findHealthUserAccessHistory - Should handle null logs page from logger service")
+    void testFindHealthUserAccessHistory_NullLogsPage() {
+        // Arrange
+        String healthUserCi = "54053584";
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(loggerService.getClinicalHistoryLogs(healthUserCi, null, 0, 10)).thenReturn(null);
+
+        // Act
+        HealthUserAccessHistoryResponseDTO result = healthUserService.findHealthUserAccessHistory(healthUserCi, 0, 10);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(testHealthUserDTO.getCi(), result.getHealthUser().getCi());
+        assertNotNull(result.getAccessHistory());
+        assertTrue(result.getAccessHistory().isEmpty());
+
+        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
+        verify(loggerService).getClinicalHistoryLogs(healthUserCi, null, 0, 10);
+    }
+
+    @Test
+    @DisplayName("findHealthUserAccessHistory - Should handle empty logs list")
+    void testFindHealthUserAccessHistory_EmptyLogs() {
+        // Arrange
+        String healthUserCi = "54053584";
+
+        PaginationDTO<ClinicalHistoryLog> emptyLogsPage = new PaginationDTO<>();
+        emptyLogsPage.setItems(Collections.emptyList());
+        emptyLogsPage.setPageIndex(0);
+        emptyLogsPage.setPageSize(10);
+        emptyLogsPage.setTotal(0L);
+        emptyLogsPage.setTotalPages(1);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(loggerService.getClinicalHistoryLogs(healthUserCi, null, 0, 10)).thenReturn(emptyLogsPage);
+
+        // Act
+        HealthUserAccessHistoryResponseDTO result = healthUserService.findHealthUserAccessHistory(healthUserCi, 0, 10);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(testHealthUserDTO.getCi(), result.getHealthUser().getCi());
+        assertNotNull(result.getAccessHistory());
+        assertTrue(result.getAccessHistory().isEmpty());
+
+        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
+        verify(loggerService).getClinicalHistoryLogs(healthUserCi, null, 0, 10);
+    }
+
+    @Test
+    @DisplayName("findHealthUserAccessHistory - Should handle null items in logs page")
+    void testFindHealthUserAccessHistory_NullItemsInLogsPage() {
+        // Arrange
+        String healthUserCi = "54053584";
+
+        PaginationDTO<ClinicalHistoryLog> logsPageWithNullItems = new PaginationDTO<>();
+        logsPageWithNullItems.setItems(null);
+        logsPageWithNullItems.setPageIndex(0);
+        logsPageWithNullItems.setPageSize(10);
+        logsPageWithNullItems.setTotal(0L);
+        logsPageWithNullItems.setTotalPages(1);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(loggerService.getClinicalHistoryLogs(healthUserCi, null, 0, 10)).thenReturn(logsPageWithNullItems);
+
+        // Act
+        HealthUserAccessHistoryResponseDTO result = healthUserService.findHealthUserAccessHistory(healthUserCi, 0, 10);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(testHealthUserDTO.getCi(), result.getHealthUser().getCi());
+        assertNotNull(result.getAccessHistory());
+        assertTrue(result.getAccessHistory().isEmpty());
+
+        verify(healthUserRepository).findHealthUserByCi(healthUserCi);
+        verify(loggerService).getClinicalHistoryLogs(healthUserCi, null, 0, 10);
     }
 }
