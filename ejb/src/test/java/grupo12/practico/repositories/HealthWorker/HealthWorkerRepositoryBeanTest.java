@@ -2,7 +2,6 @@ package grupo12.practico.repositories.HealthWorker;
 
 import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.repositories.NodosPerifericosConfig;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -129,47 +128,27 @@ class HealthWorkerRepositoryBeanTest {
     }
 
     @Test
-    @DisplayName("findByClinicAndCi - Should throw ValidationException for null clinic name")
+    @DisplayName("findByClinicAndCi - Should throw IllegalArgumentException for null clinic name")
     void testFindByClinicAndCi_NullClinicName() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> repository.findByClinicAndCi(null, "87654321"));
-
-        assertEquals("Clinic name must not be blank", exception.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> repository.findByClinicAndCi(null, "87654321"));
     }
 
     @Test
-    @DisplayName("findByClinicAndCi - Should throw ValidationException for empty clinic name")
+    @DisplayName("findByClinicAndCi - Should throw IllegalArgumentException for empty clinic name")
     void testFindByClinicAndCi_EmptyClinicName() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> repository.findByClinicAndCi("", "87654321"));
-
-        assertEquals("Clinic name must not be blank", exception.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> repository.findByClinicAndCi("", "87654321"));
     }
 
     @Test
-    @DisplayName("findByClinicAndCi - Should throw ValidationException for null health worker CI")
+    @DisplayName("findByClinicAndCi - Should throw IllegalArgumentException for null health worker CI")
     void testFindByClinicAndCi_NullCi() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> repository.findByClinicAndCi("Clinic A", null));
-
-        assertEquals("Health worker CI must not be blank", exception.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> repository.findByClinicAndCi("Clinic A", null));
     }
 
     @Test
-    @DisplayName("findByClinicAndCi - Should throw ValidationException for empty health worker CI")
+    @DisplayName("findByClinicAndCi - Should throw IllegalArgumentException for empty health worker CI")
     void testFindByClinicAndCi_EmptyCi() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> repository.findByClinicAndCi("Clinic A", ""));
-
-        assertEquals("Health worker CI must not be blank", exception.getMessage());
+        assertThrows(IllegalArgumentException.class, () -> repository.findByClinicAndCi("Clinic A", ""));
     }
 
     @Test

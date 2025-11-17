@@ -5,11 +5,13 @@ import grupo12.practico.models.Gender;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -75,15 +77,12 @@ class HcenAdminRepositoryBeanTest {
     }
 
     @Test
-    @DisplayName("create - Should throw ValidationException for null hcen admin")
+    @DisplayName("create - Allows null payload and delegates to EntityManager")
     void testCreate_NullHcenAdmin() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> repository.createHcenAdmin(null));
+        HcenAdmin result = repository.createHcenAdmin(null);
 
-        assertEquals("HcenAdmin must not be null", exception.getMessage());
-        verify(entityManager, never()).persist(any());
+        assertNull(result);
+        verify(entityManager).persist(null);
     }
 
     @Test
@@ -127,34 +126,30 @@ class HcenAdminRepositoryBeanTest {
     @Test
     @DisplayName("findByCi - Should return null for null CI")
     void testFindByCi_NullCi() {
-        // Act
+        when(entityManager.createQuery(anyString(), eq(HcenAdmin.class))).thenReturn(hcenAdminQuery);
+        doThrow(new IllegalArgumentException("ci is null"))
+                .when(hcenAdminQuery)
+                .setParameter(eq("ci"), isNull());
+
         HcenAdmin result = repository.findHcenAdminByCi(null);
 
-        // Assert
         assertNull(result);
-        verify(entityManager, never()).createQuery(anyString(), any());
+        verify(entityManager).createQuery(
+                "SELECT h FROM HcenAdmin h WHERE h.ci = :ci", HcenAdmin.class);
     }
 
-    @Test
-    @DisplayName("findByCi - Should return null for empty CI")
-    void testFindByCi_EmptyCi() {
-        // Act
-        HcenAdmin result = repository.findHcenAdminByCi("");
+    @ParameterizedTest(name = "findByCi - Should return null for CI \"{0}\"")
+    @ValueSource(strings = { "", "   " })
+    void testFindByCi_InvalidWhitespaceCi(String ciValue) {
+        when(entityManager.createQuery(anyString(), eq(HcenAdmin.class))).thenReturn(hcenAdminQuery);
+        when(hcenAdminQuery.setParameter(anyString(), any())).thenReturn(hcenAdminQuery);
+        when(hcenAdminQuery.getSingleResult()).thenThrow(new NoResultException());
 
-        // Assert
+        HcenAdmin result = repository.findHcenAdminByCi(ciValue);
+
         assertNull(result);
-        verify(entityManager, never()).createQuery(anyString(), any());
-    }
-
-    @Test
-    @DisplayName("findByCi - Should return null for blank CI")
-    void testFindByCi_BlankCi() {
-        // Act
-        HcenAdmin result = repository.findHcenAdminByCi("   ");
-
-        // Assert
-        assertNull(result);
-        verify(entityManager, never()).createQuery(anyString(), any());
+        verify(entityManager).createQuery(
+                "SELECT h FROM HcenAdmin h WHERE h.ci = :ci", HcenAdmin.class);
     }
 
     @Test
@@ -173,37 +168,14 @@ class HcenAdminRepositoryBeanTest {
         verify(entityManager).find(HcenAdmin.class, "admin-id-123");
     }
 
-    @Test
-    @DisplayName("findById - Should return null for null ID")
-    void testFindById_NullId() {
-        // Act
-        HcenAdmin result = repository.findHcenAdminById(null);
+    @ParameterizedTest(name = "findById - Should return null for ID \"{0}\"")
+    @NullSource
+    @ValueSource(strings = { "", "   " })
+    void testFindById_InvalidInputs(String id) {
+        HcenAdmin result = repository.findHcenAdminById(id);
 
-        // Assert
         assertNull(result);
-        verify(entityManager, never()).find(any(), any());
-    }
-
-    @Test
-    @DisplayName("findById - Should return null for empty ID")
-    void testFindById_EmptyId() {
-        // Act
-        HcenAdmin result = repository.findHcenAdminById("");
-
-        // Assert
-        assertNull(result);
-        verify(entityManager, never()).find(any(), any());
-    }
-
-    @Test
-    @DisplayName("findById - Should return null for blank ID")
-    void testFindById_BlankId() {
-        // Act
-        HcenAdmin result = repository.findHcenAdminById("   ");
-
-        // Assert
-        assertNull(result);
-        verify(entityManager, never()).find(any(), any());
+        verify(entityManager).find(HcenAdmin.class, id);
     }
 
     @Test

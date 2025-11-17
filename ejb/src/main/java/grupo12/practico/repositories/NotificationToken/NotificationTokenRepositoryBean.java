@@ -52,6 +52,9 @@ public class NotificationTokenRepositoryBean implements NotificationTokenReposit
     @Override
     public NotificationToken updateLastUsedAt(String tokenId) {
         NotificationToken token = findByToken(tokenId);
+        if (token == null) {
+            return null;
+        }
         token.setLastUsedAt(LocalDateTime.now());
         return em.merge(token);
 

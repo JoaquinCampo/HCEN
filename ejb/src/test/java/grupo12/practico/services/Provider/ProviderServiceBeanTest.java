@@ -211,4 +211,32 @@ class ProviderServiceBeanTest {
         verify(providerRepository, never()).findProviderByName(any());
     }
 
+    @Test
+    @DisplayName("toDTO - Should convert Provider entity to ProviderDTO")
+    void toDTO_ShouldConvertProviderEntityToProviderDTO() {
+        ProviderDTO result = testProvider.toDTO();
+
+        assertNotNull(result);
+        assertEquals(testProvider.getId(), result.getId());
+        assertEquals(testProvider.getName(), result.getProviderName());
+        assertEquals(testProvider.getCreatedAt(), result.getCreatedAt());
+        assertEquals(testProvider.getUpdatedAt(), result.getUpdatedAt());
+    }
+
+    @Test
+    @DisplayName("toDTO - Should handle Provider with null fields")
+    void toDTO_ShouldHandleProviderWithNullFields() {
+        Provider providerWithNulls = new Provider();
+        providerWithNulls.setId("test-id");
+        providerWithNulls.setName("Test Provider");
+        // Created/Updated at left null
+
+        ProviderDTO result = providerWithNulls.toDTO();
+
+        assertNotNull(result);
+        assertEquals("test-id", result.getId());
+        assertEquals("Test Provider", result.getProviderName());
+        assertNull(result.getCreatedAt());
+        assertNull(result.getUpdatedAt());
+    }
 }

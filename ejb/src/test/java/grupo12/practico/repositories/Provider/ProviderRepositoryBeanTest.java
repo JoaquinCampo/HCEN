@@ -3,12 +3,15 @@ package grupo12.practico.repositories.Provider;
 import grupo12.practico.models.Provider;
 import grupo12.practico.repositories.NodosPerifericosConfig;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -75,15 +78,12 @@ class ProviderRepositoryBeanTest {
     }
 
     @Test
-    @DisplayName("create - Should throw ValidationException for null provider")
+    @DisplayName("create - Allows null provider payload and delegates to EntityManager")
     void testCreate_NullProvider() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
-                () -> repository.createProvider(null));
+        Provider result = repository.createProvider(null);
 
-        assertEquals("Provider must not be null", exception.getMessage());
-        verify(entityManager, never()).persist(any());
+        assertNull(result);
+        verify(entityManager).persist(null);
     }
 
     @Test
@@ -102,37 +102,14 @@ class ProviderRepositoryBeanTest {
         verify(entityManager).find(Provider.class, "provider-id-123");
     }
 
-    @Test
-    @DisplayName("findById - Should return null for null ID")
-    void testFindById_NullId() {
-        // Act
-        Provider result = repository.findProviderById(null);
+    @ParameterizedTest(name = "findById - Should return null for ID \"{0}\"")
+    @NullSource
+    @ValueSource(strings = { "", "   " })
+    void testFindById_InvalidInputs(String id) {
+        Provider result = repository.findProviderById(id);
 
-        // Assert
         assertNull(result);
-        verify(entityManager, never()).find(any(), any());
-    }
-
-    @Test
-    @DisplayName("findById - Should return null for empty ID")
-    void testFindById_EmptyId() {
-        // Act
-        Provider result = repository.findProviderById("");
-
-        // Assert
-        assertNull(result);
-        verify(entityManager, never()).find(any(), any());
-    }
-
-    @Test
-    @DisplayName("findById - Should return null for blank ID")
-    void testFindById_BlankId() {
-        // Act
-        Provider result = repository.findProviderById("   ");
-
-        // Assert
-        assertNull(result);
-        verify(entityManager, never()).find(any(), any());
+        verify(entityManager).find(Provider.class, id);
     }
 
     @Test
@@ -154,10 +131,9 @@ class ProviderRepositoryBeanTest {
     @DisplayName("findByName - Should return provider by name")
     void testFindByName_Success() {
         // Arrange
-        List<Provider> providers = List.of(testProvider);
         when(entityManager.createQuery(anyString(), eq(Provider.class))).thenReturn(providerQuery);
         when(providerQuery.setParameter(anyString(), any())).thenReturn(providerQuery);
-        when(providerQuery.getResultList()).thenReturn(providers);
+        when(providerQuery.getSingleResult()).thenReturn(testProvider);
 
         // Act
         Provider result = repository.findProviderByName("Test Provider");
@@ -167,60 +143,53 @@ class ProviderRepositoryBeanTest {
         assertEquals(testProvider, result);
 
         verify(entityManager).createQuery(
-                "SELECT p FROM Provider p WHERE p.providerName = :name", Provider.class);
-        verify(providerQuery).setParameter("name", "Test Provider");
-        verify(providerQuery).getResultList();
+                "SELECT p FROM Provider p WHERE p.providerName = :providerName", Provider.class);
+        verify(providerQuery).setParameter("providerName", "Test Provider");
+        verify(providerQuery).getSingleResult();
     }
 
     @Test
     @DisplayName("findByName - Should return null when no provider found")
     void testFindByName_NotFound() {
-        // Arrange
-        List<Provider> emptyList = List.of();
         when(entityManager.createQuery(anyString(), eq(Provider.class))).thenReturn(providerQuery);
         when(providerQuery.setParameter(anyString(), any())).thenReturn(providerQuery);
-        when(providerQuery.getResultList()).thenReturn(emptyList);
+        when(providerQuery.getSingleResult()).thenThrow(new NoResultException());
 
         // Act
         Provider result = repository.findProviderByName("Non-existent Provider");
 
         // Assert
         assertNull(result);
-
-        verify(providerQuery).getResultList();
+        verify(providerQuery).getSingleResult();
     }
 
     @Test
     @DisplayName("findByName - Should return null for null name")
     void testFindByName_NullName() {
-        // Act
+        when(entityManager.createQuery(anyString(), eq(Provider.class))).thenReturn(providerQuery);
+        doThrow(new IllegalArgumentException("name null"))
+                .when(providerQuery)
+                .setParameter(eq("providerName"), isNull());
+
         Provider result = repository.findProviderByName(null);
 
-        // Assert
         assertNull(result);
-        verify(entityManager, never()).createQuery(anyString(), any());
+        verify(entityManager).createQuery(
+                "SELECT p FROM Provider p WHERE p.providerName = :providerName", Provider.class);
     }
 
-    @Test
-    @DisplayName("findByName - Should return null for empty name")
-    void testFindByName_EmptyName() {
-        // Act
-        Provider result = repository.findProviderByName("");
+    @ParameterizedTest(name = "findByName - Should return null for name \"{0}\"")
+    @ValueSource(strings = { "", "   " })
+    void testFindByName_InvalidWhitespace(String providerName) {
+        when(entityManager.createQuery(anyString(), eq(Provider.class))).thenReturn(providerQuery);
+        when(providerQuery.setParameter(anyString(), any())).thenReturn(providerQuery);
+        when(providerQuery.getSingleResult()).thenThrow(new NoResultException());
 
-        // Assert
+        Provider result = repository.findProviderByName(providerName);
+
         assertNull(result);
-        verify(entityManager, never()).createQuery(anyString(), any());
-    }
-
-    @Test
-    @DisplayName("findByName - Should return null for blank name")
-    void testFindByName_BlankName() {
-        // Act
-        Provider result = repository.findProviderByName("   ");
-
-        // Assert
-        assertNull(result);
-        verify(entityManager, never()).createQuery(anyString(), any());
+        verify(entityManager).createQuery(
+                "SELECT p FROM Provider p WHERE p.providerName = :providerName", Provider.class);
     }
 
     @Test

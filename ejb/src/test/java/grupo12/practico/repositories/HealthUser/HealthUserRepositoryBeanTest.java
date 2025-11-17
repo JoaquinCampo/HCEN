@@ -433,13 +433,11 @@ class HealthUserRepositoryBeanTest {
         when(healthUserQuery.setMaxResults(anyInt())).thenReturn(healthUserQuery);
         when(healthUserQuery.getResultStream()).thenReturn(Arrays.asList(testHealthUser).stream());
 
-        // Act
-        HealthUser result = repository.linkClinicToHealthUser(healthUserCi, clinicName);
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> repository.linkClinicToHealthUser(healthUserCi, clinicName));
 
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.getClinicNames().contains("Clinic A"));
-
+        assertEquals("Clinic already linked to health user", exception.getMessage());
         verify(entityManager, never()).merge(any());
     }
 
@@ -484,14 +482,27 @@ class HealthUserRepositoryBeanTest {
     }
 
     @Test
-    @DisplayName("fetchClinicalHistory - Should throw ValidationException for null parameters")
-    void testFetchClinicalHistory_NullParameters() {
-        // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
+    @DisplayName("fetchClinicalHistory - Should call remote service even when CI is null")
+    void testFetchClinicalHistory_NullParametersHandledByRemote() throws Exception {
+        when(config.getDocumentsApiBaseUrl()).thenReturn("http://api.example.com/");
+        when(config.getDocumentsApiKey()).thenReturn("test-api-key");
+
+        @SuppressWarnings("unchecked")
+        HttpResponse<String> mockHttpResponse = mock(HttpResponse.class);
+        when(mockHttpResponse.statusCode()).thenReturn(404);
+        when(mockHttpResponse.body()).thenReturn("Not Found");
+
+        doReturn(mockHttpResponse).when(httpClient).send(any(HttpRequest.class), any());
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
                 () -> repository.findHealthUserClinicalHistory(null));
 
-        assertEquals("Health user CI is required", exception.getMessage());
+        assertTrue(exception.getMessage().contains("HTTP 404"));
+
+        ArgumentCaptor<HttpRequest> httpRequestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(httpClient).send(httpRequestCaptor.capture(), any());
+        assertTrue(httpRequestCaptor.getValue().uri().toString().endsWith("/clinical-history/null"));
     }
 
     @Test

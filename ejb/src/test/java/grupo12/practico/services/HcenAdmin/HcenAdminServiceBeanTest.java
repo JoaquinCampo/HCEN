@@ -193,4 +193,52 @@ class HcenAdminServiceBeanTest {
 
         verify(hcenAdminRepository).findHcenAdminByCi(ci);
     }
+
+    @Test
+    @DisplayName("toDto - Should convert HcenAdmin entity to HcenAdminDTO")
+    void toDto_ShouldConvertHcenAdminEntityToHcenAdminDTO() {
+        HcenAdminDTO result = testHcenAdmin.toDto();
+
+        assertNotNull(result);
+        assertEquals(testHcenAdmin.getId(), result.getId());
+        assertEquals(testHcenAdmin.getCi(), result.getCi());
+        assertEquals(testHcenAdmin.getFirstName(), result.getFirstName());
+        assertEquals(testHcenAdmin.getLastName(), result.getLastName());
+        assertEquals(testHcenAdmin.getGender(), result.getGender());
+        assertEquals(testHcenAdmin.getEmail(), result.getEmail());
+        assertEquals(testHcenAdmin.getPhone(), result.getPhone());
+        assertEquals(testHcenAdmin.getAddress(), result.getAddress());
+        assertEquals(testHcenAdmin.getDateOfBirth(), result.getDateOfBirth());
+        assertEquals(testHcenAdmin.getCreatedAt(), result.getCreatedAt());
+        assertEquals(testHcenAdmin.getUpdatedAt(), result.getUpdatedAt());
+    }
+
+    @Test
+    @DisplayName("toDto - Should handle null optional fields")
+    void toDto_ShouldHandleNullOptionalFields() {
+        // Create HcenAdmin with null optional fields
+        HcenAdmin adminWithNulls = new HcenAdmin();
+        adminWithNulls.setId("test-id");
+        adminWithNulls.setCi("12345678");
+        adminWithNulls.setFirstName("Test");
+        adminWithNulls.setLastName("Admin");
+        adminWithNulls.setGender(Gender.MALE);
+        // Optional fields left null
+        adminWithNulls.setDateOfBirth(LocalDate.of(1980, 1, 1));
+        adminWithNulls.setCreatedAt(LocalDate.now());
+        adminWithNulls.setUpdatedAt(LocalDate.now());
+
+        HcenAdminDTO result = adminWithNulls.toDto();
+
+        assertNotNull(result);
+        assertEquals("test-id", result.getId());
+        assertEquals("12345678", result.getCi());
+        assertEquals("Test", result.getFirstName());
+        assertEquals("Admin", result.getLastName());
+        assertEquals(Gender.MALE, result.getGender());
+        assertNull(result.getEmail());
+        assertNull(result.getPhone());
+        assertNull(result.getAddress());
+        assertEquals(LocalDate.of(1980, 1, 1), result.getDateOfBirth());
+    }
 }

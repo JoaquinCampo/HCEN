@@ -9,7 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,19 +57,19 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                 .add("firstName", addClinicDTO.getClinicAdmin().getFirstName())
                 .add("lastName", addClinicDTO.getClinicAdmin().getLastName())
                 .add("email", addClinicDTO.getClinicAdmin().getEmail());
-        
+
         if (addClinicDTO.getClinicAdmin().getPhone() != null) {
             clinicAdminBuilder.add("phone", addClinicDTO.getClinicAdmin().getPhone());
         }
-        
+
         if (addClinicDTO.getClinicAdmin().getAddress() != null) {
             clinicAdminBuilder.add("address", addClinicDTO.getClinicAdmin().getAddress());
         }
-        
+
         if (addClinicDTO.getClinicAdmin().getDateOfBirth() != null) {
             clinicAdminBuilder.add("dateOfBirth", addClinicDTO.getClinicAdmin().getDateOfBirth().toString());
         }
-        
+
         String jsonPayload = Json.createObjectBuilder()
                 .add("name", addClinicDTO.getName())
                 .add("email", addClinicDTO.getEmail())
@@ -166,7 +166,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                 logger.log(Level.WARNING, "Unexpected response when fetching all clinics: HTTP {0}", status);
                 throw new IllegalStateException("Failed to fetch clinics: HTTP " + status);
             }
-            
+
             return mapFindAllClinicsResponseToListDto(response.body());
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
@@ -196,7 +196,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             String createdAt = getString(json, "createdAt");
             if (createdAt != null && !createdAt.isBlank()) {
                 try {
-                    dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneId.systemDefault()).toLocalDate());
+                    dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneOffset.UTC).toLocalDate());
                 } catch (DateTimeParseException ex) {
                     logger.log(Level.WARNING, "Invalid createdAt received for clinic: " + createdAt, ex);
                 }
@@ -205,7 +205,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
             String updatedAt = getString(json, "updatedAt");
             if (updatedAt != null && !updatedAt.isBlank()) {
                 try {
-                    dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneId.systemDefault()).toLocalDate());
+                    dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneOffset.UTC).toLocalDate());
                 } catch (DateTimeParseException ex) {
                     logger.log(Level.WARNING, "Invalid updatedAt received for clinic: " + updatedAt, ex);
                 }
@@ -239,7 +239,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                     String createdAt = getString(json, "createdAt");
                     if (createdAt != null && !createdAt.isBlank()) {
                         try {
-                            dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneId.systemDefault()).toLocalDate());
+                            dto.setCreatedAt(Instant.parse(createdAt).atZone(ZoneOffset.UTC).toLocalDate());
                         } catch (DateTimeParseException ex) {
                             logger.log(Level.WARNING, "Invalid createdAt received for clinic: " + createdAt, ex);
                         }
@@ -248,7 +248,7 @@ public class ClinicRepositoryBean implements ClinicRepositoryRemote {
                     String updatedAt = getString(json, "updatedAt");
                     if (updatedAt != null && !updatedAt.isBlank()) {
                         try {
-                            dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneId.systemDefault()).toLocalDate());
+                            dto.setUpdatedAt(Instant.parse(updatedAt).atZone(ZoneOffset.UTC).toLocalDate());
                         } catch (DateTimeParseException ex) {
                             logger.log(Level.WARNING, "Invalid updatedAt received for clinic: " + updatedAt, ex);
                         }

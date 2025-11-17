@@ -1,6 +1,11 @@
 package grupo12.practico.services.Auth;
 
 import grupo12.practico.dtos.Auth.*;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,11 +30,30 @@ class OidcAuthenticationServiceTest {
     @Mock
     private OidcConfigurationService config;
 
+    @Mock
+    private Client client;
+
+    @Mock
+    private WebTarget webTarget;
+
+    @Mock
+    private Invocation.Builder builder;
+
+    @Mock
+    private Response response;
+
     @InjectMocks
     private OidcAuthenticationService service;
 
     @BeforeEach
     void setUp() throws Exception {
+        service = new OidcAuthenticationService();
+
+        // Use reflection to inject mocked config
+        Field configField = OidcAuthenticationService.class.getDeclaredField("config");
+        configField.setAccessible(true);
+        configField.set(service, config);
+
         // Clear static stores between tests
         clearStaticStores();
     }
@@ -166,20 +191,340 @@ class OidcAuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("buildLenientJWKSource - Should be accessible via reflection")
-    void testBuildLenientJWKSource_Accessible() throws Exception {
-        // Test that the private method exists and is accessible for testing
-        Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
-        assertNotNull(method);
-        assertTrue(java.lang.reflect.Modifier.isPrivate(method.getModifiers()));
+    @DisplayName("buildLenientJWKSource - Should successfully build JWK source with valid RSA keys")
+    void buildLenientJWKSource_ShouldSuccessfullyBuildJWKSourceWithValidRSAKeys() throws Exception {
+        // Mock the JWKS URL
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
 
-        // Make it accessible
-        method.setAccessible(true);
+        // Mock the HTTP client chain
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target("https://example.com/.well-known/jwks.json")).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
 
-        // The method will attempt to make HTTP calls, so it should throw an exception
-        // when the JWKS URL is not configured or reachable
-        Exception exception = assertThrows(Exception.class, () -> method.invoke(service));
-        assertNotNull(exception);
+            // Valid JWKS JSON with RSA key
+            String jwksJson = """
+                    {
+                        "keys": [
+                            {
+                                "kty": "RSA",
+                                "kid": "test-key-id",
+                                "use": "sig",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29",
+                                "e": "AQAB"
+                            }
+                        ]
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            // Use reflection to call private method
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+
+            // Verify HTTP client interactions
+            verify(client).target("https://example.com/.well-known/jwks.json");
+            verify(webTarget).request(anyString());
+            verify(builder).get();
+            verify(response).getStatus();
+            verify(response).readEntity(String.class);
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should handle JWKS with multiple keys")
+    void buildLenientJWKSource_ShouldHandleJWKSWithMultipleKeys() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String jwksJson = """
+                    {
+                        "keys": [
+                            {
+                                "kty": "RSA",
+                                "kid": "key1",
+                                "use": "sig",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29",
+                                "e": "AQAB"
+                            },
+                            {
+                                "kty": "RSA",
+                                "kid": "key2",
+                                "use": "enc",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29",
+                                "e": "AQAB"
+                            }
+                        ]
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should skip non-RSA keys")
+    void buildLenientJWKSource_ShouldSkipNonRSAKeys() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String jwksJson = """
+                    {
+                        "keys": [
+                            {
+                                "kty": "RSA",
+                                "kid": "rsa-key",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29",
+                                "e": "AQAB"
+                            },
+                            {
+                                "kty": "EC",
+                                "kid": "ec-key",
+                                "crv": "P-256"
+                            }
+                        ]
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should skip RSA keys without modulus or exponent")
+    void buildLenientJWKSource_ShouldSkipRSAKeysWithoutModulusOrExponent() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String jwksJson = """
+                    {
+                        "keys": [
+                            {
+                                "kty": "RSA",
+                                "kid": "incomplete-key",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29"
+                            }
+                        ]
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should handle empty keys array")
+    void buildLenientJWKSource_ShouldHandleEmptyKeysArray() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String jwksJson = """
+                    {
+                        "keys": []
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should handle malformed JSON")
+    void buildLenientJWKSource_ShouldHandleMalformedJSON() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String malformedJson = "{ invalid json }";
+            when(response.readEntity(String.class)).thenReturn(malformedJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            assertThrows(Exception.class, () -> method.invoke(service));
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should throw RuntimeException for HTTP error")
+    void buildLenientJWKSource_ShouldThrowRuntimeExceptionForHTTPError() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(404);
+            when(response.readEntity(String.class)).thenReturn("Not Found");
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+
+            InvocationTargetException invocationException = assertThrows(InvocationTargetException.class,
+                    () -> method.invoke(service));
+
+            // The actual exception is wrapped in InvocationTargetException
+            Throwable cause = invocationException.getCause();
+            assertTrue(cause instanceof RuntimeException);
+            assertTrue(cause.getMessage().contains("Failed to fetch JWKS"));
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should handle keys without kid")
+    void buildLenientJWKSource_ShouldHandleKeysWithoutKid() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String jwksJson = """
+                    {
+                        "keys": [
+                            {
+                                "kty": "RSA",
+                                "use": "sig",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29",
+                                "e": "AQAB"
+                            }
+                        ]
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should handle keys without use")
+    void buildLenientJWKSource_ShouldHandleKeysWithoutUse() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String jwksJson = """
+                    {
+                        "keys": [
+                            {
+                                "kty": "RSA",
+                                "kid": "test-key",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29",
+                                "e": "AQAB"
+                            }
+                        ]
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+        }
+    }
+
+    @Test
+    @DisplayName("buildLenientJWKSource - Should handle invalid key use gracefully")
+    void buildLenientJWKSource_ShouldHandleInvalidKeyUseGracefully() throws Exception {
+        when(config.getJwksUrl()).thenReturn("https://example.com/.well-known/jwks.json");
+
+        try (MockedStatic<ClientBuilder> clientBuilderMock = mockStatic(ClientBuilder.class)) {
+            clientBuilderMock.when(ClientBuilder::newClient).thenReturn(client);
+            when(client.target(anyString())).thenReturn(webTarget);
+            when(webTarget.request(anyString())).thenReturn(builder);
+            when(builder.get()).thenReturn(response);
+            when(response.getStatus()).thenReturn(200);
+
+            String jwksJson = """
+                    {
+                        "keys": [
+                            {
+                                "kty": "RSA",
+                                "kid": "test-key",
+                                "use": "invalid-use",
+                                "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtmUAmh9K8X1GYTAIwT9lKQ9RKF29",
+                                "e": "AQAB"
+                            }
+                        ]
+                    }
+                    """;
+            when(response.readEntity(String.class)).thenReturn(jwksJson);
+
+            Method method = OidcAuthenticationService.class.getDeclaredMethod("buildLenientJWKSource");
+            method.setAccessible(true);
+            var jwkSource = method.invoke(service);
+
+            assertNotNull(jwkSource);
+        }
     }
 
     @Test
@@ -220,6 +565,7 @@ class OidcAuthenticationServiceTest {
         method.invoke(service, claims);
 
         // Assert - No exception should be thrown
+        assertTrue(true, "Valid claims should be accepted without exception");
     }
 
     @Test
@@ -344,7 +690,7 @@ class OidcAuthenticationServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertTrue(result.length() > 0);
+        assertFalse(result.isEmpty());
         // Base64 URL encoded strings are longer than the byte length
         assertTrue(result.length() >= 32);
     }

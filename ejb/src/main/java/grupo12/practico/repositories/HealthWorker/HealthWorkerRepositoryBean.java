@@ -53,8 +53,17 @@ public class HealthWorkerRepositoryBean implements HealthWorkerRepositoryRemote 
 
     @Override
     public HealthWorkerDTO findByClinicAndCi(String clinicName, String healthWorkerCi) {
+        if (healthWorkerCi == null || healthWorkerCi.equals("")) {
+            throw new IllegalArgumentException("Null or empty Health Worker CI");
+        }
+
+        if (clinicName == null || clinicName.equals("")) {
+            throw new IllegalArgumentException("Null or empty Clinic name");
+        }
+
         String encodedClinic = encodePathSegment(clinicName);
         String encodedCi = encodePathSegment(healthWorkerCi);
+
         URI uri = URI.create(config.getClinicsApiUrl() + "/" + encodedClinic + "/health-worker/" + encodedCi);
 
         HttpRequest request = HttpRequest.newBuilder()
