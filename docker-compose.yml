@@ -26,19 +26,28 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    security_opt:
+      - seccomp=unconfined
+    ulimits:
+      nproc: 4096
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 2g
     ports:
       - "9000:9000"
     environment:
       SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube_db
       SONAR_JDBC_USERNAME: ${DB_USER}
       SONAR_JDBC_PASSWORD: ${DB_PASSWORD}
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
     volumes:
       - sonarqube-data:/opt/sonarqube/data
       - sonarqube-logs:/opt/sonarqube/logs
       - sonarqube-extensions:/opt/sonarqube/extensions
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider ${SONAR_HOST_URL}/api/system/status || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9000/api/system/status || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -58,7 +67,10 @@ services:
       DB_HOST: postgres
       DB_PORT: "5432"
       DB_NAME: practico_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_JNDI: java:/PostgresDS
+      WF_ADMIN_PASSWORD: ${WF_ADMIN_PASSWORD:-admin}
       APP_USER: ${APP_USER:-admin}
       APP_PASSWORD: ${APP_PASSWORD:-admin}
       JPA_DDL: ${JPA_DDL:-drop-and-create}
