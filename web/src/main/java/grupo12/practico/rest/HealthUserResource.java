@@ -4,6 +4,8 @@ import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerLocal;
+import grupo12.practico.services.AgeVerification.AgeVerificationException;
+import grupo12.practico.services.AgeVerification.AgeVerificationServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -19,6 +21,9 @@ public class HealthUserResource {
 
     @EJB
     private HealthUserRegistrationProducerLocal healthUserRegistrationProducer;
+
+    @EJB
+    private AgeVerificationServiceLocal ageVerificationService;
 
     @GET
     public Response findAllHealthUsers(
@@ -47,6 +52,27 @@ public class HealthUserResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(AddHealthUserDTO addHealthUserDTO) {
+        // Validar que la CI existe en PDI y que el usuario es mayor de edad
+        if (addHealthUserDTO == null || addHealthUserDTO.getCi() == null || addHealthUserDTO.getCi().isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"CI is required\"}")
+                    .build();
+        }
+
+        try {
+            boolean esMayorDeEdad = ageVerificationService.verificarMayorDeEdad(addHealthUserDTO.getCi());
+            if (!esMayorDeEdad) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"error\":\"El usuario debe ser mayor de edad\"}")
+                        .build();
+            }
+        } catch (AgeVerificationException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\":\"" + e.getMessage() + "\"}")
+                    .build();
+        }
+
+        // Si la validación pasa, encolar el mensaje
         healthUserRegistrationProducer.enqueue(addHealthUserDTO);
         return Response.accepted()
                 .entity("{\"message\":\"Health user registration request queued successfully\"}")
