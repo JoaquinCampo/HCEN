@@ -2,6 +2,8 @@ package grupo12.practico.rest;
 
 import grupo12.practico.dtos.Auth.OidcAuthorizationResponseDTO;
 import grupo12.practico.dtos.Auth.OidcAuthResultDTO;
+import grupo12.practico.dtos.Auth.OidcUserInfoDTO;
+import grupo12.practico.dtos.Auth.OidcIdTokenDTO;
 import grupo12.practico.services.Auth.OidcAuthenticationServiceLocal;
 import grupo12.practico.services.HcenAdmin.HcenAdminServiceLocal;
 import jakarta.ejb.EJB;
@@ -13,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.UUID;
 
 /**
  * REST endpoint for OpenID Connect authentication with gub.uy
@@ -201,6 +204,73 @@ public class AuthenticationResource {
         String absolute = request.getScheme() + "://" + request.getServerName()
                 + ":" + request.getServerPort() + path;
         return Response.seeOther(java.net.URI.create(absolute)).build();
+    }
+
+    /**
+     * Mock authentication endpoint for performance testing.
+     * Creates a test session with mock user data.
+     * 
+     * POST /api/auth/test/token
+     * 
+     * This endpoint should only be enabled in test/development environments.
+     * It creates a session with mock authentication data for load testing.
+     * 
+     * @return Mock authentication result with test user data
+     */
+    @POST
+    @Path("/test/token")
+    public Response createTestToken(
+            @QueryParam("ci") String ci,
+            @QueryParam("email") String email) {
+        
+        LOGGER.warning("Test authentication endpoint accessed - this should only be used in test environments");
+        
+        try {
+            // Create mock user info
+            OidcUserInfoDTO mockUserInfo = new OidcUserInfoDTO();
+            mockUserInfo.setSubject("test-user-" + UUID.randomUUID().toString());
+            mockUserInfo.setEmail(email != null ? email : "test@performance.test");
+            mockUserInfo.setEmailVerified(true);
+            mockUserInfo.setNickname("Test User");
+            mockUserInfo.seFullName("Test User Performance");
+            mockUserInfo.setfirstName("Test");
+            mockUserInfo.setFirstLastName("User");
+            mockUserInfo.setId(ci != null ? ci : "12345678");
+            
+            // Create mock ID token claims
+            OidcIdTokenDTO mockIdTokenClaims = new OidcIdTokenDTO();
+            mockIdTokenClaims.setSubject(mockUserInfo.getSubject());
+            
+            // Create mock auth result
+            OidcAuthResultDTO mockAuthResult = new OidcAuthResultDTO();
+            mockAuthResult.setVerified(true);
+            mockAuthResult.setIdToken("mock-id-token-" + UUID.randomUUID().toString());
+            mockAuthResult.setAccessToken("mock-access-token-" + UUID.randomUUID().toString());
+            mockAuthResult.setExpiresIn(3600);
+            mockAuthResult.setScope("openid profile email");
+            mockAuthResult.setIdTokenClaims(mockIdTokenClaims);
+            mockAuthResult.setUserInfo(mockUserInfo);
+            mockAuthResult.setLogoutUrl(request.getContextPath() + "/api/auth/gubuy/logout");
+            
+            // Create session with mock authentication
+            HttpSession session = request.getSession(true);
+            session.setAttribute("authenticated", Boolean.TRUE);
+            session.setAttribute("id_token", mockAuthResult.getIdToken());
+            session.setAttribute("access_token", mockAuthResult.getAccessToken());
+            session.setAttribute("user_info", mockUserInfo);
+            session.setAttribute("id_token_claims", mockIdTokenClaims);
+            session.setAttribute("logout_url", mockAuthResult.getLogoutUrl());
+            
+            LOGGER.info("Test authentication session created for CI: " + mockUserInfo.getId());
+            
+            return Response.ok(mockAuthResult).build();
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating test token", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\":\"Failed to create test token: " + e.getMessage() + "\"}")
+                    .build();
+        }
     }
 
 }
