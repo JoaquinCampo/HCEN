@@ -97,14 +97,13 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
                 AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(dto.getAccessRequestId());
                 if (accessRequest != null) {
                     loggerService.logAccessRequestAcceptedByClinic(
-                        dto.getAccessRequestId(),
-                        healthUser.getCi(),
-                        accessRequest.getHealthWorkerCi(),
-                        dto.getClinicName(),
-                        accessRequest.getSpecialtyNames()
-                    );
+                            dto.getAccessRequestId(),
+                            healthUser.getCi(),
+                            accessRequest.getHealthWorkerCi(),
+                            dto.getClinicName(),
+                            accessRequest.getSpecialtyNames());
                 }
-                
+
                 accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
                 LOGGER.info(
                         "Deleted access request " + dto.getAccessRequestId() + " after creating clinic access policy");
@@ -157,14 +156,13 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
                 AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(dto.getAccessRequestId());
                 if (accessRequest != null) {
                     loggerService.logAccessRequestAcceptedByHealthWorker(
-                        dto.getAccessRequestId(),
-                        healthUser.getCi(),
-                        dto.getHealthWorkerCi(),
-                        dto.getClinicName(),
-                        accessRequest.getSpecialtyNames()
-                    );
+                            dto.getAccessRequestId(),
+                            healthUser.getCi(),
+                            dto.getHealthWorkerCi(),
+                            dto.getClinicName(),
+                            accessRequest.getSpecialtyNames());
                 }
-                
+
                 accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
                 LOGGER.info("Deleted access request " + dto.getAccessRequestId()
                         + " after creating health worker access policy");
@@ -212,14 +210,13 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
                 AccessRequest accessRequest = accessRequestRepository.findAccessRequestById(dto.getAccessRequestId());
                 if (accessRequest != null) {
                     loggerService.logAccessRequestAcceptedBySpecialty(
-                        dto.getAccessRequestId(),
-                        healthUser.getCi(),
-                        accessRequest.getHealthWorkerCi(),
-                        accessRequest.getClinicName(),
-                        accessRequest.getSpecialtyNames()
-                    );
+                            dto.getAccessRequestId(),
+                            healthUser.getCi(),
+                            accessRequest.getHealthWorkerCi(),
+                            accessRequest.getClinicName(),
+                            accessRequest.getSpecialtyNames());
                 }
-                
+
                 accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
                 LOGGER.info("Deleted access request " + dto.getAccessRequestId()
                         + " after creating specialty access policy");

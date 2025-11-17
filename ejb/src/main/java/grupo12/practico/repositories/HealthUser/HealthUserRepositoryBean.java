@@ -61,7 +61,8 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
     }
 
     @Override
-    public List<HealthUser> findAllHealthUsers(String clinicName, String name, String ci, Integer pageIndex, Integer pageSize) {
+    public List<HealthUser> findAllHealthUsers(String clinicName, String name, String ci, Integer pageIndex,
+            Integer pageSize) {
         if (clinicName == null && name == null && ci == null) {
             TypedQuery<HealthUser> query = em.createQuery(
                     "SELECT h FROM HealthUser h ORDER BY h.lastName ASC, h.firstName ASC, h.id ASC",
@@ -288,8 +289,12 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
                 JsonObject jsonObject = value.asJsonObject();
                 ClinicalDocumentDTO dto = new ClinicalDocumentDTO();
                 dto.setId(jsonObject.getString("doc_id", null));
+                dto.setTitle(jsonObject.getString("title", null));
+                dto.setDescription(jsonObject.getString("description", null));
+                dto.setContent(jsonObject.getString("content", null));
+                dto.setContentType(jsonObject.getString("content_type", null));
 
-                String healthWorkerCi = jsonObject.getString("created_by", null);
+                String healthWorkerCi = jsonObject.getString("health_worker_ci", null);
                 String clinicName = jsonObject.getString("clinic_name", null);
 
                 if (healthWorkerCi != null && clinicName != null) {
@@ -310,7 +315,7 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
                     }
                 }
 
-                dto.setContentUrl(jsonObject.getString("s3_url", null));
+                dto.setContentUrl(jsonObject.getString("content_url", null));
 
                 if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
                     String createdAtStr = jsonObject.getString("created_at");

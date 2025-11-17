@@ -690,7 +690,6 @@ class HealthUserServiceBeanTest {
 
         when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
         when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(false);
-        when(accessPolicyService.hasSpecialtyAccess(healthUserCi, null)).thenReturn(false);
 
         // Mock the repository to return a HealthUser
         HealthUser healthUser = new HealthUser();
@@ -717,7 +716,6 @@ class HealthUserServiceBeanTest {
 
         verify(accessPolicyService).hasClinicAccess(healthUserCi, clinicName);
         verify(accessPolicyService).hasHealthWorkerAccess(healthUserCi, healthWorkerCi);
-        verify(accessPolicyService).hasSpecialtyAccess(healthUserCi, null);
         verify(healthUserRepository, never()).findHealthUserClinicalHistory(anyString());
     }
 
@@ -978,5 +976,41 @@ class HealthUserServiceBeanTest {
 
         verify(healthUserRepository).findHealthUserByCi(healthUserCi);
         verify(loggerService).getClinicalHistoryLogs(healthUserCi, null, 0, 10);
+    }
+
+    @Test
+    @DisplayName("fetchClinicalHistory - Should return clinical history for self-access when specialtyNames is empty")
+    void testFetchClinicalHistory_SelfAccessWithEmptySpecialtyNames() {
+        // Arrange
+        String healthUserCi = "54053584";
+        List<String> specialtyNames = new ArrayList<>(); // Empty list
+
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        ClinicalDocumentDTO doc = new ClinicalDocumentDTO();
+        doc.setId("doc-1");
+        documents.add(doc);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi))
+                .thenReturn(documents);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertNotNull(result.getHealthUser());
+        assertTrue(result.getHasAccess());
+        assertEquals(1, result.getDocuments().size());
+
+        verify(healthUserRepository).findHealthUserClinicalHistory(healthUserCi);
+        // No access policy checks should be called for self-access
+        verify(accessPolicyService, never()).hasClinicAccess(anyString(), anyString());
+        verify(accessPolicyService, never()).hasHealthWorkerAccess(anyString(), anyString());
+        verify(accessPolicyService, never()).hasSpecialtyAccess(anyString(), any());
     }
 }

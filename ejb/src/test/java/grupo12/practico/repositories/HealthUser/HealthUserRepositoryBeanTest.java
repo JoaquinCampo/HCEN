@@ -451,9 +451,9 @@ class HealthUserRepositoryBeanTest {
                 [
                     {
                         "doc_id": "doc-1",
-                        "created_by": "87654321",
+                        "health_worker_ci": "87654321",
                         "clinic_name": "Clinic A",
-                        "s3_url": "https://s3.amazonaws.com/bucket/doc.pdf",
+                        "content_url": "https://s3.amazonaws.com/bucket/doc.pdf",
                         "created_at": "2023-01-01T10:00:00Z"
                     }
                 ]
