@@ -374,8 +374,9 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         if (healthUserCi == null || healthUserCi.isBlank()) {
             throw new ValidationException("Health user CI is required");
         }
+
         if (specialtyNames == null || specialtyNames.isEmpty()) {
-            throw new ValidationException("Specialty names list is required");
+            return false;
         }
 
         HealthUser healthUser = healthUserRepository.findHealthUserByCi(healthUserCi);
