@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -248,8 +249,12 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
     @Override
     public List<ClinicalDocumentDTO> findHealthUserClinicalHistory(String healthUserCi) {
 
-        String url = String.format("%sclinical-history/%s",
-                config.getDocumentsApiBaseUrl(), healthUserCi);
+        // Ensure base URL ends with / and construct full path
+        String baseUrl = config.getDocumentsApiBaseUrl();
+        if (!baseUrl.endsWith("/")) {
+            baseUrl = baseUrl + "/";
+        }
+        String url = String.format("%sclinical-history/%s", baseUrl, healthUserCi);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
@@ -288,14 +293,25 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
             for (JsonValue value : jsonArray) {
                 JsonObject jsonObject = value.asJsonObject();
                 ClinicalDocumentDTO dto = new ClinicalDocumentDTO();
-                dto.setId(jsonObject.getString("doc_id", null));
-                dto.setTitle(jsonObject.getString("title", null));
-                dto.setDescription(jsonObject.getString("description", null));
-                dto.setContent(jsonObject.getString("content", null));
-                dto.setContentType(jsonObject.getString("content_type", null));
+                
+                // doc_id is UUID, convert to String
+                if (jsonObject.containsKey("doc_id") && !jsonObject.isNull("doc_id")) {
+                    String docId = jsonObject.getString("doc_id");
+                    dto.setId(docId);
+                }
 
-                String healthWorkerCi = jsonObject.getString("health_worker_ci", null);
-                String clinicName = jsonObject.getString("clinic_name", null);
+                // health_worker_ci or created_by (both are valid in the schema)
+                String healthWorkerCi = null;
+                if (jsonObject.containsKey("health_worker_ci") && !jsonObject.isNull("health_worker_ci")) {
+                    healthWorkerCi = jsonObject.getString("health_worker_ci");
+                } else if (jsonObject.containsKey("created_by") && !jsonObject.isNull("created_by")) {
+                    healthWorkerCi = jsonObject.getString("created_by");
+                }
+                
+                String clinicName = null;
+                if (jsonObject.containsKey("clinic_name") && !jsonObject.isNull("clinic_name")) {
+                    clinicName = jsonObject.getString("clinic_name");
+                }
 
                 if (healthWorkerCi != null && clinicName != null) {
                     try {
@@ -315,11 +331,53 @@ public class HealthUserRepositoryBean implements HealthUserRepositoryRemote {
                     }
                 }
 
-                dto.setContentUrl(jsonObject.getString("content_url", null));
+                // content_url or s3_url (content_url is the serialized name, but s3_url is also accepted)
+                String contentUrl = null;
+                if (jsonObject.containsKey("content_url") && !jsonObject.isNull("content_url")) {
+                    contentUrl = jsonObject.getString("content_url");
+                } else if (jsonObject.containsKey("s3_url") && !jsonObject.isNull("s3_url")) {
+                    contentUrl = jsonObject.getString("s3_url");
+                }
+                dto.setContentUrl(contentUrl);
 
+                // Map new fields from DocumentResponse schema
+                if (jsonObject.containsKey("title") && !jsonObject.isNull("title")) {
+                    dto.setTitle(jsonObject.getString("title"));
+                }
+                
+                if (jsonObject.containsKey("description") && !jsonObject.isNull("description")) {
+                    dto.setDescription(jsonObject.getString("description"));
+                }
+                
+                if (jsonObject.containsKey("content") && !jsonObject.isNull("content")) {
+                    dto.setContent(jsonObject.getString("content"));
+                }
+                
+                if (jsonObject.containsKey("content_type") && !jsonObject.isNull("content_type")) {
+                    dto.setContentType(jsonObject.getString("content_type"));
+                }
+
+                // Parse created_at timestamp (ISO 8601 format)
                 if (jsonObject.containsKey("created_at") && !jsonObject.isNull("created_at")) {
-                    String createdAtStr = jsonObject.getString("created_at");
-                    dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
+                    try {
+                        String createdAtStr = jsonObject.getString("created_at");
+                        // Handle both ZonedDateTime and LocalDateTime formats
+                        if (createdAtStr.contains("T") && createdAtStr.contains("Z")) {
+                            // ISO 8601 with timezone (e.g., "2024-01-01T12:00:00Z")
+                            dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
+                        } else if (createdAtStr.contains("T") && createdAtStr.contains("+")) {
+                            // ISO 8601 with timezone offset (e.g., "2024-01-01T12:00:00+00:00")
+                            dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
+                        } else if (createdAtStr.contains("T")) {
+                            // ISO 8601 without timezone (e.g., "2024-01-01T12:00:00")
+                            dto.setCreatedAt(LocalDateTime.parse(createdAtStr));
+                        } else {
+                            // Fallback: try ZonedDateTime parse
+                            dto.setCreatedAt(ZonedDateTime.parse(createdAtStr).toLocalDateTime());
+                        }
+                    } catch (Exception ex) {
+                        logger.log(Level.WARNING, "Failed to parse created_at: " + jsonObject.getString("created_at"), ex);
+                    }
                 }
 
                 documents.add(dto);

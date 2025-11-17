@@ -147,11 +147,13 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
                 && (request.getSpecialtyNames() == null || request.getSpecialtyNames().isEmpty());
 
         boolean hasClinicAccess = !isHealthUser
+                && request.getClinicName() != null
                 && accessPolicyService.hasClinicAccess(request.getHealthUserCi(), request.getClinicName());
         boolean hasWorkerAccess = !isHealthUser
+                && request.getHealthWorkerCi() != null
                 && accessPolicyService.hasHealthWorkerAccess(request.getHealthUserCi(), request.getHealthWorkerCi());
-
-        boolean hasSpecialtyAccess = !isHealthUser && request.getSpecialtyNames() != null
+        boolean hasSpecialtyAccess = !isHealthUser
+                && request.getSpecialtyNames() != null
                 && !request.getSpecialtyNames().isEmpty()
                 && accessPolicyService.hasSpecialtyAccess(request.getHealthUserCi(), request.getSpecialtyNames());
 
