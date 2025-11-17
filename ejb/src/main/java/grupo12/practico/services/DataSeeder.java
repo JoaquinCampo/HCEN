@@ -39,24 +39,14 @@ public class DataSeeder {
 
         try {
             createHcenAdminIfNotExists(
-                    "54053584",
-                    "Francisco",
-                    "Simonelli",
+                    "52537059",
+                    "Xavier",
+                    "Iribarnegaray",
                     Gender.MALE,
-                    "francisco.simonelli@hcen.uy",
+                    "xiribarnegara@hcen.uy",
                     "+59899333456",
-                    LocalDate.of(2000, 10, 20),
-                    "Av. 18 de Julio 1234, Montevideo");
-
-            createHcenAdminIfNotExists(
-                    "12345678",
-                    "Juan",
-                    "Pérez",
-                    Gender.MALE,
-                    "juan.perez@hcen.uy",
-                    "+59899123456",
-                    LocalDate.of(1980, 1, 15),
-                    "Av. 18 de Julio 1234, Montevideo");
+                    LocalDate.of(2002, 10, 24),
+                    "Rio Po 1234, Canelones");
 
             LOGGER.info("Data seeding completed successfully");
         } catch (Exception e) {
@@ -70,29 +60,29 @@ public class DataSeeder {
             LocalDate dateOfBirth, String address) {
 
         // Check if user already exists by CI
-        TypedQuery<User> query = em.createQuery(
+        TypedQuery<User> ciQuery = em.createQuery(
                 "SELECT u FROM User u WHERE u.ci = :ci", User.class);
-        query.setParameter("ci", ci);
+        ciQuery.setParameter("ci", ci);
 
         try {
-            query.getSingleResult();
-            LOGGER.info("HcenAdmin with CI " + ci + " already exists, skipping creation");
+            ciQuery.getSingleResult();
+            LOGGER.info(String.format("HcenAdmin with CI %s already exists, skipping creation", ci));
             return;
         } catch (NoResultException e) {
-            // User doesn't exist, proceed with creation
+            // User doesn't exist by CI, continue checking
         }
 
-        // Check if email already exists
+        // Check if user already exists by email
         TypedQuery<User> emailQuery = em.createQuery(
                 "SELECT u FROM User u WHERE u.email = :email", User.class);
         emailQuery.setParameter("email", email);
 
         try {
             emailQuery.getSingleResult();
-            LOGGER.info("User with email " + email + " already exists, skipping HcenAdmin creation");
+            LOGGER.info(String.format("HcenAdmin with email %s already exists, skipping creation", email));
             return;
         } catch (NoResultException e) {
-            // Email doesn't exist, proceed with creation
+            // User doesn't exist by email, proceed with creation
         }
 
         // Create new HcenAdmin
@@ -107,6 +97,6 @@ public class DataSeeder {
         admin.setAddress(address);
 
         em.persist(admin);
-        LOGGER.info("Created HcenAdmin: " + firstName + " " + lastName + " (CI: " + ci + ")");
+        LOGGER.info(String.format("Created HcenAdmin: %s %s (CI: %s)", firstName, lastName, ci));
     }
 }

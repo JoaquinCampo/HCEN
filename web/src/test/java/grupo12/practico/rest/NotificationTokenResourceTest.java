@@ -1,5 +1,7 @@
 package grupo12.practico.rest;
 
+import grupo12.practico.dtos.NotificationToken.NotificationUnsubscribeRequestDTO;
+import grupo12.practico.models.NotificationType;
 import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.Response;
@@ -80,5 +82,215 @@ class NotificationTokenResourceTest {
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         assertTrue(response.getEntity().toString().contains("userCi is required"));
+    }
+
+    @Test
+    @DisplayName("Should subscribe to notification type successfully")
+    void testSubscribe() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("ACCESS_REQUEST");
+
+        doNothing().when(notificationTokenService).subscribe(anyString(), any(NotificationType.class));
+
+        Response response = resource.subscribe(request);
+
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(notificationTokenService, times(1)).subscribe("12345678", NotificationType.ACCESS_REQUEST);
+    }
+
+    @Test
+    @DisplayName("Should return 400 when subscribe request is null")
+    void testSubscribeNullRequest() {
+        Response response = resource.subscribe(null);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("userCi is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when subscribe userCi is null")
+    void testSubscribeNullUserCi() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi(null);
+        request.setNotificationType("ACCESS_REQUEST");
+
+        Response response = resource.subscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("userCi is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when subscribe userCi is empty")
+    void testSubscribeEmptyUserCi() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("  ");
+        request.setNotificationType("ACCESS_REQUEST");
+
+        Response response = resource.subscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("userCi is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when subscribe notificationType is null")
+    void testSubscribeNullNotificationType() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType(null);
+
+        Response response = resource.subscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("notificationType is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when subscribe notificationType is empty")
+    void testSubscribeEmptyNotificationType() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("  ");
+
+        Response response = resource.subscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("notificationType is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when subscribe notificationType is invalid")
+    void testSubscribeInvalidNotificationType() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("INVALID_TYPE");
+
+        Response response = resource.subscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("Invalid notificationType"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when subscribe fails validation")
+    void testSubscribeValidationException() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("ACCESS_REQUEST");
+
+        doThrow(new ValidationException("Validation error")).when(notificationTokenService)
+                .subscribe(anyString(), any(NotificationType.class));
+
+        Response response = resource.subscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("Validation error"));
+    }
+
+    @Test
+    @DisplayName("Should unsubscribe from notification type successfully")
+    void testUnsubscribe() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("CLINICAL_HISTORY_ACCESS");
+
+        doNothing().when(notificationTokenService).unsubscribe(anyString(), any(NotificationType.class));
+
+        Response response = resource.unsubscribe(request);
+
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(notificationTokenService, times(1)).unsubscribe("12345678", NotificationType.CLINICAL_HISTORY_ACCESS);
+    }
+
+    @Test
+    @DisplayName("Should return 400 when unsubscribe request is null")
+    void testUnsubscribeNullRequest() {
+        Response response = resource.unsubscribe(null);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("userCi is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when unsubscribe userCi is null")
+    void testUnsubscribeNullUserCi() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi(null);
+        request.setNotificationType("ACCESS_REQUEST");
+
+        Response response = resource.unsubscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("userCi is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when unsubscribe userCi is empty")
+    void testUnsubscribeEmptyUserCi() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("  ");
+        request.setNotificationType("ACCESS_REQUEST");
+
+        Response response = resource.unsubscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("userCi is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when unsubscribe notificationType is null")
+    void testUnsubscribeNullNotificationType() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType(null);
+
+        Response response = resource.unsubscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("notificationType is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when unsubscribe notificationType is empty")
+    void testUnsubscribeEmptyNotificationType() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("  ");
+
+        Response response = resource.unsubscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("notificationType is required"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when unsubscribe notificationType is invalid")
+    void testUnsubscribeInvalidNotificationType() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("INVALID_TYPE");
+
+        Response response = resource.unsubscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("Invalid notificationType"));
+    }
+
+    @Test
+    @DisplayName("Should return 400 when unsubscribe fails validation")
+    void testUnsubscribeValidationException() {
+        NotificationUnsubscribeRequestDTO request = new NotificationUnsubscribeRequestDTO();
+        request.setUserCi("12345678");
+        request.setNotificationType("ACCESS_REQUEST");
+
+        doThrow(new ValidationException("Validation error")).when(notificationTokenService)
+                .unsubscribe(anyString(), any(NotificationType.class));
+
+        Response response = resource.unsubscribe(request);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertTrue(response.getEntity().toString().contains("Validation error"));
     }
 }
