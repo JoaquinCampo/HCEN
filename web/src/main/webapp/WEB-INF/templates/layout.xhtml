@@ -73,6 +73,37 @@
                     </ul>
                   </ui:fragment>
                 </li>
+                <li class="nav-item">
+                  <h:link
+                    outcome="/admin/list"
+                    styleClass="nav-link #{facesContext.viewRoot.viewId.contains('/admin/') ? 'active' : ''}"
+                    id="nav-admins"
+                  >
+                    <i class="bi bi-shield me-2"></i>Administradores HCEN
+                  </h:link>
+                  <ui:fragment
+                    rendered="#{facesContext.viewRoot.viewId.contains('/admin/')}"
+                  >
+                    <ul class="nav flex-column ms-3 mt-1">
+                      <li class="nav-item">
+                        <h:link
+                          outcome="/admin/list"
+                          styleClass="nav-link nav-link-child #{facesContext.viewRoot.viewId.contains('/admin/list') ? 'active' : ''}"
+                        >
+                          <i class="bi bi-list-ul me-2"></i>Listado
+                        </h:link>
+                      </li>
+                      <li class="nav-item">
+                        <h:link
+                          outcome="/admin/form"
+                          styleClass="nav-link nav-link-child #{facesContext.viewRoot.viewId.contains('/admin/form') ? 'active' : ''}"
+                        >
+                          <i class="bi bi-plus-circle me-2"></i>Nuevo administrador
+                        </h:link>
+                      </li>
+                    </ul>
+                  </ui:fragment>
+                </li>
               </ul>
             </nav>
             <div class="sidebar-footer">
