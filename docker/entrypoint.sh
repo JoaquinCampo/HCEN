@@ -51,6 +51,30 @@ ensure_app_user() {
 
 start_server() {
   echo "Starting WildFly using $WILDFLY_CONFIG"
+  
+  # Build JAVA_OPTS from environment variables for PDI service configuration
+  local java_opts=""
+  if [[ -n "${PDI_SERVICE_URL:-}" ]]; then
+    java_opts="${java_opts} -Dpdi.service.url=${PDI_SERVICE_URL}"
+  fi
+  if [[ -n "${PDI_ORGANIZACION:-}" ]]; then
+    java_opts="${java_opts} -Dpdi.organizacion=${PDI_ORGANIZACION}"
+  fi
+  if [[ -n "${PDI_PASSWORD:-}" ]]; then
+    java_opts="${java_opts} -Dpdi.password=${PDI_PASSWORD}"
+  fi
+  
+  # Append any existing JAVA_OPTS
+  if [[ -n "${JAVA_OPTS:-}" ]]; then
+    java_opts="${java_opts} ${JAVA_OPTS}"
+  fi
+  
+  # Export JAVA_OPTS so WildFly picks it up
+  if [[ -n "$java_opts" ]]; then
+    export JAVA_OPTS="$java_opts"
+    echo "JAVA_OPTS: $JAVA_OPTS"
+  fi
+  
   "$JBOSS_HOME/bin/standalone.sh" -c "$WILDFLY_CONFIG" -b 0.0.0.0 -bmanagement 127.0.0.1 "$@" &
   SERVER_PID=$!
   export SERVER_PID

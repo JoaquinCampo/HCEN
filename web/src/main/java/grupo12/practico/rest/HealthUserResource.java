@@ -4,8 +4,9 @@ import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
 import grupo12.practico.messaging.HealthUser.HealthUserRegistrationProducerLocal;
-import grupo12.practico.services.AgeVerification.AgeVerificationException;
-import grupo12.practico.services.AgeVerification.AgeVerificationServiceLocal;
+// AGE VERIFICATION FUNCTIONALITY COMMENTED OUT - Not working on deployed instance
+// import grupo12.practico.services.AgeVerification.AgeVerificationException;
+// import grupo12.practico.services.AgeVerification.AgeVerificationServiceLocal;
 import grupo12.practico.services.HealthUser.HealthUserServiceLocal;
 import jakarta.ejb.EJB;
 import jakarta.ws.rs.*;
@@ -22,8 +23,10 @@ public class HealthUserResource {
     @EJB
     private HealthUserRegistrationProducerLocal healthUserRegistrationProducer;
 
-    @EJB
-    private AgeVerificationServiceLocal ageVerificationService;
+    // AGE VERIFICATION FUNCTIONALITY COMMENTED OUT - Not working on deployed
+    // instance
+    // @EJB
+    // private AgeVerificationServiceLocal ageVerificationService;
 
     @GET
     public Response findAllHealthUsers(
@@ -32,7 +35,8 @@ public class HealthUserResource {
             @QueryParam("ci") String ci,
             @QueryParam("pageIndex") Integer pageIndex,
             @QueryParam("pageSize") Integer pageSize) {
-        PaginationDTO<HealthUserDTO> paginationResult = healthUserService.findAllHealthUsers(clinicName, name, ci, pageIndex,
+        PaginationDTO<HealthUserDTO> paginationResult = healthUserService.findAllHealthUsers(clinicName, name, ci,
+                pageIndex,
                 pageSize);
         return Response.ok(paginationResult).build();
     }
@@ -59,18 +63,24 @@ public class HealthUserResource {
                     .build();
         }
 
-        try {
-            boolean esMayorDeEdad = ageVerificationService.verificarMayorDeEdad(addHealthUserDTO.getCi());
-            if (!esMayorDeEdad) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("{\"error\":\"El usuario debe ser mayor de edad\"}")
-                        .build();
-            }
-        } catch (AgeVerificationException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\":\"" + e.getMessage() + "\"}")
-                    .build();
-        }
+        // AGE VERIFICATION FUNCTIONALITY COMMENTED OUT - Not working on deployed
+        // instance
+        // TODO: Re-enable when PDI service is available
+        /*
+         * try {
+         * boolean esMayorDeEdad =
+         * ageVerificationService.verificarMayorDeEdad(addHealthUserDTO.getCi());
+         * if (!esMayorDeEdad) {
+         * return Response.status(Response.Status.BAD_REQUEST)
+         * .entity("{\"error\":\"El usuario debe ser mayor de edad\"}")
+         * .build();
+         * }
+         * } catch (AgeVerificationException e) {
+         * return Response.status(Response.Status.BAD_REQUEST)
+         * .entity("{\"error\":\"" + e.getMessage() + "\"}")
+         * .build();
+         * }
+         */
 
         // Si la validación pasa, encolar el mensaje
         healthUserRegistrationProducer.enqueue(addHealthUserDTO);

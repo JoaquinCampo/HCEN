@@ -27,9 +27,8 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
     @Override
     public AccessRequest findAccessRequestById(String id) {
         TypedQuery<AccessRequest> query = em.createQuery(
-            "SELECT ar FROM AccessRequest ar LEFT JOIN FETCH ar.specialtyNames WHERE ar.id = :id", 
-            AccessRequest.class
-        );
+                "SELECT ar FROM AccessRequest ar LEFT JOIN FETCH ar.specialtyNames WHERE ar.id = :id",
+                AccessRequest.class);
         query.setParameter("id", id);
         List<AccessRequest> results = query.getResultList();
         return results.isEmpty() ? null : results.get(0);
@@ -37,7 +36,8 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
 
     @Override
     public List<AccessRequest> findAllAccessRequests(String healthUserId, String healthWorkerCi, String clinicName) {
-        StringBuilder jpql = new StringBuilder("SELECT DISTINCT ar FROM AccessRequest ar LEFT JOIN FETCH ar.specialtyNames WHERE 1=1");
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT ar FROM AccessRequest ar LEFT JOIN FETCH ar.specialtyNames WHERE 1=1");
 
         if (healthUserId != null) {
             jpql.append(" AND ar.healthUser.id = :healthUserId");
@@ -67,7 +67,7 @@ public class AccessRequestRepositoryBean implements AccessRequestRepositoryRemot
     @Override
     public void deleteAccessRequest(String accessRequestId) {
         AccessRequest accessRequest = em.find(AccessRequest.class, accessRequestId);
-        
+
         if (accessRequest != null) {
             em.remove(accessRequest);
         }

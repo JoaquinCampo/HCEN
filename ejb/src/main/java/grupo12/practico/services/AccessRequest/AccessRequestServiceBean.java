@@ -22,6 +22,8 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.Local;
 import jakarta.ejb.Remote;
 import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import jakarta.validation.ValidationException;
 
 @Stateless
@@ -158,6 +160,12 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
     @Override
     public void deleteAccessRequest(String accessRequestId) {
+        deleteAccessRequest(accessRequestId, true);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void deleteAccessRequest(String accessRequestId, boolean logAsDenied) {
         if (accessRequestId == null || accessRequestId.isBlank()) {
             throw new ValidationException("Access request id is required");
         }
@@ -167,15 +175,17 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
             throw new ValidationException("Access request not found");
         }
 
-        // Log access request denial before deletion
-        HealthUser healthUser = accessRequest.getHealthUser();
-        loggerService.logAccessRequestDenied(
-            accessRequest.getId(),
-            healthUser.getCi(),
-            accessRequest.getHealthWorkerCi(),
-            accessRequest.getClinicName(),
-            accessRequest.getSpecialtyNames()
-        );
+        // Log access request denial before deletion if requested
+        if (logAsDenied) {
+            HealthUser healthUser = accessRequest.getHealthUser();
+            loggerService.logAccessRequestDenied(
+                accessRequest.getId(),
+                healthUser.getCi(),
+                accessRequest.getHealthWorkerCi(),
+                accessRequest.getClinicName(),
+                accessRequest.getSpecialtyNames()
+            );
+        }
 
         accessRequestRepository.deleteAccessRequest(accessRequest.getId());
     }

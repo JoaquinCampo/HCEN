@@ -7,8 +7,6 @@ import jakarta.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "objParamObtPersonaPorDoc", propOrder = {
-    "organizacion",
-    "passwordEntidad",
     "nrodocumento",
     "tipoDocumento"
 })

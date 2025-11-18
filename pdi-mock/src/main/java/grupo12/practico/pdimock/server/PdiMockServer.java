@@ -45,6 +45,8 @@ public class PdiMockServer {
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
+        boolean daemonMode = false;
+        
         if (args.length > 0) {
             try {
                 port = Integer.parseInt(args[0]);
@@ -53,13 +55,44 @@ public class PdiMockServer {
                 System.exit(1);
             }
         }
+        
+        // Check if running in daemon mode (no TTY, e.g., Docker)
+        if (args.length > 1 && "daemon".equals(args[1])) {
+            daemonMode = true;
+        } else {
+            // Auto-detect: if System.in is not available or not a TTY, run in daemon mode
+            try {
+                if (System.in.available() == 0 || System.console() == null) {
+                    daemonMode = true;
+                }
+            } catch (Exception e) {
+                daemonMode = true;
+            }
+        }
 
         PdiMockServer server = new PdiMockServer(port);
         try {
             server.start();
-            logger.info("Press Enter to stop the server...");
-            System.in.read();
-            server.stop();
+            
+            if (daemonMode) {
+                logger.info("Running in daemon mode. Server will keep running until stopped.");
+                // Add shutdown hook for graceful shutdown
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    logger.info("Shutdown hook triggered");
+                    server.stop();
+                }));
+                // Keep the main thread alive
+                try {
+                    Thread.currentThread().join();
+                } catch (InterruptedException e) {
+                    logger.info("Main thread interrupted");
+                    server.stop();
+                }
+            } else {
+                logger.info("Press Enter to stop the server...");
+                System.in.read();
+                server.stop();
+            }
         } catch (Exception e) {
             logger.error("Error starting server", e);
             System.exit(1);

@@ -14,4 +14,6 @@ public interface AccessRequestServiceLocal {
     List<AccessRequestDTO> findAllAccessRequests(String healthUserCi, String healthWorkerCi, String clinicName);
 
     void deleteAccessRequest(String accessRequestId);
+    
+    void deleteAccessRequest(String accessRequestId, boolean logAsDenied);
 }

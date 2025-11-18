@@ -31,6 +31,7 @@
         <module>ejb</module>
         <module>web</module>
         <module>ear</module>
+        <module>pdi-mock</module>
     </modules>
 
     <properties>

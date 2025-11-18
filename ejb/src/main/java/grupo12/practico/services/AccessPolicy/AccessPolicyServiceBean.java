@@ -59,6 +59,29 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
     @EJB
     private AccessRequestRepositoryLocal accessRequestRepository;
 
+    /**
+     * Safely fetches clinic details from external service.
+     * If the external call fails, returns a minimal ClinicDTO with just the name
+     * to avoid rolling back the transaction.
+     */
+    private ClinicDTO safeFindClinicByName(String clinicName) {
+        try {
+            ClinicDTO clinicDTO = clinicService.findClinicByName(clinicName);
+            if (clinicDTO != null) {
+                return clinicDTO;
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING,
+                    "Failed to fetch clinic details for '" + clinicName + "' from external service: " + e.getMessage(),
+                    e);
+        }
+
+        // Return minimal DTO with just the name if external fetch fails
+        ClinicDTO minimalDTO = new ClinicDTO();
+        minimalDTO.setName(clinicName);
+        return minimalDTO;
+    }
+
     @Override
     public ClinicAccessPolicyDTO createClinicAccessPolicy(AddClinicAccessPolicyDTO dto) {
         if (dto == null) {
@@ -84,7 +107,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         ClinicAccessPolicy createdClinicAccessPolicy = accessPolicyRepository
                 .createClinicAccessPolicy(clinicAccessPolicy);
 
-        ClinicDTO clinicDTO = clinicService.findClinicByName(dto.getClinicName());
+        ClinicDTO clinicDTO = safeFindClinicByName(dto.getClinicName());
 
         ClinicAccessPolicyDTO result = new ClinicAccessPolicyDTO();
         result.setId(createdClinicAccessPolicy.getId());
@@ -104,7 +127,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
                             accessRequest.getSpecialtyNames());
                 }
 
-                accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
+                accessRequestService.deleteAccessRequest(dto.getAccessRequestId(), false);
                 LOGGER.info(
                         "Deleted access request " + dto.getAccessRequestId() + " after creating clinic access policy");
             } catch (Exception e) {
@@ -148,7 +171,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
         result.setId(createdHealthWorkerPolicy.getId());
         result.setHealthUserCi(healthUser.getCi());
         result.setHealthWorker(healthWorkerDTO);
-        result.setClinic(clinicService.findClinicByName(dto.getClinicName()));
+        result.setClinic(safeFindClinicByName(dto.getClinicName()));
 
         // Log access request acceptance
         if (dto.getAccessRequestId() != null && !dto.getAccessRequestId().isBlank()) {
@@ -163,7 +186,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
                             accessRequest.getSpecialtyNames());
                 }
 
-                accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
+                accessRequestService.deleteAccessRequest(dto.getAccessRequestId(), false);
                 LOGGER.info("Deleted access request " + dto.getAccessRequestId()
                         + " after creating health worker access policy");
             } catch (Exception e) {
@@ -217,7 +240,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
                             accessRequest.getSpecialtyNames());
                 }
 
-                accessRequestService.deleteAccessRequest(dto.getAccessRequestId());
+                accessRequestService.deleteAccessRequest(dto.getAccessRequestId(), false);
                 LOGGER.info("Deleted access request " + dto.getAccessRequestId()
                         + " after creating specialty access policy");
             } catch (Exception e) {
@@ -247,7 +270,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
             ClinicAccessPolicyDTO dto = new ClinicAccessPolicyDTO();
             dto.setId(policy.getId());
             dto.setHealthUserCi(policy.getHealthUser().getCi());
-            dto.setClinic(clinicService.findClinicByName(policy.getClinicName()));
+            dto.setClinic(safeFindClinicByName(policy.getClinicName()));
             result.add(dto);
         }
 
@@ -276,7 +299,7 @@ public class AccessPolicyServiceBean implements AccessPolicyServiceRemote {
             dto.setHealthUserCi(healthUserCi);
             dto.setHealthWorker(
                     healthWorkerService.findByClinicAndCi(policy.getClinicName(), policy.getHealthWorkerCi()));
-            dto.setClinic(clinicService.findClinicByName(policy.getClinicName()));
+            dto.setClinic(safeFindClinicByName(policy.getClinicName()));
             result.add(dto);
         }
         return result;

@@ -6,7 +6,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ObtPersonaPorDocResponse", namespace = "http://wsDNIC/", propOrder = {
+@XmlType(name = "ObtPersonaPorDocResponseType", namespace = "http://wsDNIC/", propOrder = {
     "obtPersonaPorDocResult"
 })
 public class ObtPersonaPorDocResponse {
