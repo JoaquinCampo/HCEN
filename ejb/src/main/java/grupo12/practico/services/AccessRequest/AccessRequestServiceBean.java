@@ -100,10 +100,10 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
             if (isSubscribed) {
                 var tokens = notificationTokenRepository.findByUserId(healthUser.getId());
                 if (tokens != null && !tokens.isEmpty()) {
-                    String title = "New access request";
+                    String title = "Nueva solicitud de acceso";
                     String clinicName = dto.getClinicName() != null ? dto.getClinicName() : "";
                     String healthWorkerName = healthWorker.getFirstName() + " " + healthWorker.getLastName();
-                    String body = String.format("%s requested access to your records at %s",
+                    String body = String.format("%s solicitó acceso a sus registros en %s",
                             healthWorkerName, clinicName);
                     for (var t : tokens) {
                         pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
@@ -123,12 +123,11 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
         // Log access request creation
         loggerService.logAccessRequestCreated(
-            persisted.getId(),
-            healthUser.getCi(),
-            healthWorker.getCi(),
-            clinic.getName(),
-            dto.getSpecialtyNames()
-        );
+                persisted.getId(),
+                healthUser.getCi(),
+                healthWorker.getCi(),
+                clinic.getName(),
+                dto.getSpecialtyNames());
 
         return result;
     }
@@ -143,7 +142,7 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
 
         HealthWorkerDTO healthWorkerDTO = healthWorkerService.findByClinicAndCi(
                 accessRequest.getClinicName(), accessRequest.getHealthWorkerCi());
-                
+
         ClinicDTO clinicDTO = clinicServiceLocal.findClinicByName(accessRequest.getClinicName());
 
         AccessRequestDTO dto = new AccessRequestDTO();
@@ -179,12 +178,11 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         if (logAsDenied) {
             HealthUser healthUser = accessRequest.getHealthUser();
             loggerService.logAccessRequestDenied(
-                accessRequest.getId(),
-                healthUser.getCi(),
-                accessRequest.getHealthWorkerCi(),
-                accessRequest.getClinicName(),
-                accessRequest.getSpecialtyNames()
-            );
+                    accessRequest.getId(),
+                    healthUser.getCi(),
+                    accessRequest.getHealthWorkerCi(),
+                    accessRequest.getClinicName(),
+                    accessRequest.getSpecialtyNames());
         }
 
         accessRequestRepository.deleteAccessRequest(accessRequest.getId());
@@ -202,7 +200,8 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
         }
 
         String healthUserId = healthUser != null ? healthUser.getId() : null;
-        List<AccessRequest> accessRequests = accessRequestRepository.findAllAccessRequests(healthUserId, healthWorkerCi, clinicName);
+        List<AccessRequest> accessRequests = accessRequestRepository.findAllAccessRequests(healthUserId, healthWorkerCi,
+                clinicName);
 
         return accessRequests.stream().map(accessRequest -> {
             HealthWorkerDTO healthWorkerDTO = healthWorkerService.findByClinicAndCi(
@@ -217,7 +216,7 @@ public class AccessRequestServiceBean implements AccessRequestServiceRemote {
             dto.setClinic(clinicDTO);
             dto.setSpecialtyNames(accessRequest.getSpecialtyNames());
             dto.setCreatedAt(accessRequest.getCreatedAt());
-    
+
             return dto;
         }).toList();
     }

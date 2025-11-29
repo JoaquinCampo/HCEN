@@ -3,7 +3,6 @@ package grupo12.practico.services.AgeVerification;
 import grupo12.practico.integration.pdi.PdiServiceClientLocal;
 import grupo12.practico.integration.pdi.PdiServiceException;
 import grupo12.practico.integration.pdi.PersonaInfo;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +29,7 @@ class AgeVerificationServiceTest {
         String ci = "12345678";
         LocalDate fechaNacimiento = LocalDate.now().minusYears(25);
         PersonaInfo personaInfo = new PersonaInfo(ci, "Juan Perez", fechaNacimiento, 1, 1);
-        
+
         when(pdiServiceClient.obtenerPersonaPorDoc(ci, "CI")).thenReturn(personaInfo);
 
         // Act
@@ -48,7 +46,7 @@ class AgeVerificationServiceTest {
         String ci = "87654321";
         LocalDate fechaNacimiento = LocalDate.now().minusYears(15);
         PersonaInfo personaInfo = new PersonaInfo(ci, "Maria Lopez", fechaNacimiento, 2, 1);
-        
+
         when(pdiServiceClient.obtenerPersonaPorDoc(ci, "CI")).thenReturn(personaInfo);
 
         // Act
@@ -65,7 +63,7 @@ class AgeVerificationServiceTest {
         String ci = "11111111";
         LocalDate fechaNacimiento = LocalDate.now().minusYears(18);
         PersonaInfo personaInfo = new PersonaInfo(ci, "Pedro Silva", fechaNacimiento, 1, 1);
-        
+
         when(pdiServiceClient.obtenerPersonaPorDoc(ci, "CI")).thenReturn(personaInfo);
 
         // Act
@@ -101,7 +99,7 @@ class AgeVerificationServiceTest {
         // Arrange
         String ci = "12345678";
         PersonaInfo personaInfo = new PersonaInfo(ci, "Juan Perez", null, 1, 1);
-        
+
         when(pdiServiceClient.obtenerPersonaPorDoc(ci, "CI")).thenReturn(personaInfo);
 
         // Act & Assert
@@ -110,4 +108,3 @@ class AgeVerificationServiceTest {
         });
     }
 }
-

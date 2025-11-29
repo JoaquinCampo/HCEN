@@ -2,6 +2,7 @@ package grupo12.practico.services.HealthUser;
 
 import grupo12.practico.dtos.HealthUser.AddHealthUserDTO;
 import grupo12.practico.dtos.HealthUser.HealthUserDTO;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
 import grupo12.practico.models.Gender;
 import grupo12.practico.dtos.PaginationDTO;
 import grupo12.practico.dtos.ClinicalDocument.ClinicalDocumentDTO;
@@ -11,10 +12,16 @@ import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryRequestDTO;
 import grupo12.practico.dtos.ClinicalHistory.ClinicalHistoryResponseDTO;
 import grupo12.practico.models.ClinicalHistoryLog;
 import grupo12.practico.models.HealthUser;
+import grupo12.practico.models.NotificationToken;
+import grupo12.practico.models.NotificationType;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
+import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
 import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
+import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
 import grupo12.practico.services.Logger.LoggerServiceLocal;
+import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
+import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +53,18 @@ class HealthUserServiceBeanTest {
 
     @Mock
     private LoggerServiceLocal loggerService;
+
+    @Mock
+    private NotificationTokenRepositoryLocal notificationTokenRepository;
+
+    @Mock
+    private NotificationTokenServiceLocal notificationTokenService;
+
+    @Mock
+    private PushNotificationServiceLocal pushNotificationService;
+
+    @Mock
+    private HealthWorkerServiceLocal healthWorkerService;
 
     @InjectMocks
     private HealthUserServiceBean healthUserService;
@@ -1012,5 +1031,702 @@ class HealthUserServiceBeanTest {
         verify(accessPolicyService, never()).hasClinicAccess(anyString(), anyString());
         verify(accessPolicyService, never()).hasHealthWorkerAccess(anyString(), anyString());
         verify(accessPolicyService, never()).hasSpecialtyAccess(anyString(), any());
+    }
+
+    // ==================== Clinical History Access Logging Tests
+    // ====================
+
+    @Test
+    @DisplayName("Logging - Should log self-access when health user accesses own clinical history")
+    void testLogging_SelfAccess() {
+        // Arrange
+        String healthUserCi = "54053584";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        // No healthWorkerCi, no clinicName, no specialtyNames = self-access
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(loggerService).logClinicalHistoryAccessBySelf(healthUserCi);
+        verify(loggerService, never()).logClinicalHistoryAccessByHealthWorker(
+                anyString(), anyString(), anyString(), anyList(), anyString());
+    }
+
+    @Test
+    @DisplayName("Logging - Should log self-access when specialty names list is null")
+    void testLogging_SelfAccessWithNullSpecialtyNames() {
+        // Arrange
+        String healthUserCi = "54053584";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setSpecialtyNames(null);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(loggerService).logClinicalHistoryAccessBySelf(healthUserCi);
+    }
+
+    @Test
+    @DisplayName("Logging - Should log BY_CLINIC access type when clinic has access")
+    void testLogging_ByClinicAccessType() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                eq(healthUserCi),
+                eq(healthWorkerCi),
+                eq(clinicName),
+                isNull(),
+                eq("BY_CLINIC"));
+        verify(loggerService, never()).logClinicalHistoryAccessBySelf(anyString());
+    }
+
+    @Test
+    @DisplayName("Logging - Should log BY_HEALTH_WORKER access type when health worker has direct access")
+    void testLogging_ByHealthWorkerAccessType() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(true);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                eq(healthUserCi),
+                eq(healthWorkerCi),
+                eq(clinicName),
+                isNull(),
+                eq("BY_HEALTH_WORKER"));
+    }
+
+    @Test
+    @DisplayName("Logging - Should log BY_SPECIALTY access type when specialty has access")
+    void testLogging_BySpecialtyAccessType() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<String> specialtyNames = List.of("Cardiology");
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(false);
+        when(accessPolicyService.hasSpecialtyAccess(healthUserCi, specialtyNames)).thenReturn(true);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                eq(healthUserCi),
+                eq(healthWorkerCi),
+                eq(clinicName),
+                eq(specialtyNames),
+                eq("BY_SPECIALTY"));
+    }
+
+    @Test
+    @DisplayName("Logging - Should log BY_SPECIALTY with multiple specialties")
+    void testLogging_BySpecialtyWithMultipleSpecialties() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<String> specialtyNames = Arrays.asList("Cardiology", "Internal Medicine", "Neurology");
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(false);
+        when(accessPolicyService.hasSpecialtyAccess(healthUserCi, specialtyNames)).thenReturn(true);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                eq(healthUserCi),
+                eq(healthWorkerCi),
+                eq(clinicName),
+                eq(specialtyNames),
+                eq("BY_SPECIALTY"));
+    }
+
+    @Test
+    @DisplayName("Logging - Should NOT log access when access is denied")
+    void testLogging_NotLoggedWhenAccessDenied() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(false);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.getHasAccess());
+        verify(loggerService, never()).logClinicalHistoryAccessBySelf(anyString());
+        verify(loggerService, never()).logClinicalHistoryAccessByHealthWorker(
+                anyString(), anyString(), anyString(), anyList(), anyString());
+    }
+
+    @Test
+    @DisplayName("Logging - Should NOT log when all access types denied including specialty")
+    void testLogging_NotLoggedWhenAllAccessTypesDenied() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<String> specialtyNames = List.of("Cardiology");
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(false);
+        when(accessPolicyService.hasSpecialtyAccess(healthUserCi, specialtyNames)).thenReturn(false);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.getHasAccess());
+        assertTrue(result.getAccessMessage().contains("Access denied"));
+        verify(loggerService, never()).logClinicalHistoryAccessBySelf(anyString());
+        verify(loggerService, never()).logClinicalHistoryAccessByHealthWorker(
+                anyString(), anyString(), anyString(), anyList(), anyString());
+    }
+
+    @Test
+    @DisplayName("Logging - Should prioritize BY_CLINIC over BY_HEALTH_WORKER and BY_SPECIALTY")
+    void testLogging_PrioritizeByClinicAccessType() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<String> specialtyNames = List.of("Cardiology");
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        // All access types return true
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(true);
+        when(accessPolicyService.hasSpecialtyAccess(healthUserCi, specialtyNames)).thenReturn(true);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert - Should log BY_CLINIC as it has highest priority
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                anyString(), anyString(), anyString(), any(), eq("BY_CLINIC"));
+    }
+
+    @Test
+    @DisplayName("Logging - Should use BY_HEALTH_WORKER when clinic access is denied but worker has access")
+    void testLogging_UseByHealthWorkerWhenClinicDenied() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<String> specialtyNames = List.of("Cardiology");
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(false);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(true);
+        when(accessPolicyService.hasSpecialtyAccess(healthUserCi, specialtyNames)).thenReturn(true);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert - Should log BY_HEALTH_WORKER as second priority
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                anyString(), anyString(), anyString(), any(), eq("BY_HEALTH_WORKER"));
+    }
+
+    @Test
+    @DisplayName("Logging - Should continue and return result even if logging throws exception")
+    void testLogging_ContinueWhenLoggingThrowsException() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        ClinicalDocumentDTO doc = new ClinicalDocumentDTO();
+        doc.setId("doc-1");
+        documents.add(doc);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        doThrow(new RuntimeException("Logging failed")).when(loggerService)
+                .logClinicalHistoryAccessByHealthWorker(anyString(), anyString(), anyString(), any(), anyString());
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert - Should not throw exception, should return valid result
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        assertEquals(1, result.getDocuments().size());
+        // Verify logging was attempted
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                anyString(), anyString(), anyString(), any(), anyString());
+    }
+
+    @Test
+    @DisplayName("Logging - Should log with specialty names when provided for clinic access")
+    void testLogging_ByClinicWithSpecialtyNames() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<String> specialtyNames = Arrays.asList("Cardiology", "Internal Medicine");
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+        request.setSpecialtyNames(specialtyNames);
+
+        // Act
+        healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        verify(loggerService).logClinicalHistoryAccessByHealthWorker(
+                eq(healthUserCi),
+                eq(healthWorkerCi),
+                eq(clinicName),
+                eq(specialtyNames),
+                eq("BY_CLINIC"));
+    }
+
+    // ==================== Push Notification Tests ====================
+
+    @Test
+    @DisplayName("PushNotification - Should send push notification when user is subscribed")
+    void testPushNotification_ShouldSendWhenSubscribed() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        HealthWorkerDTO healthWorkerDTO = new HealthWorkerDTO();
+        healthWorkerDTO.setCi(healthWorkerCi);
+        healthWorkerDTO.setFirstName("María");
+        healthWorkerDTO.setLastName("González");
+
+        NotificationToken token = new NotificationToken();
+        token.setToken("fcm-token-123");
+        List<NotificationToken> tokens = Collections.singletonList(token);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi)).thenReturn(healthWorkerDTO);
+        when(notificationTokenService.isUserSubscribedToNotificationType(healthUserCi,
+                NotificationType.CLINICAL_HISTORY_ACCESS)).thenReturn(true);
+        when(notificationTokenRepository.findByUserId(testHealthUser.getId())).thenReturn(tokens);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(pushNotificationService).sendPushNotificationToToken(
+                eq("Nuevo acceso a su historia clínica"),
+                contains("María González"),
+                eq("fcm-token-123"));
+    }
+
+    @Test
+    @DisplayName("PushNotification - Should NOT send push notification when user is not subscribed")
+    void testPushNotification_ShouldNotSendWhenNotSubscribed() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        HealthWorkerDTO healthWorkerDTO = new HealthWorkerDTO();
+        healthWorkerDTO.setCi(healthWorkerCi);
+        healthWorkerDTO.setFirstName("María");
+        healthWorkerDTO.setLastName("González");
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi)).thenReturn(healthWorkerDTO);
+        when(notificationTokenService.isUserSubscribedToNotificationType(healthUserCi,
+                NotificationType.CLINICAL_HISTORY_ACCESS)).thenReturn(false);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(pushNotificationService, never()).sendPushNotificationToToken(
+                anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("PushNotification - Should NOT send push notification for self-access")
+    void testPushNotification_ShouldNotSendForSelfAccess() {
+        // Arrange
+        String healthUserCi = "54053584";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        // Self-access: no healthWorkerCi, no clinicName
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(notificationTokenService, never()).isUserSubscribedToNotificationType(anyString(), any());
+        verify(pushNotificationService, never()).sendPushNotificationToToken(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("PushNotification - Should send push notification to multiple tokens")
+    void testPushNotification_ShouldSendToMultipleTokens() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        HealthWorkerDTO healthWorkerDTO = new HealthWorkerDTO();
+        healthWorkerDTO.setCi(healthWorkerCi);
+        healthWorkerDTO.setFirstName("María");
+        healthWorkerDTO.setLastName("González");
+
+        NotificationToken token1 = new NotificationToken();
+        token1.setToken("fcm-token-1");
+        NotificationToken token2 = new NotificationToken();
+        token2.setToken("fcm-token-2");
+        NotificationToken token3 = new NotificationToken();
+        token3.setToken("fcm-token-3");
+        List<NotificationToken> tokens = Arrays.asList(token1, token2, token3);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi)).thenReturn(healthWorkerDTO);
+        when(notificationTokenService.isUserSubscribedToNotificationType(healthUserCi,
+                NotificationType.CLINICAL_HISTORY_ACCESS)).thenReturn(true);
+        when(notificationTokenRepository.findByUserId(testHealthUser.getId())).thenReturn(tokens);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        verify(pushNotificationService, times(3)).sendPushNotificationToToken(anyString(), anyString(), anyString());
+        verify(pushNotificationService).sendPushNotificationToToken(anyString(), anyString(), eq("fcm-token-1"));
+        verify(pushNotificationService).sendPushNotificationToToken(anyString(), anyString(), eq("fcm-token-2"));
+        verify(pushNotificationService).sendPushNotificationToToken(anyString(), anyString(), eq("fcm-token-3"));
+    }
+
+    @Test
+    @DisplayName("PushNotification - Should NOT send when tokens list is empty")
+    void testPushNotification_ShouldNotSendWhenTokensEmpty() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        HealthWorkerDTO healthWorkerDTO = new HealthWorkerDTO();
+        healthWorkerDTO.setCi(healthWorkerCi);
+        healthWorkerDTO.setFirstName("María");
+        healthWorkerDTO.setLastName("González");
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi)).thenReturn(healthWorkerDTO);
+        when(notificationTokenService.isUserSubscribedToNotificationType(healthUserCi,
+                NotificationType.CLINICAL_HISTORY_ACCESS)).thenReturn(true);
+        when(notificationTokenRepository.findByUserId(testHealthUser.getId())).thenReturn(Collections.emptyList());
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(pushNotificationService, never()).sendPushNotificationToToken(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("PushNotification - Should NOT send when tokens list is null")
+    void testPushNotification_ShouldNotSendWhenTokensNull() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Clinic A";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        HealthWorkerDTO healthWorkerDTO = new HealthWorkerDTO();
+        healthWorkerDTO.setCi(healthWorkerCi);
+        healthWorkerDTO.setFirstName("María");
+        healthWorkerDTO.setLastName("González");
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi)).thenReturn(healthWorkerDTO);
+        when(notificationTokenService.isUserSubscribedToNotificationType(healthUserCi,
+                NotificationType.CLINICAL_HISTORY_ACCESS)).thenReturn(true);
+        when(notificationTokenRepository.findByUserId(testHealthUser.getId())).thenReturn(null);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        ClinicalHistoryResponseDTO result = healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getHasAccess());
+        verify(pushNotificationService, never()).sendPushNotificationToToken(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("PushNotification - Should include clinic name in notification body")
+    void testPushNotification_ShouldIncludeClinicNameInBody() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = "Hospital Central";
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        HealthWorkerDTO healthWorkerDTO = new HealthWorkerDTO();
+        healthWorkerDTO.setCi(healthWorkerCi);
+        healthWorkerDTO.setFirstName("Dr. Juan");
+        healthWorkerDTO.setLastName("Pérez");
+
+        NotificationToken token = new NotificationToken();
+        token.setToken("fcm-token-123");
+        List<NotificationToken> tokens = Collections.singletonList(token);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasClinicAccess(healthUserCi, clinicName)).thenReturn(true);
+        when(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi)).thenReturn(healthWorkerDTO);
+        when(notificationTokenService.isUserSubscribedToNotificationType(healthUserCi,
+                NotificationType.CLINICAL_HISTORY_ACCESS)).thenReturn(true);
+        when(notificationTokenRepository.findByUserId(testHealthUser.getId())).thenReturn(tokens);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert
+        verify(pushNotificationService).sendPushNotificationToToken(
+                eq("Nuevo acceso a su historia clínica"),
+                eq("Dr. Juan Pérez accedió a su historia clínica en Hospital Central"),
+                eq("fcm-token-123"));
+    }
+
+    @Test
+    @DisplayName("PushNotification - Should handle null clinic name in notification body")
+    void testPushNotification_ShouldHandleNullClinicName() {
+        // Arrange
+        String healthUserCi = "54053584";
+        String healthWorkerCi = "19301176";
+        String clinicName = null;
+        List<ClinicalDocumentDTO> documents = new ArrayList<>();
+        documents.add(new ClinicalDocumentDTO());
+
+        HealthWorkerDTO healthWorkerDTO = new HealthWorkerDTO();
+        healthWorkerDTO.setCi(healthWorkerCi);
+        healthWorkerDTO.setFirstName("María");
+        healthWorkerDTO.setLastName("González");
+
+        NotificationToken token = new NotificationToken();
+        token.setToken("fcm-token-123");
+        List<NotificationToken> tokens = Collections.singletonList(token);
+
+        when(healthUserRepository.findHealthUserByCi(healthUserCi)).thenReturn(testHealthUser);
+        when(healthUserRepository.findHealthUserClinicalHistory(healthUserCi)).thenReturn(documents);
+        when(accessPolicyService.hasHealthWorkerAccess(healthUserCi, healthWorkerCi)).thenReturn(true);
+        when(healthWorkerService.findByClinicAndCi(clinicName, healthWorkerCi)).thenReturn(healthWorkerDTO);
+        when(notificationTokenService.isUserSubscribedToNotificationType(healthUserCi,
+                NotificationType.CLINICAL_HISTORY_ACCESS)).thenReturn(true);
+        when(notificationTokenRepository.findByUserId(testHealthUser.getId())).thenReturn(tokens);
+
+        ClinicalHistoryRequestDTO request = new ClinicalHistoryRequestDTO();
+        request.setHealthUserCi(healthUserCi);
+        request.setHealthWorkerCi(healthWorkerCi);
+        request.setClinicName(clinicName);
+
+        // Act
+        healthUserService.findHealthUserClinicalHistory(request);
+
+        // Assert - clinic name should be empty string when null
+        verify(pushNotificationService).sendPushNotificationToToken(
+                eq("Nuevo acceso a su historia clínica"),
+                eq("María González accedió a su historia clínica en "),
+                eq("fcm-token-123"));
     }
 }

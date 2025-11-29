@@ -16,6 +16,9 @@ import grupo12.practico.services.AccessPolicy.AccessPolicyServiceLocal;
 import grupo12.practico.repositories.HealthUser.HealthUserRepositoryLocal;
 import grupo12.practico.repositories.NotificationToken.NotificationTokenRepositoryLocal;
 import grupo12.practico.services.NotificationToken.NotificationTokenServiceLocal;
+import grupo12.practico.services.HealthWorker.HealthWorkerServiceLocal;
+import grupo12.practico.dtos.HealthWorker.HealthWorkerDTO;
+import grupo12.practico.models.NotificationType;
 import grupo12.practico.services.PushNotificationSender.PushNotificationServiceLocal;
 import grupo12.practico.services.Clinic.ClinicServiceLocal;
 import grupo12.practico.dtos.Clinic.ClinicDTO;
@@ -50,6 +53,9 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
 
     @EJB
     private PushNotificationServiceLocal pushNotificationService;
+
+    @EJB
+    private HealthWorkerServiceLocal healthWorkerService;
 
     @EJB
     private ClinicServiceLocal clinicService;
@@ -180,6 +186,28 @@ public class HealthUserServiceBean implements HealthUserServiceRemote {
             // Self-access by health user
             loggerService.logClinicalHistoryAccessBySelf(request.getHealthUserCi());
         } else {
+            try {
+                HealthWorkerDTO healthWorkerDTO = healthWorkerService.findByClinicAndCi(request.getClinicName(),
+                        request.getHealthWorkerCi());
+                boolean isSubscribed = notificationTokenService.isUserSubscribedToNotificationType(
+                        request.getHealthUserCi(), NotificationType.CLINICAL_HISTORY_ACCESS);
+
+                if (isSubscribed) {
+                    var tokens = notificationTokenRepository.findByUserId(healthUserDTO.getId());
+                    if (tokens != null && !tokens.isEmpty()) {
+                        String title = "Nuevo acceso a su historia clínica";
+                        String clinicName = request.getClinicName() != null ? request.getClinicName() : "";
+                        String healthWorkerName = healthWorkerDTO.getFirstName() + " " + healthWorkerDTO.getLastName();
+                        String body = String.format("%s accedió a su historia clínica en %s",
+                                healthWorkerName, clinicName);
+                        for (var t : tokens) {
+                            pushNotificationService.sendPushNotificationToToken(title, body, t.getToken());
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+                logger.warning("Failed to log clinical history access by health worker: " + ignored.getMessage());
+            }
             // Access by health worker
             try {
                 String accessType = hasClinicAccess ? "BY_CLINIC"

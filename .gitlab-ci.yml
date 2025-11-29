@@ -32,25 +32,26 @@ build-image:
   only:
     - main
 
-# SonarQube analysis disabled - GitLab runner cannot reach SonarQube server from university network
-# To run analysis manually: sh scripts/sonarqube-analysis.sh (requires network access to SonarQube)
+# SonarQube analysis runs on GitHub Actions (see .github/workflows/sonarqube.yml)
+# GitLab runners cannot reach external SonarQube server from university network
+# Manual fallback: sh scripts/sonarqube-analysis.sh
 
-sonarqube:
-  image: maven:3.9-eclipse-temurin-17
-  stage: build
-  variables:
-    SONAR_HOST_URL: "$SONAR_HOST_URL"
-    SONAR_SCANNER_VERSION: "6.2.1.4610"
-  before_script:
-    - apt-get update && apt-get install -y wget unzip
-    - wget -q "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip"
-    - unzip -q "sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip"
-    - export PATH="$PWD/sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64/bin:$PATH"
-  script:
-    - mvn clean verify -DskipTests=false
-    - sonar-scanner -Dsonar.token="$SONAR_TOKEN" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.projectKey="$SONAR_PROJECT_KEY"
-  only:
-    - main
+# sonarqube:
+#   image: maven:3.9-eclipse-temurin-17
+#   stage: build
+#   variables:
+#     SONAR_HOST_URL: "$SONAR_HOST_URL"
+#     SONAR_SCANNER_VERSION: "6.2.1.4610"
+#   before_script:
+#     - apt-get update && apt-get install -y wget unzip
+#     - wget -q "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip"
+#     - unzip -q "sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux-x64.zip"
+#     - export PATH="$PWD/sonar-scanner-${SONAR_SCANNER_VERSION}-linux-x64/bin:$PATH"
+#   script:
+#     - mvn clean verify -DskipTests=false
+#     - sonar-scanner -Dsonar.token="$SONAR_TOKEN" -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.projectKey="$SONAR_PROJECT_KEY"
+#   only:
+#     - main
 
 # Deploy stage disabled - GitLab runner cannot reach EC2 from university network
 # To deploy manually after build: ssh to EC2 and run:
